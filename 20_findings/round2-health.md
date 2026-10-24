@@ -48,3 +48,27 @@
 - Gap assessment: the scheduling-software gap for small clinics is largely moot because ~50% of free clinics don't buy professional interpretation at all (cost, per Densen & Graves) — and AI interpretation is being given away free to this exact segment right now.
 
 ### VERDICT: **CROWDED** — real, dated, MA-relevant demand shock exists (WGBH 2026-09-21; MassHealth Oct 1 2026), and free-clinic interpreter deficit is well-documented (2022 study, NAFC 2025). But AI interpretation vendors (No Barrier, ClinicHub Voice Bridge) are already donating/launching into precisely this niche, and LSP scheduling software is a mature market. A hackathon build here lands on occupied ground.
+
+---
+
+## H3 — R9: Free/volunteer community clinic operations (NAFC member clinics): volunteer scheduling, non-EHR intake, supply tracking
+
+### Pain traces
+1. **CBS News / 60 Minutes, "RAM's free clinics full of needy patients, but slowed by red tape," April 5, 2026** — https://www.cbsnews.com/news/rams-free-clinics-full-of-needy-patients-but-slowed-by-red-tape-60-minutes/
+   - Thousands line up before dawn at volunteer pop-up clinics (Remote Area Medical); friction shown is regulatory (state licensing patchwork limiting volunteer doctors), not software. Shows operational strain of volunteer-run care at scale. Confidence: **verified** (dated article page seen). Pain type: regulatory, weak fit for a software pitch.
+2. **Volunteers In Medicine Jacksonville blog on NAFC 2025 Data Report** — https://www.vimjax.org/blog/nafc-2025-data-report (report published ~June 2025)
+   - NAFC 2024-2025 scale: 1,400+ clinics/pharmacies, 6M visits, 1.7M patients, 84% uninsured, **92% of the workforce are volunteers — 189,000 volunteers nationwide**. Establishes that the entire sector runs on volunteer coordination. Confidence: **verified** (page seen; figures quoted from member clinic's own blog).
+3. **NAFC 2025 Data Report via The ClinicHub LinkedIn post (~7 months before 2026-10)** — language access and infrastructure gaps already covered under H2; same report lists translation/interpretation among top-25 clinic needs. Confidence: **plausible**.
+4. **For The Record magazine, "Documentation Dilemmas: The State of Paper in Health Care," Fall 2024 (Vol. 36 No. 4 P. 6)** — https://www.fortherecordmag.com/archives/Fall24p6.shtml
+   - Industry-wide: ~16.3B pages of paper processed into EMRs; paper persists for referrals, labs, older records. General healthcare, not free-clinic-specific. Confidence: **verified** (article seen).
+5. First-person complaint from a free-clinic coordinator about scheduling/intake/supply tracking: **not found this round** despite 5 phrasings (Reddit bot-walled; queries returned vendor content or irrelevant results). "[EMPTY after phrasings: 'free clinic volunteer coordinator scheduling pain NAFC', 'free clinic paper intake forms no EHR volunteer-run struggles blog story', 'free clinic director interview our biggest challenge volunteers/paper charts']"
+
+### Crowding check (mandatory)
+- **Practice Fusion** — https://www.practicefusion.com/ehr/nonprofits-free-clinics/ : free EHR program with **NAFC partnership, 300+ free & charitable clinics** onboarded. Verified.
+- **ClinicHub** — https://theclinichub.app/ : all-in-one ops platform for free clinics & CHCs (intake, scheduling, donors; claims 60% faster intake, 30% lower tech cost); also markets "Voice Bridge" for language access. Verified.
+- **Free volunteer-scheduling tools**: YourVolunteers (https://www.yourvolunteers.com/, "the service is FREE"), Jibble volunteer hours tracking (https://www.jibble.io/volunteer-hours-tracking, free tier), Serve.Love for food banks/pantries (https://www.serve.love/food-banks/), VolunteerHub + Bloomerang guides for clinics. Verified/plausible.
+- **Intake digitization**: Medesk, Commure/Scribe templates, Freed — generic clinic intake tooling is commodity. Verified (pages seen).
+- Gap assessment: EHR + volunteer scheduling + intake each have free or discount-first options aimed exactly at NAFC clinics. No obvious uncovered sub-problem surfaced this round.
+
+### VERDICT: **CROWDED** — sector scale is documented (92% volunteer workforce, 189k volunteers, NAFC 2025), but no first-person ops-pain trace was recovered this round and every sub-problem (EHR, volunteer scheduling, intake) already has a free/discounted incumbent targeting NAFC clinics. Pain trace weak + heavy crowding.
+
