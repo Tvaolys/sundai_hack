@@ -172,6 +172,9 @@
     var labels = tooFew.map(function (name) {
       return name === "" ? "(no category)" : name;
     });
+    byId("n1-toofew-summary").textContent = labels.length
+      ? "TOO FEW CASES: " + labels.length + " categories had fewer than the minimum number of cases and are not ranked."
+      : "TOO FEW CASES: none.";
     byId("n1-toofew").textContent = labels.length
       ? "TOO FEW CASES: " + labels.join(", ")
       : "TOO FEW CASES: none.";
@@ -292,7 +295,9 @@
     });
 
     byId("n1-rows").hidden = false;
+    heading.setAttribute("tabindex", "-1");
     heading.scrollIntoView({ block: "nearest" });
+    heading.focus();
   }
 
   function openCluster(id) {

@@ -196,3 +196,16 @@ button:focus-visible {
 .n1-rows-heading {
   margin-top: 16px;
 }
+
+/* Collapsible "too few cases" list: rectangular, bordered, visible focus. */
+.n1-details summary {
+  display: inline-block;
+  border: 2px solid #111;
+  border-radius: 0;
+  padding: 0.25em 0.6em;
+  cursor: pointer;
+}
+.n1-details summary:focus-visible {
+  outline: 3px solid #111;
+  outline-offset: 2px;
+}
