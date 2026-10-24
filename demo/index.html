@@ -15,8 +15,10 @@ h1{margin:0;font-size:21px}
 h2{font-size:15px;margin:0 0 10px}
 .sub{color:var(--muted);margin:4px 0 0}
 .safety{margin:12px 20px 0;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--card);color:var(--fg);border-radius:6px;font-size:13px}
-.layout{display:grid;grid-template-columns:340px 1fr;gap:16px;padding:16px 20px}
-@media (max-width:900px){.layout{grid-template-columns:1fr}}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:16px;padding:16px 20px;align-items:start}
+/* Left panel scrolls on its own and stays in view while the results scroll. */
+.layout>aside{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow-y:auto;overscroll-behavior:contain;padding-right:6px;scrollbar-gutter:stable;scrollbar-width:thin}
+@media (max-width:900px){.layout{grid-template-columns:1fr}.layout>aside{position:static;max-height:none;overflow:visible;padding-right:0}}
 .tabs{display:flex;gap:4px;padding:8px 20px 0;background:var(--card);border-bottom:1px solid var(--line)}
 .tabs button{width:auto;background:transparent;color:var(--fg);border:1px solid transparent;border-bottom:0;border-radius:6px 6px 0 0;padding:8px 16px;margin-bottom:-1px;font-weight:600}
 .tabs button[aria-selected="true"]{background:var(--bg);border-color:var(--line);color:var(--accent)}
@@ -260,7 +262,33 @@ button:disabled{opacity:.6;cursor:wait}
   <aside>
     <p class="sos" role="note" style="margin:0 0 12px"><strong>Danger to life or a medical emergency? Call 911.</strong> This page collects reports for planning. It does not dispatch help.</p>
     <div class="card">
-      <h2>Add or import reports</h2>
+      <h2>Live incident reports</h2>
+      <label style="font-weight:400;display:flex;gap:6px;align-items:flex-start">
+        <input id="liveNws" type="checkbox" checked style="margin-top:4px">
+        <span><strong>NWS storm reports</strong> — flooding, damage, downed wires and rescues reported by spotters, the public and officials</span>
+      </label>
+      <label style="font-weight:400;display:flex;gap:6px;align-items:flex-start">
+        <input id="liveScf" type="checkbox" checked style="margin-top:4px">
+        <span><strong>SeeClickFix resident requests</strong> — open requests to the city; only emergency-related ones (flooding, wires, trees, gas, ice, blocked roads)</span>
+      </label>
+      <label style="font-weight:400;display:flex;gap:6px;align-items:flex-start">
+        <input id="liveCity" type="checkbox" checked style="margin-top:4px">
+        <span><strong>City 311 / 911</strong> — <span id="liveCityNames">NYC, Chicago, San Francisco, Austin, Boston 311 and Seattle Fire 911, when that county is loaded</span></span>
+      </label>
+      <label style="font-weight:400;display:flex;gap:6px;align-items:flex-start">
+        <input id="liveFire" type="checkbox" checked style="margin-top:4px">
+        <span><strong>Wildfires</strong> — active fires (NIFC), anywhere in the US</span>
+      </label>
+      <label style="font-weight:400;display:flex;gap:6px;align-items:flex-start">
+        <input id="liveQuake" type="checkbox" checked style="margin-top:4px">
+        <span><strong>Earthquakes people felt</strong> — USGS "Did You Feel It?", anywhere in the US</span>
+      </label>
+      <label for="liveHours">Time window</label>
+      <select id="liveHours"><option value="6">Last 6 hours</option><option value="24" selected>Last 24 hours</option><option value="72">Last 3 days</option><option value="168">Last 7 days</option><option value="720">Last 30 days</option><option value="2160">Last 90 days</option></select>
+      <p class="muted" id="liveRepNote" style="margin:6px 0 0" aria-live="polite">Watching for new reports…</p>
+    </div>
+    <div class="card">
+      <h2>Add or import your own reports</h2>
       <p class="muted" id="repArea" style="margin:0 0 6px"></p>
       <div class="row2">
         <div><label for="repType">Type</label><select id="repType"></select></div>
@@ -290,13 +318,13 @@ button:disabled{opacity:.6;cursor:wait}
     <div id="mapSlotRep"></div>
     <div class="card" style="margin-top:16px">
       <h2>Incident queue <span class="muted" id="queueCount"></span></h2>
-      <p class="muted" style="margin:0 0 8px">Resident reports, sorted by severity, then oldest first. Click one to find it on the map. Medical and life-safety reports belong with 911.</p>
+      <p class="muted" style="margin:0 0 8px">Resident reports, sorted by severity, then newest first. Click one to find it on the map. Medical and life-safety reports belong with 911.</p>
       <ul class="queue" id="queue"></ul>
     </div>
   </section>
 </div>
 </main>
-<p class="muted" style="margin:0 20px 20px">Sources: NWS active alerts and gridpoint forecast (api.weather.gov) · NOAA CO-OPS tide stations · NOAA NWPS river gauges · Open-Meteo air quality (CAMS) · MEMA power outages (MA) · MassGIS EJ 2020 block groups (MA) · CDC/ATSDR SVI 2022 (tract) · Census TIGERweb · FEMA National Flood Hazard Layer · OpenFEMA disaster declarations · ACS 2022 C16001 via Esri Living Atlas (tract) · street map: USGS The National Map (public domain).</p>
+<p class="muted" style="margin:0 20px 20px">Sources: NWS active alerts and gridpoint forecast (api.weather.gov) · NOAA CO-OPS tide stations · NOAA NWPS river gauges · Open-Meteo air quality (CAMS) · MEMA power outages (MA) · MassGIS EJ 2020 block groups (MA) · CDC/ATSDR SVI 2022 (tract) · Census TIGERweb · FEMA National Flood Hazard Layer · OpenFEMA disaster declarations · ACS 2022 C16001 via Esri Living Atlas (tract) · NWS Local Storm Reports via Iowa Environmental Mesonet · SeeClickFix public API · city open data (NYC, Chicago, San Francisco, Austin, Boston 311; Seattle Fire 911) · NIFC WFIGS wildfires · USGS earthquakes · street map: USGS The National Map (public domain).</p>
 
 <!-- Core: planning logic + live data adapters. No DOM here, so it runs headless in Node. -->
 <script id="core">
@@ -597,8 +625,9 @@ var EMO = (function () {
   // ---------- resident reports ----------
   // Types and their default severity (1 = life safety, 2 = urgent, 3 = routine). Planners can change it.
   var REPORT_TYPES = [['medical', 'Medical emergency', 1], ['help', 'Person needs help', 1], ['fire', 'Fire or smoke', 1],
-    ['wire', 'Power line down', 2], ['flooding', 'Flooded road or home', 2], ['tree', 'Fallen tree', 3],
-    ['power', 'Power out', 3], ['other', 'Other', 3]];
+    ['wire', 'Power line down', 2], ['flooding', 'Flooded road or home', 2], ['damage', 'Storm damage', 2],
+    ['road', 'Road blocked or hazard', 2], ['tree', 'Fallen tree', 3], ['ice', 'Snow or ice hazard', 3],
+    ['power', 'Power out', 3], ['quake', 'Earthquake felt', 2], ['other', 'Other', 3]];
   var SEV_TEXT = { 1: 'Life safety', 2: 'Urgent', 3: 'Routine' };
   function reportType(id) { return REPORT_TYPES.filter(function (t) { return t[0] === id; })[0] || REPORT_TYPES[REPORT_TYPES.length - 1]; }
 
@@ -632,10 +661,10 @@ var EMO = (function () {
     });
     return counts;
   }
-  // Incident queue: one plain sort — severity first, then the oldest report. No hidden score.
+  // Incident queue: one plain sort — severity first, then the newest report. No hidden score.
   function incidentQueue(reports) {
     return reports.slice().sort(function (a, b) {
-      return (a.sev - b.sev) || (Date.parse(a.time) - Date.parse(b.time)) || (a.id < b.id ? -1 : 1);
+      return (a.sev - b.sev) || (Date.parse(b.time) - Date.parse(a.time)) || (a.id < b.id ? -1 : 1);
     });
   }
 
@@ -714,6 +743,254 @@ var EMO = (function () {
     return out;
   }
 
+  // ---------- live incident reports ----------
+  // Bounding box [w, s, e, n] of the loaded areas.
+  function areaBox(rows) {
+    var b = [Infinity, Infinity, -Infinity, -Infinity];
+    rows.forEach(function (r) { var q = rowBox(r); b[0] = Math.min(b[0], q[0]); b[1] = Math.min(b[1], q[1]); b[2] = Math.max(b[2], q[2]); b[3] = Math.max(b[3], q[3]); });
+    return b;
+  }
+  function inBox(lon, lat, b) { return lon >= b[0] && lon <= b[2] && lat >= b[1] && lat <= b[3]; }
+  function clip(s, n) { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+
+  // NWS Local Storm Reports: what trained spotters, the public, police and emergency managers told
+  // the Weather Service. Only impact reports count as incidents; pure measurements (rain totals,
+  // gusts, hail size, snow depth) are skipped.
+  var LSR_TYPES = {
+    'FLASH FLOOD': ['flooding', 2], 'FLOOD': ['flooding', 2], 'COASTAL FLOOD': ['flooding', 2], 'LAKESHORE FLOOD': ['flooding', 2],
+    'STORM SURGE': ['flooding', 2], 'TSTM WND DMG': ['damage', 2], 'NON-TSTM WND DMG': ['damage', 2], 'MARINE TSTM WND DMG': ['damage', 2],
+    'DOWNBURST': ['damage', 2], 'TORNADO': ['damage', 1], 'LIGHTNING': ['damage', 2], 'WILDFIRE': ['fire', 1],
+    'DEBRIS FLOW': ['road', 2], 'LANDSLIDE': ['road', 2], 'DUST STORM': ['road', 2], 'SNOW SQUALL': ['road', 2], 'AVALANCHE': ['help', 1],
+    'ICE STORM': ['ice', 2], 'FREEZING RAIN': ['ice', 3], 'BLIZZARD': ['ice', 2], 'HEAVY SNOW': ['ice', 3], 'SLEET': ['ice', 3],
+    'EXCESSIVE HEAT': ['help', 2], 'EXTREME HEAT': ['help', 2], 'EXTR WIND CHILL': ['help', 2], 'EXTREME COLD': ['help', 2]
+  };
+  var LIFE = /rescu|trapped|stranded|swept|injur|fatal|killed|died|missing|evacuat/i;
+  function lsrKind(typetext, remark) {
+    var t = LSR_TYPES[String(typetext || '').toUpperCase()];
+    if (!t) return null;
+    if (LIFE.test(remark)) return ['help', 1];
+    if (t[0] === 'damage' || t[0] === 'ice') {
+      if (/power ?lines?|wires?|utility pole|lines? down/i.test(remark)) return ['wire', 2];
+      if (/\btrees?\b|\blimbs?\b|\bbranch/i.test(remark) && t[1] > 1) return ['tree', 2];
+    }
+    return t;
+  }
+  function loadStormReports(box, abbr, hours) {
+    var now = Date.now(), iso = function (ms) { return new Date(ms).toISOString().slice(0, 16) + 'Z'; };
+    var url = 'https://mesonet.agron.iastate.edu/geojson/lsr.geojson?sts=' + iso(now - hours * 3600000) + '&ets=' + iso(now) +
+              (abbr ? '&states=' + abbr : '');
+    return getJSON(url).then(function (j) {
+      var out = [];
+      (j.features || []).forEach(function (f, n) {
+        var p = f.properties || {}, lon = Number(p.lon), lat = Number(p.lat);
+        if (!isFinite(lon) || !isFinite(lat) || !inBox(lon, lat, box)) return;
+        var k = lsrKind(p.typetext, p.remark);
+        if (!k) return;
+        var mag = p.magnitude && p.magnitude !== '0' ? ' ' + p.magnitude + (p.unit ? ' ' + String(p.unit).toLowerCase() : '') : '';
+        out.push({ id: 'nws-' + (p.product_id || n) + '-' + Math.round(lat * 1e4) + Math.round(lon * 1e4) + '-' + String(p.typetext).replace(/\W/g, ''),
+          lat: lat, lon: lon, type: k[0], sev: k[1], time: new Date(Date.parse(p.valid) || now).toISOString(),
+          note: clip(p.typetext.charAt(0) + p.typetext.slice(1).toLowerCase() + mag + ' near ' + (p.city || '?') +
+                (p.remark ? ': ' + p.remark : '') + (p.source ? ' (' + p.source + ')' : ''), 300),
+          source: 'nws', live: true,
+          url: 'https://mesonet.agron.iastate.edu/p.php?pid=' + encodeURIComponent(p.product_id || '') });
+      });
+      return out;
+    });
+  }
+
+  // SeeClickFix: requests residents file with their city (a public 311 network used by many US
+  // towns). Most are everyday issues, so only emergency-related ones are kept.
+  // Rules run on the request's title first (the city's category plus the resident's summary). The
+  // free-text description is noisy ("fire hydrant", "tree trim"), so it gets its own stricter test.
+  // [title test, description test or null, type, severity]
+  var SCF_RULES = [
+    [/gas (leak|odor|smell)|smell(s)? (of )?gas|\bfire\b(?! hydrant| alarm| lane| station| dep| code| damage| inspect)|smoke(?! detector| alarm)/i,
+     /gas (leak|odor|smell)|smell(s)? (of )?gas|(is|are|was|caught) on fire|house fire|smoke (is )?(coming|pouring)/i, 'fire', 1],
+    [/wellness|welfare check|person (in need|down)|no heat|without heat|heat(ing)? (out|not working)/i, null, 'help', 2],
+    [/(power|electric|utility) ?(line|wire)s? (down|fallen|sparking|hanging)|(down(ed)?|fallen|sparking|hanging) (power |electric |utility )?(line|wire)s?|wires? down|pole down/i,
+     /(power|electric|utility) (line|wire)s? (down|fallen|sparking)|(downed|fallen|sparking) (power |electric |utility )?(line|wire)s?|wires? (are )?down/i, 'wire', 2],
+    [/catch ?basin|storm drain|clogged drain|drain (clog|block)/i, null, 'flooding', 3],
+    [/flood|standing water|water (in|on|over) (the )?(street|road|basement|home)|sewer back|sewage back|under water|water main break/i,
+     /(street|road|basement|home|house|school) (is )?(completely )?flood(ed|ing)|flooding (in|on) (the )?(street|road|basement|home)|water over the road/i, 'flooding', 2],
+    [/sink ?hole|cave[- ]?in|road (collapse|closed|blocked|hazard)|(road|street|storm) debris|debris (in|on|blocking) (the )?(road|street)|blocking (the )?(street|road)|traffic signal (out|down|not working|knockdown)|signal out/i, null, 'road', 2],
+    [/(tree|limb|branch)e?s? (down|fallen|fell|blocking)|(down(ed)?|fallen) (tree|limb|branch)|tree emergency|hanging limb|has fallen|fallen down|will fall|fallen tree/i,
+     /(tree|limb|branch)e?s? (is |are )?(down|fell|fallen)|(downed|fallen) (tree|limb|branch)|(tree|limb) (is )?blocking (the )?(road|street)/i, 'tree', 3],
+    [/power (out|outage)|no power|power outage/i, null, 'power', 3],
+    [/\bic(e|y)\b|snow|unplowed|unshoveled|unshovelled|sleet|slippery/i, null, 'ice', 3]
+  ];
+  // Never incidents, even when a keyword matches ("Smoke Free Area", "Lost Item in Storm Drain").
+  var SCF_SKIP = /lost item|fire escape|exhaust|food vendor|smok(ing|e[- ]free)|vaping|planting|graffiti|noise|parking|pruning|tree trim|inspection only|information only/i;
+  function scfKind(title, desc) {
+    var i;
+    if (SCF_SKIP.test(title)) return null;
+    for (i = 0; i < SCF_RULES.length; i++) if (SCF_RULES[i][0].test(title)) return [SCF_RULES[i][2], SCF_RULES[i][3]];
+    for (i = 0; i < SCF_RULES.length; i++) if (SCF_RULES[i][1] && SCF_RULES[i][1].test(desc || '')) return [SCF_RULES[i][2], SCF_RULES[i][3]];
+    return null;
+  }
+  // Up to MAX_PAGES x 100 requests (newest first); page 1 tells how many pages exist, the rest load 2 at a time.
+  var SCF_MAX_PAGES = 20;
+  function loadResidentIssues(box, hours) {
+    var after = new Date(Date.now() - hours * 3600000).toISOString().slice(0, 19) + 'Z', out = [];
+    function url(n) {
+      return 'https://seeclickfix.com/api/v2/issues?' + qs({ min_lat: box[1], min_lng: box[0], max_lat: box[3], max_lng: box[2],
+        status: 'open,acknowledged', after: after, per_page: 100, page: n });
+    }
+    function take(j) {
+      (j.issues || []).forEach(function (s) {
+        var lat = Number(s.lat), lon = Number(s.lng);
+        if (!isFinite(lat) || !isFinite(lon)) return;
+        var title = s.summary || (s.request_type && s.request_type.title) || '';
+        var k = scfKind(title, s.description);
+        if (!k) return;
+        out.push({ id: 'scf-' + s.id, lat: lat, lon: lon, type: k[0], sev: k[1], time: new Date(Date.parse(s.created_at) || Date.now()).toISOString(),
+          note: clip(title + (s.description ? ': ' + s.description : '') + (s.address ? ' — ' + s.address : ''), 300),
+          source: 'scf', live: true, url: s.html_url || '' });
+      });
+    }
+    return getJSON(url(1)).then(function (j) {
+      take(j);
+      var pg = j.metadata && j.metadata.pagination, total = pg && pg.pages ? Number(pg.pages) : 1, last = Math.min(total, SCF_MAX_PAGES);
+      var rest = [];
+      for (var n = 2; n <= last; n++) rest.push(n);
+      function batch() {
+        if (!rest.length) return Promise.resolve();
+        // Two at a time: SeeClickFix rate-limits bursts (HTTP 429). A failed page keeps what loaded so far.
+        return Promise.all(rest.splice(0, 2).map(function (n) { return getJSON(url(n)).then(take); })).then(batch, function () {
+          out.partial = true; rest = [];
+        });
+      }
+      return batch().then(function () {
+        var seen = {};
+        out = out.filter(function (r) { return seen[r.id] ? false : (seen[r.id] = 1); });   // pages can shift while loading
+        out.truncated = total > SCF_MAX_PAGES;
+        out.scanned = Math.min(total, SCF_MAX_PAGES) * 100;
+        return out;
+      });
+    });
+  }
+
+  // ---------- city 311 and 911 feeds (open data portals) ----------
+  // Picked automatically when a loaded county is one of these. The server filter only trims volume;
+  // the same rules as SeeClickFix decide what counts. Closed requests are skipped.
+  var CITY_FEEDS = [
+    { key: 'nyc', name: 'NYC 311', counties: ['36005', '36047', '36061', '36081', '36085'], tz: 'America/New_York',
+      host: 'data.cityofnewyork.us', id: 'erm2-nwe9', time: 'created_date', lat: 'latitude', lon: 'longitude', idf: 'unique_key',
+      title: ['complaint_type', 'descriptor'], addr: 'incident_address', status: 'status' },
+    { key: 'chi', name: 'Chicago 311', counties: ['17031'], tz: 'America/Chicago',
+      host: 'data.cityofchicago.org', id: 'v6vf-nfxy', time: 'created_date', lat: 'latitude', lon: 'longitude', idf: 'sr_number',
+      title: ['sr_type'], addr: 'street_address', status: 'status', where: 'duplicate = false' },
+    { key: 'sf', name: 'San Francisco 311', counties: ['06075'], tz: 'America/Los_Angeles',
+      host: 'data.sfgov.org', id: 'vw6y-z8j6', time: 'requested_datetime', lat: 'lat', lon: 'long', idf: 'service_request_id',
+      title: ['service_name', 'service_subtype'], addr: 'address', status: 'status_description' },
+    { key: 'atx', name: 'Austin 311', counties: ['48453'], tz: 'America/Chicago',
+      host: 'data.austintexas.gov', id: 'xwdj-i9he', time: 'sr_created_date', lat: 'sr_location_lat', lon: 'sr_location_long', idf: 'sr_number',
+      title: ['sr_type_desc'], addr: 'sr_location', status: 'sr_status_desc' },
+    { key: 'sea', name: 'Seattle Fire 911', counties: ['53033'], tz: 'America/Los_Angeles', is911: true,
+      host: 'data.seattle.gov', id: 'kzjm-xkqj', time: 'datetime', lat: 'latitude', lon: 'longitude', idf: 'incident_number',
+      title: ['type'], addr: 'address' },
+    { key: 'bos', name: 'Boston 311', counties: ['25025'], tz: 'America/New_York', ckan: true,
+      host: 'data.boston.gov', id: '254adca6-64ab-4c5c-9fc0-a6da622be185', time: 'open_date', lat: 'latitude', lon: 'longitude', idf: 'case_id',
+      title: ['service_name', 'case_topic'], addr: 'full_address', status: 'case_status' }
+  ];
+  var CITY_KW = ['FLOOD', 'WATER ON', 'WATER IN', 'BASEMENT', 'SEWER', 'SEWAGE', 'CAVE', 'SINK', 'TREE EMERG', 'FALLEN', 'FALL', 'LIMB', 'BRANCH',
+    'WIRE', 'POWER', 'GAS', 'ODOR', 'SMOKE', 'FIRE', 'SNOW', 'ICY', 'SIGNAL', 'DEBRIS', 'STANDING WATER', 'WATER MAIN', 'DRAIN', 'CATCH BASIN',
+    'OUTAGE', 'HAZARD', 'RESCUE', 'ELECTRICAL', 'HAZMAT', 'FUEL', 'WATER JOB'];
+  // 911 dispatch types (Seattle Fire). Medical calls are left out: they are private and not a planning signal.
+  function fire911Kind(t) {
+    if (/alarm|illegal burn|test|false/i.test(t)) return null;
+    if (/rescue (water|extrication|rope|trench|confined|swift)|water rescue/i.test(t)) return ['help', 1];
+    if (/water job|flood/i.test(t)) return ['flooding', /major/i.test(t) ? 1 : 2];
+    if (/gas leak|hazmat|fire in (building|single|residen|commercial|high)|house fire|brush fire|wildland|w\/exp|major/i.test(t)) return ['fire', 1];
+    if (/natural gas|fuel spill|fire/i.test(t)) return ['fire', 2];   // gas odor, rubbish/dumpster/car fires
+    if (/wires? down|electrical problem|transformer/i.test(t)) return ['wire', 2];
+    if (/tree/i.test(t)) return ['tree', 3];
+    return null;
+  }
+  function cityFeedsFor(counties) {
+    return CITY_FEEDS.filter(function (f) { return f.counties.some(function (c) { return counties.indexOf(c) >= 0; }); });
+  }
+  // "YYYY-MM-DD HH:MM:SS" wall-clock time in a zone (open-data portals store local time without a zone).
+  function wallClock(ms, tz) {
+    var p = {};
+    new Intl.DateTimeFormat('en-US', { timeZone: tz, hourCycle: 'h23', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit' }).formatToParts(new Date(ms)).forEach(function (x) { p[x.type] = x.value; });
+    return p.year + '-' + p.month + '-' + p.day + ' ' + p.hour + ':' + p.minute + ':' + p.second;
+  }
+  function loadCityFeed(f, box, hours) {
+    var now = Date.now(), since = wallClock(now - hours * 3600000, f.tz);
+    var offset = Date.parse(wallClock(now, f.tz).replace(' ', 'T') + 'Z') - now;   // zone offset now, in ms
+    function toIso(v) {
+      v = String(v || '');
+      if (/([+-]\d\d(:?\d\d)?|Z)$/.test(v)) {
+        var z = Date.parse(v.replace(' ', 'T').replace(/([+-]\d\d)$/, '$1:00'));
+        if (isFinite(z)) return new Date(z).toISOString();
+      }
+      var ms = Date.parse(v.replace(' ', 'T').slice(0, 19) + 'Z');
+      return new Date(isFinite(ms) ? ms - offset : now).toISOString();
+    }
+    var like = [];
+    f.title.forEach(function (fld) { CITY_KW.forEach(function (k) {
+      like.push(f.ckan ? 'upper("' + fld + '") LIKE \'%' + k + '%\'' : 'upper(' + fld + ") like '%" + k + "%'");
+    }); });
+    var req;
+    if (f.ckan) {
+      var sql = 'SELECT * FROM "' + f.id + '" WHERE "' + f.time + '" > \'' + since + '\' AND "' + f.lat + '" IS NOT NULL AND (' + like.join(' OR ') +
+                ') ORDER BY "' + f.time + '" DESC LIMIT 1000';
+      req = getJSON('https://' + f.host + '/api/3/action/datastore_search_sql?sql=' + encodeURIComponent(sql)).then(function (j) { return (j.result && j.result.records) || []; });
+    } else {
+      var where = f.time + " > '" + since.replace(' ', 'T') + "' AND " + f.lat + ' IS NOT NULL AND (' + like.join(' OR ') + ')' + (f.where ? ' AND ' + f.where : '');
+      req = getJSON('https://' + f.host + '/resource/' + f.id + '.json?' + qs({ $where: where, $order: f.time + ' DESC', $limit: 1000 }));
+    }
+    return req.then(function (rows) {
+      var out = [];
+      rows.forEach(function (r) {
+        var lat = Number(r[f.lat]), lon = Number(r[f.lon]);
+        if (!isFinite(lat) || !isFinite(lon) || !lat || !inBox(lon, lat, box)) return;
+        if (f.status && /clos|complet|resolv|cancel/i.test(r[f.status] || '')) return;
+        var title = f.title.map(function (k) { return r[k]; }).filter(function (v, i, a) { return v && a.indexOf(v) === i; }).join(' — ').replace(/_/g, ' ');
+        var k = f.is911 ? fire911Kind(title) : scfKind(title, '');
+        if (!k) return;
+        out.push({ id: f.key + '-' + r[f.idf], lat: lat, lon: lon, type: k[0], sev: k[1], time: toIso(r[f.time]),
+          note: clip(title + (r[f.addr] ? ' — ' + r[f.addr] : ''), 300), source: 'city', srcName: f.name, live: true,
+          url: f.ckan ? 'https://data.boston.gov/dataset/311-service-requests' : 'https://' + f.host + '/d/' + f.id });
+      });
+      return out;
+    });
+  }
+
+  // ---------- wildfires (NIFC WFIGS current incidents) and felt earthquakes (USGS) ----------
+  function loadWildfires(box) {
+    var url = 'https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Incident_Locations_Current/FeatureServer/0/query?' + qs({
+      where: "IncidentTypeCategory='WF' AND FireOutDateTime IS NULL", geometry: box.join(','), geometryType: 'esriGeometryEnvelope', inSR: '4326',
+      spatialRel: 'esriSpatialRelIntersects', outSR: '4326', resultRecordCount: 500, f: 'json',
+      outFields: 'IncidentName,FireDiscoveryDateTime,IncidentSize,PercentContained,UniqueFireIdentifier,POOCounty' });
+    return getJSON(url).then(function (j) {
+      if (j.error) throw new Error(j.error.message || 'NIFC error');
+      return (j.features || []).filter(function (f) { return f.geometry; }).map(function (f) {
+        var a = f.attributes || {}, size = Number(a.IncidentSize) || 0, pc = a.PercentContained == null ? null : Number(a.PercentContained);
+        var sev = pc != null && pc >= 100 ? 3 : size >= 100 ? 1 : 2;
+        return { id: 'nifc-' + (a.UniqueFireIdentifier || f.geometry.x + ',' + f.geometry.y), lat: f.geometry.y, lon: f.geometry.x, type: 'fire', sev: sev,
+          time: new Date(a.FireDiscoveryDateTime || Date.now()).toISOString(),
+          note: clip('Wildfire: ' + (a.IncidentName || 'unnamed') + ' · ' + (size ? size.toLocaleString('en-US') + ' acres' : 'size unknown') +
+                (pc != null ? ' · ' + pc + '% contained' : '') + (a.POOCounty ? ' · ' + a.POOCounty + ' County' : ''), 300),
+          source: 'nifc', live: true, url: 'https://www.nifc.gov/fire-information/nfn' };
+      });
+    });
+  }
+  function loadFeltQuakes(box, hours) {
+    var url = 'https://earthquake.usgs.gov/fdsnws/event/1/query?' + qs({ format: 'geojson', minfelt: 1, orderby: 'time',
+      starttime: new Date(Date.now() - hours * 3600000).toISOString().slice(0, 19),
+      minlongitude: box[0], minlatitude: box[1], maxlongitude: box[2], maxlatitude: box[3] });
+    return getJSON(url).then(function (j) {
+      return (j.features || []).map(function (f) {
+        var p = f.properties || {}, c = f.geometry.coordinates, mag = Number(p.mag) || 0;
+        return { id: 'usgs-' + f.id, lat: c[1], lon: c[0], type: 'quake', sev: mag >= 5 ? 1 : mag >= 4 ? 2 : 3, time: new Date(p.time).toISOString(),
+          note: clip('M' + mag.toFixed(1) + ' earthquake, ' + (p.place || '') + ' · ' + (p.felt || 0) + (p.felt === 1 ? ' person' : ' people') + ' reported feeling it', 300),
+          source: 'usgs', live: true, url: p.url || '' };
+      });
+    });
+  }
+
   // ---------- live data adapters ----------
 
   function qs(o) {
@@ -743,7 +1020,8 @@ var EMO = (function () {
     function attempt(n) {
       return once().catch(function (e) {
         if (n <= 1) throw e;
-        return new Promise(function (res) { setTimeout(res, 1000); }).then(function () { return attempt(n - 1); });
+        var wait = /HTTP 429/.test(e.message) ? 4000 : 1000;   // rate-limited: back off longer
+        return new Promise(function (res) { setTimeout(res, wait); }).then(function () { return attempt(n - 1); });
       });
     }
     return attempt(opt.tries || 2);
@@ -1244,6 +1522,9 @@ var EMO = (function () {
 
   return { STATES: STATES, AREA_DEFAULT: AREA_DEFAULT, stateInfo: stateInfo, TIERS: TIERS, TIER_TEXT: TIER_TEXT, RULES: RULES,
            REPORT_TYPES: REPORT_TYPES, SEV_TEXT: SEV_TEXT, reportType: reportType, areaAt: areaAt, assignReports: assignReports,
+           areaBox: areaBox, lsrKind: lsrKind, scfKind: scfKind, loadStormReports: loadStormReports, loadResidentIssues: loadResidentIssues,
+           CITY_FEEDS: CITY_FEEDS, cityFeedsFor: cityFeedsFor, fire911Kind: fire911Kind, loadCityFeed: loadCityFeed, wallClock: wallClock,
+           loadWildfires: loadWildfires, loadFeltQuakes: loadFeltQuakes,
            incidentQueue: incidentQueue, reportsFromCSV: reportsFromCSV, reportsToCSV: reportsToCSV, sampleReports: sampleReports,
            HAZARDS: HAZARDS, classify: classify, coastalStage: coastalStage, inArea: inArea, exposure: exposure,
            LIVE_RULES: LIVE_RULES, GAUGE_KM: GAUGE_KM, OUTAGE_PCT: OUTAGE_PCT, heatLevel: heatLevel, aqiLevel: aqiLevel,
@@ -1353,26 +1634,124 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   function areaKey() { return DATA && DATA.area ? DATA.area.state + ':' + DATA.area.counties.slice().sort().join(',') : ''; }
   function loadReports(fromSnap) {
     var all = recall(LS.reports) || {};
-    REPORTS = Array.isArray(fromSnap) ? fromSnap : (all[areaKey()] || []);
+    REPORTS = Array.isArray(fromSnap) ? fromSnap : (all[areaKey()] || []).filter(function (r) { return !r.live; });
     reportsChanged(false);
   }
   function saveReports() {
     var all = recall(LS.reports) || {};
-    all[areaKey()] = REPORTS;
+    all[areaKey()] = REPORTS.filter(function (r) { return !r.live; });   // live reports are re-fetched, not stored
     store(LS.reports, all);
   }
+
+  // Live incident reports from every ticked source, kept only inside the loaded areas.
+  // A source that fails keeps its last list; an unticked source drops out.
+  var LIVE_SEQ = 0, LIVE_LAST = {};
+  var LIVE_SRC = { nws: 'NWS storm report', scf: 'SeeClickFix', city: 'City 311', nifc: 'NIFC wildfire', usgs: 'USGS felt report' };
+  var LIVE_NOUN = { nws: ['NWS storm report', 'NWS storm reports'], scf: ['SeeClickFix request', 'SeeClickFix requests'],
+                    city: ['city 311/911 report', 'city 311/911 reports'], nifc: ['active wildfire', 'active wildfires'], usgs: ['felt earthquake', 'felt earthquakes'] };
+  // Watching: every 30 s the page asks each source again once its own wait is up, and redraws only
+  // when something changed. Waits are per source (SeeClickFix rate-limits); 7+ day windows wait 5x longer.
+  var LIVE_EVERY = { nws: 60000, city: 60000, usgs: 60000, nifc: 120000, scf: 180000 };
+  var LIVE_TICK = 30000, LIVE_TIMER = null, LIVE_WATCH = false, LIVE_FP = '', LIVE_IDS = null, LIVE_CHANGE = null;
+  $('liveHours').value = '24';
+  function srcName(rep) { return rep.srcName || LIVE_SRC[rep.source] || ''; }
+  function liveSources(box, st, hrs) {
+    var feeds = DATA.area ? EMO.cityFeedsFor(DATA.area.counties) : [];
+    $('liveCityNames').textContent = feeds.length ? feeds.map(function (f) { return f.name; }).join(', ') + ' for this area'
+      : 'none for this area (NYC, Chicago, San Francisco, Austin, Boston, Seattle)';
+    return [
+      { k: 'nws', on: $('liveNws').checked, load: function () { return EMO.loadStormReports(box, st && st.abbr, hrs); } },
+      { k: 'scf', on: $('liveScf').checked, load: function () { return EMO.loadResidentIssues(box, hrs); } },
+      { k: 'city', on: $('liveCity').checked && feeds.length > 0, load: function () {
+          return Promise.all(feeds.map(function (f) { return EMO.loadCityFeed(f, box, hrs); })).then(function (lists) { return [].concat.apply([], lists); }); } },
+      { k: 'nifc', on: $('liveFire').checked, load: function () { return EMO.loadWildfires(box); } },
+      { k: 'usgs', on: $('liveQuake').checked, load: function () { return EMO.loadFeltQuakes(box, hrs); } }
+    ];
+  }
+  function refreshLiveReports(auto) {
+    if (!DATA || !DATA.rows || !DATA.rows.length) return Promise.resolve();
+    var seq = ++LIVE_SEQ, box = EMO.areaBox(DATA.rows), st = DATA.area ? EMO.stateInfo(DATA.area.state) : null;
+    var hrs = Number($('liveHours').value) || 24, key = areaKey() + ':' + hrs;
+    var srcs = liveSources(box, st, hrs).filter(function (s) { return s.on; });
+    function get(s) {
+      var c = LIVE_LAST[s.k];
+      var wait = LIVE_EVERY[s.k] * (hrs >= 168 ? 5 : 1);
+      if (auto === true && c && c.key === key && Date.now() - c.at < wait) return Promise.resolve({ reports: c.list });
+      return s.load().then(function (list) { LIVE_LAST[s.k] = { key: key, at: Date.now(), list: list }; return { reports: list }; },
+                           function (e) { return { err: e }; });
+    }
+    if (!srcs.length) {
+      if (auto === true && !REPORTS.some(function (r) { return r.live; })) return Promise.resolve();   // already off: nothing to redraw
+      REPORTS = REPORTS.filter(function (r) { return !r.live; });
+      $('liveRepNote').textContent = 'Live reports are off.';
+      setStatus('liverep', 'ok', 'Live incident reports: off');
+      reportsChanged();
+      return Promise.resolve();
+    }
+    if (auto !== true) setStatus('liverep', 'run', 'Checking live incident reports…');
+    return Promise.all(srcs.map(get)).then(function (res) {
+      if (seq !== LIVE_SEQ || !DATA) return;
+      var prev = REPORTS.filter(function (r) { return r.live; }), fresh = [], parts = [], failed = [], cut = '';
+      srcs.forEach(function (s, i) {
+        var r = res[i], k = s.k;
+        var list = r.err ? prev.filter(function (p) { return p.source === k; }) : r.reports.filter(function (p) { return EMO.areaAt([p.lon, p.lat], DATA.rows); });
+        if (r.err) failed.push(LIVE_SRC[k]);
+        if (!r.err && r.reports.truncated) cut = ' · SeeClickFix: newest ' + fmt(r.reports.scanned) + ' requests checked';
+        if (!r.err && r.reports.partial) cut = ' · SeeClickFix limited the request rate, so only the newest requests were checked';
+        fresh = fresh.concat(list);
+        parts.push(fmt(list.length) + ' ' + LIVE_NOUN[k][list.length === 1 ? 0 : 1]);
+      });
+      // Change check: same reports, same severity and type -> nothing to redraw.
+      var scope = key + '|' + srcs.map(function (s) { return s.k; }).join(',');
+      var fp = scope + '#' + fresh.map(function (r) { return r.id + ':' + r.sev + r.type; }).sort().join(',');
+      var changed = fp !== LIVE_FP, added = 0;
+      if (changed && LIVE_IDS && LIVE_FP.split('#')[0] === scope) {
+        fresh.forEach(function (r) { if (!LIVE_IDS[r.id]) added++; });
+        LIVE_CHANGE = { at: Date.now(), added: added };
+      } else if (changed) LIVE_CHANGE = null;                     // new area, window or sources: a fresh start, not a "change"
+      LIVE_FP = fp;
+      LIVE_IDS = {};
+      fresh.forEach(function (r) { LIVE_IDS[r.id] = 1; });
+      var when = hrs < 48 ? 'last ' + hrs + ' h' : 'last ' + Math.round(hrs / 24) + ' days', now = EMO.bostonStr(Date.now()).slice(11);
+      $('liveRepNote').textContent = parts.join(' · ') + ' (wildfires: all active; others: ' + when + ')' + cut +
+        ' · watching, checked ' + now + (LIVE_CHANGE ? ' · last change ' + EMO.bostonStr(LIVE_CHANGE.at).slice(11) +
+        (LIVE_CHANGE.added ? ' (+' + LIVE_CHANGE.added + ' new)' : '') : '') +
+        (failed.length ? ' · ' + failed.join(', ') + ' failed, showing the last list' : '');
+      setStatus('liverep', failed.length ? 'err' : 'ok', 'Live incident reports: ' + parts.join(', ') + (failed.length ? ' (' + failed.join(', ') + ' failed)' : ''));
+      if (changed || auto !== true) {
+        REPORTS = REPORTS.filter(function (r) { return !r.live; }).concat(fresh);
+        reportsChanged();
+      }
+    });
+  }
+  // The watch loop. It pauses while the tab is hidden and for opened snapshots.
+  function watchLive(on) {
+    LIVE_WATCH = !!on;
+    clearTimeout(LIVE_TIMER);
+    if (!LIVE_WATCH) return;
+    LIVE_TIMER = setTimeout(function () {
+      if (!LIVE_WATCH) return;
+      if (document.visibilityState === 'hidden') { watchLive(true); return; }
+      refreshLiveReports(true).then(function () { watchLive(LIVE_WATCH); }, function () { watchLive(LIVE_WATCH); });
+    }, LIVE_TICK);
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (LIVE_WATCH && document.visibilityState === 'visible') refreshLiveReports(true);
+  });
+  ['liveNws', 'liveScf', 'liveCity', 'liveFire', 'liveQuake', 'liveHours'].forEach(function (id) { $(id).addEventListener('change', refreshLiveReports); });
   // Re-match reports to areas, redraw markers and queue, and re-plan.
   function reportsChanged(save) {
     if (!DATA) return;
     REPORT_COUNTS = REPORTS.length ? EMO.assignReports(REPORTS, DATA.rows) : null;
     if (save !== false) saveReports();
     var outside = REPORTS.filter(function (r) { return !r.areaId; }).length;
+    var nLive = REPORTS.filter(function (r) { return r.live; }).length, nOwn = REPORTS.length - nLive;
     $('tabRepCount').hidden = !REPORTS.length;
     $('tabRepCount').textContent = String(REPORTS.length);
-    $('repNoteLine').textContent = REPORTS.length
-      ? fmt(REPORTS.length) + ' report' + (REPORTS.length === 1 ? '' : 's') + (outside ? ' (' + outside + ' outside the loaded area)' : '') +
+    $('repNoteLine').textContent = nOwn
+      ? fmt(nOwn) + ' of your own report' + (nOwn === 1 ? '' : 's') + (outside ? ' (' + outside + ' outside the loaded area)' : '') +
         (REPORTS.some(function (r) { return r.source === 'sample'; }) ? ' · includes SAMPLE reports, not real' : '')
-      : 'No reports yet. CSV columns: lat, lon, and optional type, severity, time, note.';
+      : 'None of your own yet. CSV columns: lat, lon, and optional type, severity, time, note.';
     drawReports();
     renderQueue();
     render();
@@ -1419,9 +1798,10 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     setStatus('reports', 'ok', 'Loaded SAMPLE reports. They lean toward easy-to-reach areas on purpose, to show the gap.');
   });
   $('repClear').addEventListener('click', function () {
-    if (!REPORTS.length) return;
-    if (typeof confirm === 'function' && !confirm('Delete all ' + REPORTS.length + ' reports for this area? You can export them first.')) return;
-    REPORTS = [];
+    var own = REPORTS.filter(function (r) { return !r.live; }).length;
+    if (!own) return;
+    if (typeof confirm === 'function' && !confirm('Delete your ' + own + ' report' + (own === 1 ? '' : 's') + ' for this area? Live reports stay. You can export first.')) return;
+    REPORTS = REPORTS.filter(function (r) { return r.live; });
     reportsChanged();
   });
   $('quietFirst').addEventListener('change', render);
@@ -1447,7 +1827,16 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
       if (rep.note) { mid.appendChild(el('br')); mid.appendChild(el('span', { 'class': 'muted' }, rep.note)); }
       if (rep.sev === 1 && (rep.type === 'medical' || rep.type === 'help')) { mid.appendChild(el('br')); mid.appendChild(el('span', { 'class': 'st-missed' }, 'Call 911 if not already done.')); }
       li.appendChild(mid);
-      li.appendChild(el('span', { 'class': 'muted' }, ago(rep.time) + (rep.source === 'sample' ? ' · sample' : '')));
+      var right = el('span', { 'class': 'muted', style: 'text-align:right' }, ago(rep.time) + (rep.source === 'sample' ? ' · sample' : ''));
+      if (srcName(rep)) {
+        right.appendChild(el('br'));
+        if (rep.url) {
+          var a = el('a', { href: rep.url, target: '_blank', rel: 'noopener', title: 'Open the original report' }, srcName(rep) + ' ↗');
+          a.addEventListener('click', function (e) { e.stopPropagation(); });
+          right.appendChild(a);
+        } else right.appendChild(document.createTextNode(srcName(rep)));
+      }
+      li.appendChild(right);
       function go() { zoomToPoint(rep.lon, rep.lat); }
       li.addEventListener('click', go);
       li.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
@@ -1578,6 +1967,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     buildMap();
     setAdding(false);
     loadReports(fromSnapshot ? data.reports : null);
+    if (!fromSnapshot) refreshLiveReports();
+    watchLive(!fromSnapshot);
     // Start on the type of the first live NWS alert for these towns; else the first type whose live
     // conditions meet the rule; otherwise coastal flood.
     var live = relevantAlerts();
@@ -2261,7 +2652,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
       var c = svg('circle', { cx: xy[0].toFixed(1), cy: xy[1].toFixed(1), r: (base * k).toFixed(2),
         style: 'fill:' + SEV_COLOR[rep.sev] + ';stroke:var(--card);stroke-width:1.5;vector-effect:non-scaling-stroke' });
       c._r = base;
-      c.appendChild(svg('title', {}, EMO.reportType(rep.type)[1] + ' · ' + EMO.SEV_TEXT[rep.sev] + (rep.note ? ' · ' + rep.note : '') + ' · ' + ago(rep.time)));
+      c.appendChild(svg('title', {}, EMO.reportType(rep.type)[1] + ' · ' + EMO.SEV_TEXT[rep.sev] + (rep.note ? ' · ' + rep.note : '') + ' · ' + ago(rep.time) + (srcName(rep) ? ' · ' + srcName(rep) : '')));
       VIEW.reps.appendChild(c);
       VIEW.marks.push(c);
     });

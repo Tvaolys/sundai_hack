@@ -78,13 +78,27 @@ No API keys are needed.
 - **Capacity:** teams × hours × doors per hour, given out in rank order. The dashed line is where it runs out.
 - **Fairness check:** compares your rule with the biggest-first baseline.
 
-## Resident reports (RescueMesh idea)
+## Resident reports
+**Live incident reports** load on their own and are watched for changes; the map, queue and plan redraw only when a report is added, removed or changes. There is no refresh button:
+
+| Source | What it is | Kept |
+|---|---|---|
+| NWS Local Storm Reports (via Iowa Environmental Mesonet) | What spotters, the public, police and emergency managers told the Weather Service | Impact reports only (flooding, damage, wires, rescues, fire, ice). Rain totals, gusts and hail size are skipped. |
+| SeeClickFix | Open requests residents filed with their city | Emergency-related only (flooding, wires, trees, gas, ice, blocked roads). Everyday issues are skipped. |
+| City 311 / 911 open data | NYC, Chicago, San Francisco, Austin and Boston 311; Seattle Fire 911 dispatch. Used automatically when that county is loaded. | Same emergency rules; closed requests skipped. Seattle medical calls are left out. NYC posts with about a 1–2 day delay. |
+| NIFC wildfires (WFIGS) | Active wildfire incidents, US-wide | All active fires in the area, whatever the window |
+| USGS "Did You Feel It?" | Earthquakes people reported feeling, US-wide | Epicenters inside the area |
+
+Pick a window from 6 hours up to 90 days, or untick a source. Each source is re-checked once its wait is up (1 min; wildfires 2 min;
+SeeClickFix 3 min, as it rate-limits), 5x longer for 7+ day windows, and not while the tab is hidden. SeeClickFix checks at most the newest 2,000 requests in the area and backs off
+if the service limits the request rate; the page says when either happens. Each live report links to the original. Live reports
+are not stored in the browser; your own reports (added on the map, CSV, sample) are, per area. (RescueMesh idea)
 Residents' reports show where people are asking for help — but the people least likely to report are the
 ones this tool is built to find. So reports are a second layer, not a replacement:
 
 - **Add** a report by clicking the map, **import** a CSV (`lat, lon`, optional `type, severity, time, note`),
   or **load sample reports** for a demo (clearly marked SAMPLE; they lean toward easy-to-reach areas on purpose).
-- **Incident queue:** one plain sort — severity (1 life safety, 2 urgent, 3 routine), then oldest first.
+- **Incident queue:** one plain sort — severity (1 life safety, 2 urgent, 3 routine), then newest first.
   Click a report to find it on the map.
 - **Quiet at-risk areas:** exposed, in the top third of the outreach order, and no reports at all. They get
   a dashed red outline, a "Quiet" badge and a count. **Quiet at-risk areas first** sends teams there first.
