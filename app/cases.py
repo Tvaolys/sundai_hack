@@ -41,8 +41,21 @@ BBOX_LAT_MAX = 42.41
 BBOX_LON_MIN = -71.20
 BBOX_LON_MAX = -70.98
 
+# All API timestamps are presented in America/New_York. New-system rows arrive
+# in UTC and legacy naive timestamps are local Boston time; both are converted
+# to this zone here so everything downstream is consistent.
+_EASTERN_TZ = ZoneInfo("America/New_York")
 # Legacy naive timestamps are local Boston time.
-_LEGACY_TZ = ZoneInfo("America/New_York")
+_LEGACY_TZ = _EASTERN_TZ
+
+
+def _to_eastern(dt: datetime | None) -> datetime | None:
+    """Convert a tz-aware datetime to America/New_York (None stays None)."""
+    if dt is None:
+        return None
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=_EASTERN_TZ)
+    return dt.astimezone(_EASTERN_TZ)
 
 
 def _parse_on_time(value) -> bool | None:
@@ -92,7 +105,7 @@ def _parse_dt_utc(value) -> datetime | None:
         return None
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=timezone.utc)
-    return dt
+    return _to_eastern(dt)
 
 
 def _parse_dt_local(value) -> datetime | None:
@@ -108,7 +121,7 @@ def _parse_dt_local(value) -> datetime | None:
         return None
     if dt.tzinfo is None:
         dt = dt.replace(tzinfo=_LEGACY_TZ)
-    return dt
+    return _to_eastern(dt)
 
 
 def _empty(value):
@@ -178,12 +191,12 @@ def _open(path):
 
 
 def _parse_dates(row: dict) -> dict:
-    """Parse ISO date fields in a row dict to tz-aware datetimes (in place)."""
+    """Parse ISO date fields in a row dict to America/New_York datetimes (in place)."""
     for key in _DATE_FIELDS:
         val = row.get(key)
         if isinstance(val, str) and val:
             try:
-                row[key] = datetime.fromisoformat(val)
+                row[key] = _to_eastern(datetime.fromisoformat(val))
             except ValueError:
                 row[key] = None
         elif not val:

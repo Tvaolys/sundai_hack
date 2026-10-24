@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import csv
 import json
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 from hypothesis import given, strategies as st
@@ -67,11 +67,14 @@ def test_legacy_rows_normalize_to_canonical():
         assert out["on_time"] in (True, False, None)
 
 
-def test_new_open_date_is_utc_aware():
+def test_new_open_date_is_eastern_aware():
     rows = _read_rows(NEW_CSV)
     out = normalize_new(rows[0])
     assert out["open_date"].tzinfo is not None
-    assert out["open_date"].utcoffset() == timezone.utc.utcoffset(None)
+    # New-system rows arrive in UTC but are converted to America/New_York,
+    # whose offset is negative (never UTC) for Boston.
+    assert out["open_date"].utcoffset().total_seconds() < 0
+    assert str(out["open_date"].tzinfo) == "America/New_York"
 
 
 def test_legacy_open_date_is_tz_aware_eastern():
@@ -80,6 +83,28 @@ def test_legacy_open_date_is_tz_aware_eastern():
     assert out["open_date"].tzinfo is not None
     # America/New_York is never UTC.
     assert out["open_date"].utcoffset().total_seconds() != 0
+
+
+def test_new_utc_converted_to_eastern_preserves_instant():
+    # 2026-07-14 10:56:30 UTC == 06:56:30 America/New_York (EDT, -04:00).
+    out = normalize_new({"case_id": "X", "open_date": "2026-07-14T10:56:30+00:00"})
+    assert str(out["open_date"].tzinfo) == "America/New_York"
+    assert out["open_date"].hour == 6
+    assert out["open_date"].utcoffset() == timedelta(hours=-4)
+    # Same instant, just a different zone.
+    assert out["open_date"] == datetime(2026, 7, 14, 10, 56, 30, tzinfo=timezone.utc)
+
+
+def test_load_cases_new_row_output_is_eastern(tmp_path):
+    slice_path = tmp_path / "slice.json"
+    slice_path.write_text(
+        json.dumps([{"case_id": "BCS-1", "system": "new",
+                     "open_date": "2026-07-14T10:56:30+00:00"}]),
+        encoding="utf-8",
+    )
+    cases = load_cases(slice_path)
+    assert str(cases[0]["open_date"].tzinfo) == "America/New_York"
+    assert cases[0]["open_date"].utcoffset().total_seconds() < 0
 
 
 def test_bad_date_becomes_none():
