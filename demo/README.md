@@ -37,7 +37,8 @@ The map uses Web Mercator, the same projection as Google, Apple and OpenStreetMa
 The National Map basemap (public domain, no key; **Topo** or **Imagery**), with official Census county
 borders on top. Areas are see-through so streets and coastlines show underneath; untick **Street map** to hide it.
 Scroll or pinch to zoom, drag to move, double-click to zoom in, or use **+ / − / Reset**. With the map
-focused: `+` `-` `0` and the arrow keys. Click (or press Enter on) a table row to find it on the map.
+focused: `+` `-` `0` and the arrow keys. Click (or press Enter on) a table row to find it on the map; click an area
+on the map (Planning tab) to highlight it and jump to its row in the outreach table.
 
 ## Two sections
 - **Planning aid** — scenario, door-knock capacity, outreach order, languages, fairness.

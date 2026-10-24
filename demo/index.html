@@ -326,7 +326,7 @@ svg text.townlbl{font-size:calc(10px * var(--lblk, 1));font-weight:600;letter-sp
             <button type="button" id="zoomReset" class="ghost" aria-label="Show the whole area" title="Show the whole area">Reset</button>
           </div>
         </div>
-        <p class="muted" style="margin:4px 0 8px" id="mapHelp">Scroll or pinch to zoom, drag to move. Click a table row to find it on the map.</p>
+        <p class="muted" style="margin:4px 0 8px" id="mapHelp">Scroll or pinch to zoom, drag to move. Click a table row to find it on the map, or click an area to find its row.</p>
         <svg id="map" viewBox="0 0 600 450" role="img" aria-labelledby="mapDesc" tabindex="0">
           <desc id="mapDesc">Map of block groups.</desc>
         </svg>
@@ -2629,6 +2629,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     p.items.forEach(function (it) {
       var r = it.row, tr = el('tr', { 'data-id': r.id, tabindex: '0', title: 'Show on map' });
       if (!cutDone && it.status !== 'full' && it.rank > 1) tr.className = 'cut';
+      if (r.id === VIEW.hl) tr.classList.add('hl');   // keep the picked area highlighted across re-renders
       if (it.status !== 'full') cutDone = true;
       var name = el('td');
       name.appendChild(document.createTextNode(r.town + ' — ' + r.name));
@@ -2713,7 +2714,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
         }).join('L') + 'Z';
       }).join('');
       VIEW.boxes[r.id] = b;
-      var path = svg('path', { d: d, style: 'fill:var(--land);stroke:var(--bg);stroke-width:0.5' });
+      var path = svg('path', { d: d, 'data-id': r.id, style: 'fill:var(--land);stroke:var(--bg);stroke-width:0.5' });
       var title = svg('title', {}, r.town + ' — ' + r.name);
       path.appendChild(title);
       var ring = r.rings[0], cx = 0, cy = 0;
@@ -2935,7 +2936,50 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
       var p = toMap(e.clientX, e.clientY);
       zoomBy(e.deltaY < 0 ? 1.25 : 1 / 1.25, p.x, p.y);
     }, { passive: false });
-    m.addEventListener('dblclick', function (e) { if (!VIEW.vb || VIEW.adding) return; var p = toMap(e.clientX, e.clientY); zoomBy(2, p.x, p.y); });
+    var clickTimer = null;   // a single click waits briefly so a double-click can still zoom instead
+    m.addEventListener('dblclick', function (e) {
+      clearTimeout(clickTimer); clickTimer = null;
+      if (!VIEW.vb || VIEW.adding) return; var p = toMap(e.clientX, e.clientY); zoomBy(2, p.x, p.y);
+    });
+    // The area under a screen point (looks through labels and report dots drawn on top).
+    function areaAt(cx, cy) {
+      var hits = document.elementsFromPoint ? document.elementsFromPoint(cx, cy) : [];
+      for (var i = 0; i < hits.length; i++) {
+        if (hits[i].tagName === 'path' && hits[i].hasAttribute('data-id') && m.contains(hits[i])) return hits[i].getAttribute('data-id');
+      }
+      return null;
+    }
+    var helpTimer = null;
+    function mapNote(text) {
+      var h = $('mapHelp');
+      if (!helpTimer) h.dataset.base = h.textContent;
+      h.textContent = text;
+      clearTimeout(helpTimer);
+      helpTimer = setTimeout(function () { if (h.textContent === text) h.textContent = h.dataset.base; helpTimer = null; }, 4000);
+    }
+    // Click an area on the map to highlight it and jump to its row in the outreach table.
+    function pickArea(id) {
+      VIEW.hl = id;
+      if (LAST) renderMap(LAST);
+      Array.prototype.slice.call($('tbl').querySelectorAll('tr.hl')).forEach(function (x) { x.classList.remove('hl'); });
+      var tr = null;
+      Array.prototype.slice.call($('tbl').querySelectorAll('tr[data-id]')).forEach(function (x) { if (x.getAttribute('data-id') === id) tr = x; });
+      if (!tr) {
+        var v = VIEW.paths[id];
+        mapNote((v ? v.title.textContent + ' is' : 'That area is') + ' not exposed in this scenario, so it is not in the outreach table.');
+        return;
+      }
+      tr.classList.add('hl');
+      if (tr.focus) tr.focus({ preventScroll: true });
+      // Centre the row inside the table's own scroll box, then bring the table into view on the page.
+      var wrap = tr.closest('.tablewrap');
+      if (wrap) {
+        var head = wrap.querySelector('thead'), hh = head ? head.offsetHeight : 0;
+        var top = tr.getBoundingClientRect().top - wrap.getBoundingClientRect().top + wrap.scrollTop;
+        wrap.scrollTop = Math.max(0, top - hh - (wrap.clientHeight - hh - tr.offsetHeight) / 2);
+        if (wrap.scrollIntoView) wrap.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
     var down = null;
     m.addEventListener('pointerdown', function (e) {
       if (!VIEW.vb) return;
@@ -2969,6 +3013,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
         var p = toMap(e.clientX, e.clientY), ll = toLonLat(p.x, p.y);
         addReport(ll[0], ll[1]);
         setAdding(false);
+      } else if (down && !VIEW.adding && e.type === 'pointerup' && !$('panelPlan').hidden &&
+                 Math.hypot(e.clientX - down.x, e.clientY - down.y) < 6) {
+        // Planning tab: a tap on an area (not a drag) jumps to that area's table row.
+        var id = areaAt(e.clientX, e.clientY);
+        clearTimeout(clickTimer);
+        clickTimer = id == null ? null : setTimeout(function () { clickTimer = null; pickArea(id); }, 250);
       }
       down = null;
       delete pts[e.pointerId];
@@ -3093,7 +3143,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     (rep ? $('areaSlotRep') : $('areaSlotPlan')).appendChild($('areaCard'));   // state/county picker works from both tabs
     $('mapHelp').textContent = rep
       ? 'Scroll or pinch to zoom, drag to move. Use "Add a report on the map", then click where it is.'
-      : 'Scroll or pinch to zoom, drag to move. Click a table row to find it on the map.';
+      : 'Scroll or pinch to zoom, drag to move. Click a table row to find it on the map, or click an area to find its row.';
     if (!rep && VIEW.adding) setAdding(false);
     queueTiles();
   }
