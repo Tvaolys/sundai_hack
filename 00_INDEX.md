@@ -1,4 +1,29 @@
-# 00_INDEX.md — idea index (22 hypotheses processed)
+# 00_INDEX.md — idea index
+
+## Round 3 (CORRECTED TRACKS: Civic action · Robotics & hardware · Energy & climate tech · Healthcare & biotech)
+Frame: real-world problems real people/orgs have + others under-solve + uses the official MA data portal + maps to a named challenge. Independent audit applied.
+
+| slug | one-line pitch | track | I | F | N | status |
+|---|---|---|---|---|---|---|
+| n1-311triage | Boston 311 repeat-report & SLA-miss finder + EJ equity overlay | Civic action | 4 | 4 | 4 | SHORTLIST #1 (data.boston.gov Cloudflare: cache slice tonight) |
+| n6-bridgetriage | Bridge maintenance triage from MA NBI data (+ optional defect vision) | Robotics & hardware | 3 | 4 | 4 | SHORTLIST #2 (static NBI file LIVE; freeze column-decode table) |
+| n7-pathplanner | Visual "which path planner?" classifier on real Boston grid | Robotics & hardware | 3 | 5 | 4 | SHORTLIST #3 (insurance pick; pure Python offline) |
+| n2-emready | "Who gets missed" emergency-readiness equity outreach list | Civic action | 4 | 4 | 4 | SHORTLIST #4 (EJ2020+OpenFEMA+tide LIVE; no auto-alert text) |
+| n8-trialfinder | Plain-language distance-aware MA clinical-trial finder | Healthcare & biotech | 3 | 4 | 3 | SHORTLIST #5 (ClinicalTrials.gov v2 MA LIVE; discovery only) |
+| n4-climatebrief | Neighborhood climate-risk + equity brief | Energy & climate tech | 4 | 3 | 4 | PARKED (folded into n2; revive only if cut to 1 hazard) |
+| sc2-mabill | MA electric-bill supply-rate explainer, re-grounded in portal grid data | Energy & climate tech | 4 | 4 | 3 | PARKED backup (re-ground in utility-by-town + Mass Save + ISO-NE) |
+| sc7-mapermits | Source-grounded permit/application navigator | Civic action | 3 | 3 | 3 | PARKED (RE-TRACKED Energy→Civic; reuse installer traces + Boston permits) |
+| sc1-berdo-prep | Self-serve BERDO prep, grounded in Boston BERDO 2021 dataset | Energy & climate tech | 3 | 3 | 3 | PARKED (dataset now available) |
+| r10-massave-rebates | Mass Save rebate doc/status tracker | Energy & climate tech | 4 | 4 | 4 | DROPPED from lead (uses no portal data; SaaS-crowded) |
+| r1-frc-mentor | FRC mentor attendance/hours logging | Robotics & hardware | 3 | 4 | 4 | DROPPED (off robotics-track physical-AI intent; no portal data) |
+| r2-frc-inspect | FRC pre-inspection self-check from PDF | Robotics & hardware | 3 | 4 | 4 | DROPPED (off-theme; FIRST incumbent; no portal data) |
+| sc6-protocolscale | Class-scale protocol adaptation | (was Education) | 3 | 3 | 3 | KILLED R3 (no Education track; fits no corrected track) |
+| s4ref-chemval | Chem file-conversion pre-flight validator | Healthcare & biotech | 2 | 3 | 5 | PARKED low (fits track; narrow; no portal data) |
+
+## Round 1–2 archive (old/incorrect tracks: Healthtech/Biotech, Robotics, Energy, Education)
+Retained for provenance. Education is NOT a real track; Energy is "Energy & climate tech".
+
+### (original index below — 22 hypotheses processed)
 
 | slug | one-line pitch | track | impact | feasibility | novelty | status |
 |---|---|---|---|---|---|---|
