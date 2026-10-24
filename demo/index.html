@@ -25,6 +25,17 @@ h2{font-size:15px;margin:0 0 10px}
 .tabs .badge{margin-left:6px}
 .card{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:14px}
 aside .card+.card{margin-top:12px}
+/* Collapsible left-panel cards: click the title to open or close. */
+details.fold>summary{display:flex;align-items:baseline;gap:8px;cursor:pointer;list-style:none;margin:-4px 0;padding:4px 0;border-radius:4px}
+details.fold>summary::-webkit-details-marker{display:none}
+details.fold>summary::before{content:'▾';color:var(--muted);font-size:12px;width:12px;flex:none;transition:transform .15s}
+details.fold:not([open])>summary::before{transform:rotate(-90deg)}
+details.fold>summary h2{margin:0}
+details.fold>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+details.fold[open]>summary{margin-bottom:10px}
+.sumval{margin-left:auto;color:var(--muted);font-size:12px;font-weight:400;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}
+details.fold[open]>summary .sumval:not(#quietCount){display:none}
+@media (prefers-reduced-motion:reduce){details.fold>summary::before{transition:none}}
 label{display:block;font-weight:600;margin:10px 0 4px}
 select,input[type=number],input[type=text]{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font:inherit}
 input[type=range]{width:100%;accent-color:var(--accent)}
@@ -123,8 +134,8 @@ button:disabled{opacity:.6;cursor:wait}
 <div class="layout" id="panelPlan" role="tabpanel" aria-labelledby="tabPlan">
   <aside>
     <p class="safety" role="note" style="margin:0 0 12px"><strong>Planning aid only.</strong> It shows who to reach first and in which languages. It never writes or sends alert messages — a person decides and acts.</p>
-    <div class="card">
-      <h2>Scenario</h2>
+    <details class="card fold" id="foldScenario" open>
+      <summary><h2>Scenario</h2><span class="sumval" id="sumScenario"></span></summary>
       <fieldset class="hzset">
         <legend>1. Emergency type</legend>
         <div class="hzgrid" id="hazards"></div>
@@ -159,8 +170,10 @@ button:disabled{opacity:.6;cursor:wait}
         <input id="quietFirst" type="checkbox" style="margin-top:4px">
         <span><strong>Quiet at-risk areas first</strong> — exposed, in the top third of the order, and no resident reports (see the Resident reports tab)</span>
       </label>
+    </details>
 
-      <h2 style="margin-top:18px">Door-knock capacity</h2>
+    <details class="card fold" id="foldCapacity">
+      <summary><h2>Door-knock capacity</h2><span class="sumval" id="sumCapacity"></span></summary>
       <div class="row3">
         <div><label for="teams">Teams</label><input id="teams" type="number" min="0" max="500" value="20"></div>
         <div><label for="hours">Hours</label><input id="hours" type="number" min="0" max="72" value="8"></div>
@@ -168,11 +181,11 @@ button:disabled{opacity:.6;cursor:wait}
       </div>
       <p class="muted" id="capNote"></p>
       <button id="csv" type="button" style="margin-top:8px">Download outreach list (CSV)</button>
-    </div>
+    </details>
 
     <div id="areaSlotPlan">
-    <div class="card" id="areaCard">
-      <h2>Area</h2>
+    <details class="card fold" id="areaCard" open>
+      <summary><h2>Area</h2><span class="sumval" id="sumArea"></span></summary>
       <label for="state">State</label>
       <select id="state"></select>
       <fieldset>
@@ -188,7 +201,7 @@ button:disabled{opacity:.6;cursor:wait}
       </div>
       <input id="snapFile" type="file" accept="application/json,.json" hidden>
       <ul class="status" id="status" aria-live="polite" style="margin-top:10px"></ul>
-    </div>
+    </details>
     </div>
   </aside>
 
@@ -261,8 +274,8 @@ button:disabled{opacity:.6;cursor:wait}
 <div class="layout" id="panelRep" role="tabpanel" aria-labelledby="tabRep" hidden>
   <aside>
     <p class="sos" role="note" style="margin:0 0 12px"><strong>Danger to life or a medical emergency? Call 911.</strong> This page collects reports for planning. It does not dispatch help.</p>
-    <div class="card">
-      <h2>Live incident reports</h2>
+    <details class="card fold" id="foldLive" open>
+      <summary><h2>Live incident reports</h2><span class="sumval" id="sumLive"></span></summary>
       <label style="font-weight:400;display:flex;gap:6px;align-items:flex-start">
         <input id="liveNws" type="checkbox" checked style="margin-top:4px">
         <span><strong>NWS storm reports</strong> — flooding, damage, downed wires and rescues reported by spotters, the public and officials</span>
@@ -286,9 +299,9 @@ button:disabled{opacity:.6;cursor:wait}
       <label for="liveHours">Time window</label>
       <select id="liveHours"><option value="6">Last 6 hours</option><option value="24" selected>Last 24 hours</option><option value="72">Last 3 days</option><option value="168">Last 7 days</option><option value="720">Last 30 days</option><option value="2160">Last 90 days</option></select>
       <p class="muted" id="liveRepNote" style="margin:6px 0 0" aria-live="polite">Watching for new reports…</p>
-    </div>
-    <div class="card">
-      <h2>Add or import your own reports</h2>
+    </details>
+    <details class="card fold" id="foldAdd">
+      <summary><h2>Add or import your own reports</h2><span class="sumval" id="sumAdd"></span></summary>
       <p class="muted" id="repArea" style="margin:0 0 6px"></p>
       <div class="row2">
         <div><label for="repType">Type</label><select id="repType"></select></div>
@@ -306,12 +319,12 @@ button:disabled{opacity:.6;cursor:wait}
       </div>
       <input id="repFile" type="file" accept=".csv,text/csv" hidden>
       <p class="muted" id="repNoteLine">CSV columns: lat, lon, and optional type, severity, time, note.</p>
-    </div>
-    <div class="card">
-      <h2>Quiet at-risk areas <span class="muted" id="quietCount"></span></h2>
+    </details>
+    <details class="card fold" id="foldQuiet" open>
+      <summary><h2>Quiet at-risk areas</h2><span class="sumval" id="quietCount"></span></summary>
       <p class="muted" style="margin:0 0 8px">Exposed in the current planning scenario, high in the outreach order, and nobody has reported anything. Silence here may mean people can't ask for help.</p>
       <ul class="queue" id="quietList"></ul>
-    </div>
+    </details>
     <div id="areaSlotRep"></div>
   </aside>
   <section aria-label="Resident reports">
@@ -2303,8 +2316,38 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     var p = EMO.plan(DATA.rows, opts());
     LAST = p;
     $('tideOut').textContent = isFinite(p.tide) ? p.tide.toFixed(1) : '—';
-    renderAlert(p); renderStats(p); renderTable(p); renderMap(p); renderLangs(p); renderFair(p); renderQuiet(p);
+    renderAlert(p); renderStats(p); renderTable(p); renderMap(p); renderLangs(p); renderFair(p); renderQuiet(p); renderFoldSums(p);
     return p;
+  }
+
+  // ---------- collapsible left-panel cards ----------
+  // Open/closed is remembered in this browser. A closed card shows a one-line summary instead.
+  var FOLDS = ['foldScenario', 'foldCapacity', 'areaCard', 'foldLive', 'foldAdd', 'foldQuiet'];
+  LS.folds = 'emo.folds.v1';
+  (function () {
+    var saved = recall(LS.folds) || {};
+    FOLDS.forEach(function (id) {
+      var d = $(id);
+      if (Object.prototype.hasOwnProperty.call(saved, id)) d.open = !!saved[id];
+      d.addEventListener('toggle', function () {
+        var s = recall(LS.folds) || {};
+        s[id] = d.open;
+        store(LS.folds, s);
+        if (d.open) queueTiles();
+      });
+    });
+  })();
+  function renderFoldSums(p) {
+    var t = Number($('teams').value) || 0, h = Number($('hours').value) || 0, r = Number($('rate').value) || 0;
+    $('sumCapacity').textContent = t + ' teams · ' + h + ' h · ' + r + ' doors/h = ' + fmt(t * h * r) + ' doors';
+    var st = DATA && DATA.area ? EMO.stateInfo(DATA.area.state) : null;
+    $('sumArea').textContent = DATA && DATA.area ? ((DATA.area.names || []).join(', ') || DATA.area.counties.length + ' counties') + (st ? ', ' + st.abbr : '') : '';
+    $('sumScenario').textContent = p ? $('alert').textContent.split('.')[0] : '';
+    var on = ['liveNws', 'liveScf', 'liveCity', 'liveFire', 'liveQuake'].filter(function (id) { return $(id).checked; }).length;
+    var live = REPORTS.filter(function (x) { return x.live; }).length, own = REPORTS.length - live;
+    var opt = $('liveHours'), label = { '6': '6 h', '24': '24 h', '72': '3 days', '168': '7 days', '720': '30 days', '2160': '90 days' }[opt.value] || '';
+    $('sumLive').textContent = on ? fmt(live) + (live === 1 ? ' report' : ' reports') + ' · ' + on + ' of 5 sources · ' + label : 'off';
+    $('sumAdd').textContent = own ? fmt(own) + ' of yours' : 'none yet';
   }
 
   // Reports tab: the quiet at-risk areas from the current planning scenario.
@@ -2315,7 +2358,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     box.textContent = '';
     if (!p.hasReports) { $('quietCount').textContent = ''; box.appendChild(el('li', { 'class': 'muted', style: 'cursor:default' }, 'Add or import reports to find quiet areas.')); return; }
     var q = p.items.filter(function (i) { return i.quiet; });
-    $('quietCount').textContent = '(' + q.length + ')';
+    $('quietCount').textContent = q.length + (q.length === 1 ? ' area' : ' areas');
     if (!q.length) { box.appendChild(el('li', { 'class': 'muted', style: 'cursor:default' }, 'None: every high-priority exposed area has at least one report.')); return; }
     q.slice(0, 100).forEach(function (it) {
       var r = it.row, li = el('li', { tabindex: '0', title: 'Show on map' });
