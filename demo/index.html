@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EmReady — Who Gets Missed · Emergency Outreach Planner (MA)</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<style>
+  :root{
+    --bg:#0f1720; --panel:#15202b; --panel2:#1b2a38; --line:#283a4d;
+    --txt:#e7eef5; --muted:#9fb3c6; --accent:#38bdf8; --accent2:#f59e0b;
+    --hi:#ef4444; --mid:#f59e0b; --lo:#22c55e; --chip:#24374a;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       background:var(--bg);color:var(--txt)}
+  header{padding:18px 22px;border-bottom:1px solid var(--line);background:var(--panel);
+         display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+  h1{font-size:20px;margin:0}
+  .sub{color:var(--muted);font-size:13px;margin-top:4px;max-width:720px}
+  .layout{display:grid;grid-template-columns:360px 1fr;gap:0;min-height:calc(100vh - 86px)}
+  @media(max-width:900px){.layout{grid-template-columns:1fr}}
+  .side{background:var(--panel);border-right:1px solid var(--line);padding:18px;overflow:auto}
+  .main{padding:18px;overflow:auto}
+  .card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+  .card h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+  button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--chip);
+         color:var(--txt);border-radius:8px;padding:9px 12px}
+  button.primary{background:var(--accent);color:#06222e;border-color:var(--accent);font-weight:600}
+  button.primary:hover{filter:brightness(1.08)}
+  button:disabled{opacity:.5;cursor:default}
+  select{font:inherit;background:var(--chip);color:var(--txt);border:1px solid var(--line);
+         border-radius:8px;padding:9px 10px;width:100%}
+  label.fld{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
+  .trigger{display:flex;align-items:center;gap:10px;margin-top:10px}
+  .tide-big{font-size:30px;font-weight:700}
+  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
+  .badge.warn{background:rgba(239,68,68,.15);color:#fecaca;border:1px solid rgba(239,68,68,.4)}
+  .badge.ok{background:rgba(34,197,94,.15);color:#bbf7d0;border:1px solid rgba(34,197,94,.4)}
+  #map{height:380px;border-radius:12px;border:1px solid var(--line)}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th,td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:600;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
+  tr.row{cursor:pointer}
+  tr.row:hover{background:rgba(56,189,248,.07)}
+  tr.row.sel{background:rgba(56,189,248,.14)}
+  .rankpill{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;
+            border-radius:6px;font-weight:700;font-size:12px}
+  .r-hi{background:var(--hi);color:#fff}.r-mid{background:var(--mid);color:#3a2800}.r-lo{background:var(--lo);color:#063d1a}
+  .lang{display:inline-block;background:var(--chip);border:1px solid var(--line);
+        border-radius:999px;padding:1px 9px;margin:2px 4px 2px 0;font-size:12px}
+  .kpi{display:flex;gap:14px;flex-wrap:wrap}
+  .kpi .b{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:120px}
+  .kpi .n{font-size:22px;font-weight:700}.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .note{font-size:12.5px;color:var(--muted)}
+  .safety{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4);border-radius:10px;
+          padding:12px 14px;font-size:13px;color:#fde68a}
+  .trace{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;color:var(--muted)}
+  .hidden{display:none}
+  details summary{cursor:pointer;color:var(--accent);font-size:13px}
+  .evlist{display:flex;flex-direction:column;gap:6px}
+  .ev{text-align:left;width:100%}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>EmReady — Who Gets Missed</h1>
+    <div class="sub">Emergency-readiness outreach planner for small MA emergency-management offices.
+      It answers <b>which neighborhoods to door-knock first</b> and <b>in which languages</b> for a specific
+      coastal-flood event — ranked on equity, grounded in real block-group data.</div>
+  </div>
+  <div class="badge ok">n2-emready · Civic action · demo data</div>
+</header>
+
+<div class="layout">
+  <aside class="side">
+    <div class="card">
+      <h2>1 · Event trigger</h2>
+      <label class="fld">Mode</label>
+      <select id="mode">
+        <option value="live">Live coastal-flood advisory (NOAA tide)</option>
+        <option value="hist">Historical FEMA event replay</option>
+      </select>
+
+      <div id="liveBox">
+        <div class="trigger">
+          <div>
+            <div class="note">Boston tide gauge 8443970 · latest</div>
+            <div class="tide-big" id="tideVal">—</div>
+          </div>
+          <div id="tideBadge"></div>
+        </div>
+        <div class="note" style="margin-top:6px">Minor coastal-flood stage: <b>11.5 ft</b> (MLLW).
+          Crossing it fires the advisory.</div>
+      </div>
+
+      <div id="histBox" class="hidden">
+        <label class="fld">Past MA declaration (OpenFEMA)</label>
+        <div class="evlist" id="evList"></div>
+      </div>
+
+      <label class="fld" style="margin-top:14px">Priority rule (human-owned)</label>
+      <select id="rule">
+        <option value="limeng">Limited-English % first, then income, then SVI</option>
+        <option value="income">Lowest income first, then limited-English %</option>
+        <option value="svi">CDC SVI first, then limited-English %</option>
+      </select>
+      <div class="note" style="margin-top:6px">Ranks are a transparent sort on real columns —
+        normalized per capita. No black-box composite score.</div>
+
+      <button class="primary" id="run" style="width:100%;margin-top:14px">Run outreach plan</button>
+    </div>
+
+    <div class="card">
+      <h2>Hazard context</h2>
+      <div id="hazard" class="note">Run a plan to load the hazard ranking for this event type.</div>
+    </div>
+
+    <div class="safety">
+      <b>Safety guardrail.</b> EmReady outputs a prioritized outreach <b>list for a human</b> to act on.
+      It does <b>not</b> write or send any alert text — that stays with the emergency manager (liability).
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="card">
+      <h2>Flood-adjacent block groups</h2>
+      <div id="map"></div>
+      <div class="note" style="margin-top:8px">Circle size = population · color = outreach priority
+        (<span style="color:#ef4444">high</span> /
+         <span style="color:#f59e0b">medium</span> /
+         <span style="color:#22c55e">lower</span>). Click a row or a circle to highlight it.</div>
+    </div>
+
+    <div class="card" id="summaryCard">
+      <h2>Outreach summary</h2>
+      <div class="kpi" id="kpi"><div class="note">No plan run yet.</div></div>
+      <div id="langCover" style="margin-top:12px"></div>
+    </div>
+
+    <div class="card">
+      <h2>Ranked outreach priority list</h2>
+      <table id="tbl">
+        <thead><tr>
+          <th>#</th><th>Block group / town</th><th>Lim-Eng %</th><th>Median income</th>
+          <th>SVI</th><th>Pop</th><th>Languages to cover</th>
+        </tr></thead>
+        <tbody id="rows"><tr><td colspan="7" class="note">Run a plan to populate.</td></tr></tbody>
+      </table>
+      <details style="margin-top:10px"><summary>Why this order? (traceability)</summary>
+        <div class="trace" id="trace" style="margin-top:8px">—</div>
+      </details>
+    </div>
+  </main>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="./data.js"></script>
+<script>
+const D = window.EMREADY;
+const $ = s => document.querySelector(s);
+const fmtUSD = n => "$" + n.toLocaleString("en-US");
+
+// ---------- map (optional: app works even if Leaflet fails to load) ----------
+let map=null, layer=null, mapReady=false;
+function initMap(){
+  try{
+    if(typeof L==="undefined"){ throw new Error("Leaflet not loaded"); }
+    map = L.map("map",{scrollWheelZoom:false}).setView([42.42,-70.98],9);
+    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{
+      attribution:'© OpenStreetMap, © CARTO', maxZoom:18
+    }).addTo(map);
+    layer = L.layerGroup().addTo(map);
+    mapReady = true;
+  }catch(err){
+    mapReady = false;
+    const el=document.getElementById("map");
+    if(el){ el.innerHTML='<div style="padding:16px" class="note">Map unavailable offline '+
+      '(could not load Leaflet). The ranked list, languages and hazard context below '+
+      'still work.</div>'; }
+    console.warn("map init skipped:", err);
+  }
+}
+const markers = {};
+function drawMap(ranked){
+  if(!mapReady || !layer) return;
+  layer.clearLayers();
+  for(const k in markers) delete markers[k];
+  const pts=[];
+  ranked.forEach(bg=>{
+    const color = bg.band==="hi"?"#ef4444":bg.band==="mid"?"#f59e0b":"#22c55e";
+    const r = 6 + Math.sqrt(bg.pop)/6;
+    const m = L.circleMarker([bg.lat,bg.lng],{radius:r,color:color,weight:2,
+              fillColor:color,fillOpacity:.45});
+    m.bindTooltip(`#${bg.rank} ${bg.town} · ${bg.limEngPct}% lim-Eng · ${fmtUSD(bg.mhhi)}`);
+    m.on("click",()=>select(bg.id));
+    m.addTo(layer); markers[bg.id]=m; pts.push([bg.lat,bg.lng]);
+  });
+  if(pts.length) map.fitBounds(pts,{padding:[30,30],maxZoom:11});
+}
+
+// ---------- ranking ----------
+function band(i,n){ const q=i/n; return q<0.34?"hi":q<0.67?"mid":"lo"; }
+
+function rank(rule, inScopeTowns){
+  // only flood-adjacent block groups inside the event footprint
+  let pool = D.blockGroups.filter(b=>b.floodAdj);
+  if(inScopeTowns) pool = pool.filter(b=>inScopeTowns.includes(b.town));
+  const cmp = {
+    limeng: (a,b)=> b.limEngPct-a.limEngPct || a.mhhi-b.mhhi || b.svi-a.svi,
+    income: (a,b)=> a.mhhi-b.mhhi || b.limEngPct-a.limEngPct || b.svi-a.svi,
+    svi:    (a,b)=> b.svi-a.svi || b.limEngPct-a.limEngPct || a.mhhi-b.mhhi
+  }[rule];
+  pool = pool.slice().sort(cmp);
+  const n = pool.length;
+  return pool.map((b,i)=>({...b, rank:i+1, band:band(i,n)}));
+}
+
+function ruleText(rule){
+  return {
+    limeng:"sorted by limited-English household % (desc), ties broken by lower median income, then higher CDC SVI",
+    income:"sorted by lower median household income, ties broken by higher limited-English %, then higher CDC SVI",
+    svi:"sorted by CDC SVI (desc), ties broken by higher limited-English %, then lower income"
+  }[rule];
+}
+
+// ---------- render ----------
+let selectedId=null;
+function select(id){
+  selectedId=id;
+  document.querySelectorAll("tr.row").forEach(tr=>tr.classList.toggle("sel",tr.dataset.id===id));
+  if(mapReady && markers[id]){ map.panTo(markers[id].getLatLng()); markers[id].openTooltip(); }
+}
+
+function render(ranked, rule, eventType){
+  // table
+  const tb=$("#rows"); tb.innerHTML="";
+  ranked.forEach(bg=>{
+    const tr=document.createElement("tr");
+    tr.className="row"; tr.dataset.id=bg.id;
+    const rc = bg.band==="hi"?"r-hi":bg.band==="mid"?"r-mid":"r-lo";
+    tr.innerHTML = `
+      <td><span class="rankpill ${rc}">${bg.rank}</span></td>
+      <td><b>${bg.town}</b><div class="trace">${bg.id}</div></td>
+      <td>${bg.limEngPct}%</td>
+      <td>${fmtUSD(bg.mhhi)}</td>
+      <td>${bg.svi.toFixed(2)}</td>
+      <td>${bg.pop.toLocaleString()}</td>
+      <td>${bg.languages.length?bg.languages.map(l=>`<span class="lang">${l}</span>`).join(""):'<span class="note">English only</span>'}</td>`;
+    tr.onclick=()=>select(bg.id);
+    tb.appendChild(tr);
+  });
+
+  // KPIs
+  const households = ranked.reduce((s,b)=>s+b.pop,0);
+  const highN = ranked.filter(b=>b.band==="hi").length;
+  const langs = [...new Set(ranked.flatMap(b=>b.languages))];
+  $("#kpi").innerHTML = `
+    <div class="b"><div class="n">${ranked.length}</div><div class="l">Block groups</div></div>
+    <div class="b"><div class="n">${highN}</div><div class="l">High priority</div></div>
+    <div class="b"><div class="n">${households.toLocaleString()}</div><div class="l">People in scope</div></div>
+    <div class="b"><div class="n">${langs.length}</div><div class="l">Languages</div></div>`;
+
+  // language coverage
+  const counts={};
+  ranked.forEach(b=>b.languages.forEach(l=>counts[l]=(counts[l]||0)+1));
+  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
+  $("#langCover").innerHTML = `<div class="note" style="margin-bottom:6px">Outreach must cover these languages
+     (count = block groups needing each):</div>` +
+     (sorted.length ? sorted.map(([l,c])=>`<span class="lang">${l} · ${c}</span>`).join("")
+                    : '<span class="note">English only in scope.</span>');
+
+  // hazard context
+  const hz = D.hazardContext[eventType] || D.hazardContext["Coastal Flood"];
+  $("#hazard").innerHTML = `<b>${eventType}</b> — statewide hazard rank <b>#${hz.rank}</b>.<br>${hz.note}
+     <div style="margin-top:6px">${hz.drivers.map(d=>`<span class="lang">${d}</span>`).join("")}</div>`;
+
+  // trace
+  $("#trace").textContent =
+    `rule = ${rule}; order = ${ruleText(rule)}. ` +
+    `Pool = flood-adjacent block groups in the event footprint (${ranked.length}). ` +
+    `Every value is a raw column from EJ2020 (LIMENGHHPCT, BG_MHHI, PCT_MINORITY), CDC SVI, ` +
+    `and population for per-capita normalization — no composite black-box score.`;
+
+  drawMap(ranked);
+  if(selectedId) select(selectedId);
+}
+
+// ---------- trigger wiring ----------
+function latestTide(){ return D.tide.series.reduce((m,p)=>p.h>m.h?p:m, D.tide.series[0]); }
+function paintTide(){
+  const peak = latestTide();
+  $("#tideVal").textContent = peak.h.toFixed(1) + " ft";
+  const over = peak.h >= D.tide.floodThreshold;
+  $("#tideBadge").innerHTML = over
+    ? `<span class="badge warn">ADVISORY · over ${D.tide.floodThreshold} ft</span>`
+    : `<span class="badge ok">below stage</span>`;
+}
+
+function run(){
+  const mode=$("#mode").value, rule=$("#rule").value;
+  let eventType="Coastal Flood", towns=null;
+  if(mode==="hist"){
+    const ev = D.historicalEvents.find(e=>e.id===$("#evList").dataset.sel) || D.historicalEvents[0];
+    eventType = ev.incidentType; towns = ev.towns;
+  }
+  const ranked = rank(rule, towns);
+  render(ranked, rule, eventType);
+}
+
+function buildEvList(){
+  const box=$("#evList");
+  box.innerHTML="";
+  D.historicalEvents.forEach((e,i)=>{
+    const b=document.createElement("button");
+    b.className="ev"+(i===0?" primary":"");
+    b.innerHTML=`<b>${e.title}</b><br><span class="note">${e.id} · ${e.date} · ${e.incidentType}</span>`;
+    b.onclick=()=>{ box.dataset.sel=e.id; [...box.children].forEach(c=>c.classList.remove("primary")); b.classList.add("primary"); };
+    box.appendChild(b);
+  });
+  box.dataset.sel = D.historicalEvents[0].id;
+}
+
+$("#mode").onchange = e=>{
+  const hist = e.target.value==="hist";
+  $("#liveBox").classList.toggle("hidden",hist);
+  $("#histBox").classList.toggle("hidden",!hist);
+};
+$("#run").onclick = run;
+
+// init — bind handlers and build the list FIRST, so a map failure can't disable the button
+paintTide();
+buildEvList();
+run();        // show the headline coastal-flood plan immediately
+initMap();    // optional; render map last
+if(mapReady) run();  // redraw markers now that the map exists
+</script>
+</body>
+</html>
