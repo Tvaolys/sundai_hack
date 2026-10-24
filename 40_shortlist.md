@@ -100,3 +100,10 @@ NCTId record (Gate 5). Full card: 30_candidates/n8-trialfinder.md
    revived; verify a working date range first.
 5. Track strategy: the shortlist spans all 4 tracks. Does the team want to concentrate on
    one track (Civic is widest-open with n1+n2) or hedge across tracks?
+
+
+
+## MY IDEAS
+RescueMesh: RescueMesh is an emergency-response platform that helps communities decide which incidents need attention first during disasters like floods, storms, fires, or power outages. Residents can report problems such as flooded roads, fallen trees, medical emergencies, or people needing assistance. The system analyzes and prioritizes those reports based on severity and urgency, then uses a map and routing algorithms to help emergency responders determine which incidents to handle first and how to reach them efficiently.
+
+GridGuard: GridGuard is a power-grid resilience simulator designed to help communities maintain electricity during storms or infrastructure failures. The power network is represented as a graph containing energy sources, substations, batteries, homes, hospitals, and emergency shelters. When part of the grid fails, GridGuard identifies affected areas and determines how the remaining electricity should be rerouted and prioritized, making sure critical facilities like hospitals receive power first while maximizing the number of people who can remain connected.
