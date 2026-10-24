@@ -1,17 +1,19 @@
 # Tech context (always loaded)
 
 ## Stack
-<TODO: e.g. Python 3.12 + FastAPI backend, React + Vite frontend>
+Python 3.12 + FastAPI + uvicorn backend. Frontend: plain HTML/CSS/JS in `app/static/`
+(no framework, no build step, no CDN — everything served locally for an offline demo).
 
 ## Layout
-<TODO: e.g. app/ = code, tests/ = tests, data/ = cached datasets & fixtures>
+app/ = code, app/static/ = UI, scripts/ = one-off data fetchers, data/ = cached JSON
+datasets & fixtures, tests/ = tests.
 Planning research (00_INDEX.md, 10_seeds.md, 20_findings/, 30_candidates/, 40_shortlist.md,
 report/) is reference material. Do not edit it while implementing.
 
 ## Commands
-- Install: <TODO>
-- Run app: <TODO>
-- Run tests: <TODO, e.g. `python3 -m pytest -q`>
+- Install: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt`
+- Run app: `.venv/bin/uvicorn app.server:app --reload`
+- Run tests: `.venv/bin/python -m pytest -q`
 
 ## Testing
 - Every task ships with at least one test that runs fast and offline.
