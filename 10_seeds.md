@@ -27,3 +27,14 @@
 - SC6 [Biotech] Lab-notebook→protocol converter for undergrad bio teaching labs: instructors need protocols adjusted for class scale (30 students, shared equipment). Verify: r/labrats, biology faculty listservs.
 - SC7 [Energy] MA solar permitting: small installers face town-by-town permitting variance. Tool: per-town checklist/explainer from public bylaws. Verify: MassSolar docs, r/massachusetts, MA DOER.
 - SC8 [Education] Sign-language / accessibility captioning QA: auto-generated captions in recorded lectures have predictable error classes; tool flags likely STEM-term caption errors for disability-services staff. Verify: disability services blogs, NCSPOD listservs.
+## Round 2 seeds (human challenge + Scout expansion, 2026-10-24)
+- R1 [Robotics] FIRST/FRC/FTC mentor logistics: volunteer mentors run teams on spreadsheets; build-season tracking, parent comms, tooling checklists. Huge MA FRC ecosystem. Cow-test candidate.
+- R2 [Robotics] FRC/FTC competition inspection & judging paperwork is paper-checklist based; referee/volunteer tooling gaps.
+- R3 [Healthtech] Food pantry / food-rescue operations: volunteer-run inventory + rescue-route matching on spreadsheets. MA food insecurity high. Check crowding: Food Rescue US, FoodBank APIs.
+- R4 [Energy] Heat-pump installer quoting bottleneck: MA Mass Save/HEAT-loan push created installer backlog; quoting/proposal pain for small contractors.
+- R5 [Energy] Condo EV-charger processes: MA right-to-charge law; owners face board approval + installer coordination.
+- R6 [Healthtech] Medical interpreter scheduling/booking for small clinics and free community health centers.
+- R7 [Education] Science-fair / olympiad / competition volunteer + judge coordination for school STEM events.
+- R8 [Education] Substitute-teacher coordination pain for small districts.
+- R9 [Healthtech] Free/volunteer clinic operations (MA community free health centers): intake, volunteer scheduling, supply tracking.
+- R10 [Energy] Mass Save rebate paperwork pain for homeowners/contractors: form sprawl, documentation.
