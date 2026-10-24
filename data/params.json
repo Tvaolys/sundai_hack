@@ -1,7 +1,7 @@
 {
   "cluster_distance_m": 50,
   "cluster_window_days": 14,
-  "min_n": 20,
+  "min_n": 50,
   "lim_eng_pct_threshold": 25,
   "window_start": "2026-01-01",
   "exclude_sources": ["Employee Generated", "City Worker App"],

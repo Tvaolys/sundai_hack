@@ -29,7 +29,7 @@ Module names deliberately differ from emready (`app/ej.py` etc.) so the branches
 | `data/raw/311_legacy_2026.csv` (gitignored) | data.boston.gov 311, LEGACY system export 2026, browser download | see schema B | human |
 | `data/neighborhood_map.json` | curated (below) | raw name → canonical | human |
 | `data/category_map.json` | curated (below) | raw category → canonical | human |
-| `data/311_slice.json` | `scripts/slim_311.py` (both files merged) | case_id, system, source, open_date, close_date, category, raw_category, case_status, on_time, neighborhood, ward, address, latitude, longitude | script |
+| `data/311_slice.json.gz` | `scripts/slim_311.py` (both files merged; gzip columnar JSON, 5.5 MB, 150,822 rows) | case_id, system, source, open_date, close_date, category, raw_category, case_status, on_time, neighborhood, ward, address, latitude, longitude | script |
 | `data/ej2020_boston.json` | MassGIS EJ2020 ArcGIS (LIVE), `MUNICIPALITY='Boston'`, `outSR=4326`, with geometry | GEOID, LIMENGHHPCT, PCT_MINORITY, BG_MHHI, EJ criteria flags, rings | script |
 | `data/params.json` | human-tuned thresholds (below) | | human |
 
@@ -94,7 +94,7 @@ Every entry carries `"placeholder": true` until a human confirms.
 ## Rules (PLACEHOLDER defaults in `data/params.json` until a human confirms)
 - Duplicate rule: same `category`, within **50 m** of the cluster seed, opened within **14 days**
   after the seed. Seed order: by open_date, then case_id (deterministic). Greedy single pass.
-- Minimum count for a category to be ranked / a group to be compared: **20** reports with known SLA.
+- Minimum count for a category to be ranked / a group to be compared: **50** (raised from 20 after H2) reports with known SLA.
 - "Limited-English EJ block group": `LIMITEDENGLISH == 'E'` (CONFIRMED 2026-10-24: 72 of 462 Boston
   EJ block groups). Comparison = reports in those block groups vs. all other reports in the
   neighborhood. NOTE: the EJ2020 layer contains ONLY EJ block groups (all 462 Boston rows have
@@ -103,6 +103,10 @@ Every entry carries `"placeholder": true` until a human confirms.
   (maxRecordCount 2000; fields GEOID, MUNICIPALITY, TOTAL_POP, PCT_MINORITY, LIMENGHHPCT, BG_MHHI,
   LIMITEDENGLISH, EJ_CRITERIA, EJ_CRIT_DESC).
 - Late rate = late / (on-time + late). Unknown excluded (req 2).
+- Category-mix adjustment (added after H2 analysis): for each group, expected late rate =
+  mean over its cases of the CITY-WIDE late rate of that case's (category, system). Show
+  observed, expected, and excess = observed − expected (percentage points). The equity box leads
+  with excess, not the raw gap, because raw gaps are dominated by what people report.
 - Chronic ranking: late rate desc, then late count desc, then category asc.
 
 ## API
@@ -129,6 +133,21 @@ Markers: late = filled square (#b00020), on-time = hollow circle (#1a5e1a).
 Pick the neighborhood the human chose → stats line → "top chronic category is X, 41% late (82/200)"
 → map shows one big cluster of N duplicate reports collapsed to one marker → open it, raw rows
 → equity box: late rate in limited-English EJ block groups vs others, with counts and the caveat.
+
+## H2 analysis (2026-10-24, lead, on the real slice)
+City-wide: limited-English EJ blocks 32.07% late vs other 32.06% — no raw gap.
+Per neighborhood (raw late %, LE vs other → excess after category-mix adjustment):
+- Downtown (incl. Chinatown): 50.1% (n=2513) vs 36.7% (n=8200) → excess +0.5 vs +2.7 pt.
+  The raw gap is almost entirely category mix (950 "Illegal Parking", e.g. Tyler St).
+- Roslindale: 43.9% (403) vs 33.8% (5253) → excess +4.3 vs +0.2 pt; same direction in new-system-only data.
+- Hyde Park: 34.3% (353) vs 29.8% (3843) → excess +5.8 vs +0.5 pt.
+- Dorchester, East Boston, Roxbury: LE blocks do slightly BETTER than other blocks.
+Legacy system late rate (~38%) is far above new (~25%) → SLA definitions likely differ; the
+adjustment's per-(category, system) baseline absorbs this.
+Proposed demo: Downtown first (big raw gap → "but it's the category mix" = the tool is honest),
+then Roslindale (a gap that survives adjustment, small n, clearly labeled). Top Downtown cluster:
+Illegal Parking, 35 reports, 20 late. min_n raised 20 → 50: at 20, one-off categories
+("Planting Request", 20 cases) topped the chronic list.
 
 ## Risks
 - Cloudflare: no runtime fetch; the human downloads in a browser. Without this file the demo

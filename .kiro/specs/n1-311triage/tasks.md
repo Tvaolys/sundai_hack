@@ -11,7 +11,7 @@ Tasks marked HUMAN are not dispatched to executors.
 
 - [x] T1: Fixtures + 311 row normalizer (both schemas)
   - Files: tests/fixtures/311_new_sample.csv, tests/fixtures/311_legacy_sample.csv, app/cases.py, tests/test_cases.py
-  - Done when: each fixture has ~25 rows using the exact header of its raw file (design.md "Raw schemas") incl. missing on_time, no coords, out-of-bbox coords, bad dates, `&amp;` in legacy addresses, both timestamp formats; `normalize_new(row)` / `normalize_legacy(row)` return the canonical fields (on_time True/False/None, lat/lon None when invalid, tz-aware open_date, `system` = "new"/"legacy"); `load_cases(path)` reads `data/311_slice.json`; hypothesis test: on_time is always in {True, False, None}.
+  - Done when: each fixture has ~25 rows using the exact header of its raw file (design.md "Raw schemas") incl. missing on_time, no coords, out-of-bbox coords, bad dates, `&amp;` in legacy addresses, both timestamp formats; `normalize_new(row)` / `normalize_legacy(row)` return the canonical fields (on_time True/False/None, lat/lon None when invalid, tz-aware open_date, `system` = "new"/"legacy"); `load_cases(path)` reads `data/311_slice.json.gz`; hypothesis test: on_time is always in {True, False, None}.
   - Depends on: none
 
 - [x] T2: Geo helpers
@@ -34,9 +34,9 @@ Tasks marked HUMAN are not dispatched to executors.
   - Done when: both JSON files implement the design.md maps (category list completed for every raw value with ≥ 200 resident rows, computed from data/raw/ and the count recorded per entry; each entry `"placeholder": true`); `canon_neighborhood(raw)` / `canon_category(raw)` fall back per design.md ("UNKNOWN" / raw name); tests: every seed pair from design.md maps correctly, unknown values pass through, property test that canon_* is idempotent.
   - Depends on: none
 
-- [ ] T5: Slim script merging both exports
+- [x] T5: Slim script merging both exports
   - Files: scripts/slim_311.py, tests/test_slim.py
-  - Done when: reads both raw files via `app/cases.py` normalizers, applies the resident filter from params.json and `app/names.py` maps, keeps open_date ≥ 2026-01-01, rounds coords to 5 dp, writes `data/311_slice.json` plus a printed summary (rows per system, excluded by source, per-month counts); exits non-zero with a clear message naming any missing required column; test runs it on both T1 fixtures into a tmp dir and checks row counts and the filter.
+  - Done when: reads both raw files via `app/cases.py` normalizers, applies the resident filter from params.json and `app/names.py` maps, keeps open_date ≥ 2026-01-01, rounds coords to 5 dp, writes `data/311_slice.json.gz` plus a printed summary (rows per system, excluded by source, per-month counts); exits non-zero with a clear message naming any missing required column; test runs it on both T1 fixtures into a tmp dir and checks row counts and the filter.
   - Depends on: T1, T3, T12
 
 - [x] T6: EJ2020 Boston fetch + loader + assignment
@@ -44,10 +44,15 @@ Tasks marked HUMAN are not dispatched to executors.
   - Done when: script pages through MassGIS EJ2020 for Boston with geometry (outSR=4326, coords rounded to 5 dp) and the cache is committed; executor reports the real field names for the language-isolation flag; `load_block_groups()` normalizes LIMENGHHPCT to 0–100; `assign(cases, bgs)` sets `geoid` via `app/geo.point_in_polygon` with bbox prefilter; offline tests on a 3-polygon fixture.
   - Depends on: T2
 
-- [ ] T7: EJ vs non-EJ comparison
+- [x] T7: EJ vs non-EJ comparison
   - Files: app/overlay.py, tests/test_overlay.py
   - Done when: `compare(cases, bgs, params)` returns late/known/rate for limited-English EJ vs other, or "NOT ENOUGH DATA TO COMPARE" below min_n; property test: the two groups' known counts sum to the number of assigned cases with known SLA.
   - Depends on: T3, T6
+
+- [ ] T13: Category-mix adjustment in overlay (added after H2 analysis)
+  - Files: app/overlay.py, tests/test_overlay.py
+  - Done when: `baseline(all_cases)` returns city-wide late rate per (category, system); `compare(cases, bgs, min_n, base=None)` adds `expected` and `excess_pt` per group when `base` given, per design.md "Category-mix adjustment"; tests: if every case's late outcome equals its category baseline exactly, excess is 0; property test: expected in [0, 1].
+  - Depends on: T7
 
 - [ ] H2 (HUMAN): Run slim on the real export and pick the demo neighborhood
   - Files: data/311_slice.json, data/params.json
