@@ -1,340 +1,472 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>EmReady — Who Gets Missed · Emergency Outreach Planner (MA)</title>
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Who Gets Missed — Emergency Outreach Planner (demo)</title>
 <style>
-  :root{
-    --bg:#0f1720; --panel:#15202b; --panel2:#1b2a38; --line:#283a4d;
-    --txt:#e7eef5; --muted:#9fb3c6; --accent:#38bdf8; --accent2:#f59e0b;
-    --hi:#ef4444; --mid:#f59e0b; --lo:#22c55e; --chip:#24374a;
-  }
-  *{box-sizing:border-box}
-  body{margin:0;font:15px/1.5 -apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-       background:var(--bg);color:var(--txt)}
-  header{padding:18px 22px;border-bottom:1px solid var(--line);background:var(--panel);
-         display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
-  h1{font-size:20px;margin:0}
-  .sub{color:var(--muted);font-size:13px;margin-top:4px;max-width:720px}
-  .layout{display:grid;grid-template-columns:360px 1fr;gap:0;min-height:calc(100vh - 86px)}
-  @media(max-width:900px){.layout{grid-template-columns:1fr}}
-  .side{background:var(--panel);border-right:1px solid var(--line);padding:18px;overflow:auto}
-  .main{padding:18px;overflow:auto}
-  .card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
-  .card h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
-  button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--chip);
-         color:var(--txt);border-radius:8px;padding:9px 12px}
-  button.primary{background:var(--accent);color:#06222e;border-color:var(--accent);font-weight:600}
-  button.primary:hover{filter:brightness(1.08)}
-  button:disabled{opacity:.5;cursor:default}
-  select{font:inherit;background:var(--chip);color:var(--txt);border:1px solid var(--line);
-         border-radius:8px;padding:9px 10px;width:100%}
-  label.fld{display:block;font-size:12px;color:var(--muted);margin:10px 0 4px}
-  .trigger{display:flex;align-items:center;gap:10px;margin-top:10px}
-  .tide-big{font-size:30px;font-weight:700}
-  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;font-weight:600}
-  .badge.warn{background:rgba(239,68,68,.15);color:#fecaca;border:1px solid rgba(239,68,68,.4)}
-  .badge.ok{background:rgba(34,197,94,.15);color:#bbf7d0;border:1px solid rgba(34,197,94,.4)}
-  #map{height:380px;border-radius:12px;border:1px solid var(--line)}
-  table{width:100%;border-collapse:collapse;font-size:13.5px}
-  th,td{text-align:left;padding:8px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-  th{color:var(--muted);font-weight:600;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase}
-  tr.row{cursor:pointer}
-  tr.row:hover{background:rgba(56,189,248,.07)}
-  tr.row.sel{background:rgba(56,189,248,.14)}
-  .rankpill{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;
-            border-radius:6px;font-weight:700;font-size:12px}
-  .r-hi{background:var(--hi);color:#fff}.r-mid{background:var(--mid);color:#3a2800}.r-lo{background:var(--lo);color:#063d1a}
-  .lang{display:inline-block;background:var(--chip);border:1px solid var(--line);
-        border-radius:999px;padding:1px 9px;margin:2px 4px 2px 0;font-size:12px}
-  .kpi{display:flex;gap:14px;flex-wrap:wrap}
-  .kpi .b{background:var(--panel2);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:120px}
-  .kpi .n{font-size:22px;font-weight:700}.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
-  .note{font-size:12.5px;color:var(--muted)}
-  .safety{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.4);border-radius:10px;
-          padding:12px 14px;font-size:13px;color:#fde68a}
-  .trace{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:11.5px;color:var(--muted)}
-  .hidden{display:none}
-  details summary{cursor:pointer;color:var(--accent);font-size:13px}
-  .evlist{display:flex;flex-direction:column;gap:6px}
-  .ev{text-align:left;width:100%}
+:root{--bg:#f6f8fa;--card:#ffffff;--fg:#1f2328;--muted:#59636e;--line:#d1d9e0;--accent:#0969da;--ok:#1a7f37;--part:#9a6700;--miss:#cf222e;--water:#dbeafe;--land:#eef1f4}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--fg:#e6edf3;--muted:#9198a1;--line:#30363d;--accent:#4493f8;--ok:#3fb950;--part:#d29922;--miss:#f85149;--water:#102a43;--land:#1c2128}}
+*{box-sizing:border-box}
+body{margin:0;font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--fg)}
+header{padding:16px 20px;border-bottom:1px solid var(--line);background:var(--card);color:var(--fg)}
+h1{margin:0;font-size:21px}
+h2{font-size:15px;margin:0 0 10px}
+.sub{color:var(--muted);margin:4px 0 0}
+.safety{margin:12px 20px 0;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--card);color:var(--fg);border-radius:6px}
+main{display:grid;grid-template-columns:330px 1fr;gap:16px;padding:16px 20px}
+@media (max-width:900px){main{grid-template-columns:1fr}}
+.card{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:14px}
+label{display:block;font-weight:600;margin:10px 0 4px}
+select,input[type=number]{width:100%;padding:6px 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--fg);font:inherit}
+input[type=range]{width:100%;accent-color:var(--accent)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.row3 label{font-size:12px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+@media (max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px}
+.stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:12px}
+.stat.bad b{color:var(--miss)}
+.alert{padding:10px 12px;border-radius:6px;font-weight:600;margin-bottom:12px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+.alert.on{border-left:4px solid var(--miss)}
+.alert.off{border-left:4px solid var(--ok)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{color:var(--muted);font-weight:600}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+td.key{font-weight:700}
+.geo{color:var(--muted);font-size:11px}
+.st-full{color:var(--ok);font-weight:600}
+.st-partial{color:var(--part);font-weight:600}
+.st-missed{color:var(--miss);font-weight:600}
+tr.cut td{border-top:2px dashed var(--miss)}
+.bars{display:grid;grid-template-columns:120px 1fr 90px;gap:6px 8px;align-items:center;font-size:13px}
+.bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.bar .r{background:var(--ok)}
+.bar .m{background:var(--miss)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+@media (max-width:1100px){.grid2{grid-template-columns:1fr}}
+svg{width:100%;height:auto;display:block}
+svg text{fill:var(--fg);font-size:11px;font-family:inherit}
+svg .town{fill:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+button{padding:8px 12px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--card);font:inherit;font-weight:600;cursor:pointer;width:100%}
+.muted{color:var(--muted);font-size:12px}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
+.dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:-1px}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
 <body>
 <header>
-  <div>
-    <h1>EmReady — Who Gets Missed</h1>
-    <div class="sub">Emergency-readiness outreach planner for small MA emergency-management offices.
-      It answers <b>which neighborhoods to door-knock first</b> and <b>in which languages</b> for a specific
-      coastal-flood event — ranked on equity, grounded in real block-group data.</div>
-  </div>
-  <div class="badge ok">n2-emready · Civic action · demo data</div>
+  <h1>Who Gets Missed</h1>
+  <p class="sub">Emergency outreach planner for coastal-flood advisories · Hackachusetts demo · sample data</p>
 </header>
+<p class="safety" role="note"><strong>Planning aid only.</strong> It shows who to reach first and in which languages. It never writes or sends alert messages — a person decides and acts.</p>
 
-<div class="layout">
-  <aside class="side">
-    <div class="card">
-      <h2>1 · Event trigger</h2>
-      <label class="fld">Mode</label>
-      <select id="mode">
-        <option value="live">Live coastal-flood advisory (NOAA tide)</option>
-        <option value="hist">Historical FEMA event replay</option>
-      </select>
+<main>
+  <aside class="card" aria-labelledby="ctl-h">
+    <h2 id="ctl-h">Scenario</h2>
+    <label for="event">Event</label>
+    <select id="event"></select>
 
-      <div id="liveBox">
-        <div class="trigger">
-          <div>
-            <div class="note">Boston tide gauge 8443970 · latest</div>
-            <div class="tide-big" id="tideVal">—</div>
-          </div>
-          <div id="tideBadge"></div>
-        </div>
-        <div class="note" style="margin-top:6px">Minor coastal-flood stage: <b>11.5 ft</b> (MLLW).
-          Crossing it fires the advisory.</div>
-      </div>
+    <label for="tide">Boston tide (ft MLLW): <output id="tideOut" for="tide"></output></label>
+    <input id="tide" type="range" min="10" max="16" step="0.1" value="13.6">
+    <p class="muted" id="stageNote"></p>
 
-      <div id="histBox" class="hidden">
-        <label class="fld">Past MA declaration (OpenFEMA)</label>
-        <div class="evlist" id="evList"></div>
-      </div>
+    <label for="rule">Who goes first?</label>
+    <select id="rule">
+      <option value="lep">Most limited-English households (%)</option>
+      <option value="income">Lowest median income</option>
+      <option value="svi">Highest CDC SVI</option>
+      <option value="size">Biggest group first (baseline)</option>
+    </select>
 
-      <label class="fld" style="margin-top:14px">Priority rule (human-owned)</label>
-      <select id="rule">
-        <option value="limeng">Limited-English % first, then income, then SVI</option>
-        <option value="income">Lowest income first, then limited-English %</option>
-        <option value="svi">CDC SVI first, then limited-English %</option>
-      </select>
-      <div class="note" style="margin-top:6px">Ranks are a transparent sort on real columns —
-        normalized per capita. No black-box composite score.</div>
-
-      <button class="primary" id="run" style="width:100%;margin-top:14px">Run outreach plan</button>
+    <h2 style="margin-top:18px">Door-knock capacity</h2>
+    <div class="row3">
+      <div><label for="teams">Teams</label><input id="teams" type="number" min="0" max="200" value="20"></div>
+      <div><label for="hours">Hours</label><input id="hours" type="number" min="0" max="72" value="8"></div>
+      <div><label for="rate">Doors / hr</label><input id="rate" type="number" min="0" max="100" value="20"></div>
     </div>
+    <p class="muted" id="capNote"></p>
 
-    <div class="card">
-      <h2>Hazard context</h2>
-      <div id="hazard" class="note">Run a plan to load the hazard ranking for this event type.</div>
-    </div>
+    <button id="csv" type="button" style="margin-top:12px">Download outreach list (CSV)</button>
 
-    <div class="safety">
-      <b>Safety guardrail.</b> EmReady outputs a prioritized outreach <b>list for a human</b> to act on.
-      It does <b>not</b> write or send any alert text — that stays with the emergency manager (liability).
-    </div>
+    <p class="muted" style="margin-top:16px">SAMPLE rows for the demo, not official figures. Field names mirror the live sources: EJ2020 (<code>LIMENGHHPCT</code>, <code>BG_MHHI</code>, <code>PCT_MINORITY</code>), CDC SVI, NOAA tide gauge 8443970 (Boston), OpenFEMA declarations.</p>
   </aside>
 
-  <main class="main">
-    <div class="card">
-      <h2>Flood-adjacent block groups</h2>
-      <div id="map"></div>
-      <div class="note" style="margin-top:8px">Circle size = population · color = outreach priority
-        (<span style="color:#ef4444">high</span> /
-         <span style="color:#f59e0b">medium</span> /
-         <span style="color:#22c55e">lower</span>). Click a row or a circle to highlight it.</div>
-    </div>
-
-    <div class="card" id="summaryCard">
-      <h2>Outreach summary</h2>
-      <div class="kpi" id="kpi"><div class="note">No plan run yet.</div></div>
-      <div id="langCover" style="margin-top:12px"></div>
-    </div>
+  <section aria-label="Results">
+    <div id="alert" class="alert" role="status" aria-live="polite"></div>
+    <div class="stats" id="stats"></div>
 
     <div class="card">
-      <h2>Ranked outreach priority list</h2>
-      <table id="tbl">
-        <thead><tr>
-          <th>#</th><th>Block group / town</th><th>Lim-Eng %</th><th>Median income</th>
-          <th>SVI</th><th>Pop</th><th>Languages to cover</th>
-        </tr></thead>
-        <tbody id="rows"><tr><td colspan="7" class="note">Run a plan to populate.</td></tr></tbody>
-      </table>
-      <details style="margin-top:10px"><summary>Why this order? (traceability)</summary>
-        <div class="trace" id="trace" style="margin-top:8px">—</div>
-      </details>
+      <h2>Outreach order</h2>
+      <div style="overflow-x:auto">
+        <table id="tbl">
+          <caption class="visually-hidden">Flooded block groups in outreach order, with planned doors and status</caption>
+          <thead><tr>
+            <th scope="col">#</th><th scope="col">Block group</th>
+            <th scope="col" class="num">Households</th><th scope="col" class="num">Limited-English</th>
+            <th scope="col" class="num">Median income</th><th scope="col" class="num">SVI</th>
+            <th scope="col" class="num">Floods at</th><th scope="col" class="num">Doors planned</th>
+            <th scope="col">Status</th>
+          </tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <p class="muted" id="trace"></p>
     </div>
-  </main>
-</div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="./data.js"></script>
+    <div class="grid2">
+      <div class="card">
+        <h2>Map <span class="muted">(schematic, not to scale)</span></h2>
+        <svg id="map" viewBox="0 0 600 450" role="img" aria-labelledby="mapDesc">
+          <desc id="mapDesc">Schematic map of Boston Harbor block groups.</desc>
+        </svg>
+        <div class="legend">
+          <span><i class="dot" style="background:var(--ok)"></i>Reached</span>
+          <span><i class="dot" style="background:var(--part)"></i>Partly reached</span>
+          <span><i class="dot" style="background:var(--miss)"></i>Missed</span>
+          <span><i class="dot" style="background:var(--line)"></i>Dry</span>
+          <span>Number = outreach rank</span>
+        </div>
+      </div>
+      <div class="card">
+        <h2>Languages needed (limited-English households)</h2>
+        <div id="langs" class="bars"></div>
+        <div class="legend"><span><i class="dot" style="background:var(--ok)"></i>Reached</span><span><i class="dot" style="background:var(--miss)"></i>Missed</span></div>
+        <h2 style="margin-top:16px">Fairness check</h2>
+        <p id="fair" style="margin:0"></p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Core: data + pure planning logic (no DOM). Tested headless in Node. -->
+<script id="core">
+var EMO = (function () {
+  // Sample NWS-style flood stages for the Boston gauge (ft MLLW).
+  var STAGES = [
+    { name: 'Major', ft: 14.5 },
+    { name: 'Moderate', ft: 13.5 },
+    { name: 'Minor', ft: 12.5 }
+  ];
+
+  var EVENTS = [
+    { id: 'live', label: 'Live advisory — sample gauge reading', tide: 13.6 },
+    { id: 'jan2018', label: "Replay: Jan 4, 2018 nor'easter", tide: 15.2 },
+    { id: 'mar2018', label: "Replay: Mar 2, 2018 nor'easter", tide: 14.7 },
+    { id: 'king', label: 'Replay: sunny-day king tide', tide: 12.9 },
+    { id: 'custom', label: 'Custom (use the slider)', tide: null }
+  ];
+
+  // SAMPLE block groups. floodsAt = tide (ft) at which the group sees flooding.
+  // langs = share of limited-English households by language.
+  var ROWS = [
+    { geoid: '250251605011', town: 'Chelsea', area: 'Shurtleff–Bellingham', x: 380, y: 150, hh: 820, LIMENGHHPCT: 41.2, BG_MHHI: 42100, PCT_MINORITY: 86, SVI: 0.97, floodsAt: 13.0, langs: { Spanish: 0.78, Arabic: 0.08, Portuguese: 0.06, Vietnamese: 0.04, Other: 0.04 } },
+    { geoid: '250251603002', town: 'Chelsea', area: 'Island End', x: 345, y: 168, hh: 640, LIMENGHHPCT: 36.5, BG_MHHI: 47800, PCT_MINORITY: 82, SVI: 0.94, floodsAt: 13.6, langs: { Spanish: 0.82, Portuguese: 0.10, Other: 0.08 } },
+    { geoid: '250250512001', town: 'East Boston', area: 'Jeffries Point', x: 425, y: 245, hh: 900, LIMENGHHPCT: 28.4, BG_MHHI: 58600, PCT_MINORITY: 61, SVI: 0.83, floodsAt: 12.8, langs: { Spanish: 0.70, Portuguese: 0.15, Arabic: 0.08, Other: 0.07 } },
+    { geoid: '250250506003', town: 'East Boston', area: 'Maverick Square', x: 395, y: 215, hh: 1010, LIMENGHHPCT: 33.9, BG_MHHI: 49200, PCT_MINORITY: 72, SVI: 0.90, floodsAt: 13.2, langs: { Spanish: 0.76, Portuguese: 0.12, 'Haitian Creole': 0.05, Other: 0.07 } },
+    { geoid: '250251707021', town: 'Revere', area: 'Shirley Ave', x: 495, y: 125, hh: 880, LIMENGHHPCT: 26.1, BG_MHHI: 52300, PCT_MINORITY: 58, SVI: 0.81, floodsAt: 13.4, langs: { Spanish: 0.50, Arabic: 0.25, Portuguese: 0.15, Other: 0.10 } },
+    { geoid: '250251705012', town: 'Revere', area: 'Riverside', x: 440, y: 90, hh: 650, LIMENGHHPCT: 18.7, BG_MHHI: 64100, PCT_MINORITY: 44, SVI: 0.66, floodsAt: 14.2, langs: { Spanish: 0.60, Portuguese: 0.20, Other: 0.20 } },
+    { geoid: '250251801001', town: 'Winthrop', area: 'Point Shirley', x: 510, y: 215, hh: 640, LIMENGHHPCT: 4.2, BG_MHHI: 88400, PCT_MINORITY: 14, SVI: 0.31, floodsAt: 12.9, langs: { Spanish: 0.40, Portuguese: 0.30, Other: 0.30 } },
+    { geoid: '250250402002', town: 'Charlestown', area: 'Navy Yard', x: 300, y: 210, hh: 1050, LIMENGHHPCT: 3.1, BG_MHHI: 121000, PCT_MINORITY: 22, SVI: 0.18, floodsAt: 13.8, langs: { Chinese: 0.40, Spanish: 0.30, Other: 0.30 } },
+    { geoid: '250250606001', town: 'South Boston', area: 'Seaport–Fort Point', x: 360, y: 280, hh: 1300, LIMENGHHPCT: 2.6, BG_MHHI: 142000, PCT_MINORITY: 26, SVI: 0.12, floodsAt: 13.1, langs: { Chinese: 0.45, Spanish: 0.25, Other: 0.30 } },
+    { geoid: '250250612003', town: 'South Boston', area: 'Old Colony', x: 325, y: 305, hh: 820, LIMENGHHPCT: 22.8, BG_MHHI: 31800, PCT_MINORITY: 63, SVI: 0.92, floodsAt: 13.9, langs: { Spanish: 0.35, Chinese: 0.30, Vietnamese: 0.20, Other: 0.15 } },
+    { geoid: '250250907001', town: 'Dorchester', area: 'Harbor Point', x: 315, y: 345, hh: 1000, LIMENGHHPCT: 19.3, BG_MHHI: 36500, PCT_MINORITY: 74, SVI: 0.88, floodsAt: 13.5, langs: { 'Haitian Creole': 0.35, Spanish: 0.30, Vietnamese: 0.20, Other: 0.15 } },
+    { geoid: '250250913002', town: 'Dorchester', area: 'Savin Hill', x: 285, y: 375, hh: 860, LIMENGHHPCT: 24.6, BG_MHHI: 51200, PCT_MINORITY: 70, SVI: 0.85, floodsAt: 14.4, langs: { Vietnamese: 0.50, 'Haitian Creole': 0.20, Spanish: 0.20, Other: 0.10 } },
+    { geoid: '250214178001', town: 'Quincy', area: 'Germantown', x: 345, y: 415, hh: 900, LIMENGHHPCT: 21.4, BG_MHHI: 39800, PCT_MINORITY: 52, SVI: 0.86, floodsAt: 14.0, langs: { Chinese: 0.45, Vietnamese: 0.25, Arabic: 0.10, Other: 0.20 } },
+    { geoid: '250214172002', town: 'Quincy', area: 'Wollaston Beach', x: 290, y: 420, hh: 850, LIMENGHHPCT: 16.2, BG_MHHI: 72300, PCT_MINORITY: 41, SVI: 0.58, floodsAt: 14.6, langs: { Chinese: 0.70, Vietnamese: 0.15, Other: 0.15 } },
+    { geoid: '250092071001', town: 'Lynn', area: 'Waterfront', x: 555, y: 50, hh: 930, LIMENGHHPCT: 29.7, BG_MHHI: 44600, PCT_MINORITY: 75, SVI: 0.91, floodsAt: 14.1, langs: { Spanish: 0.72, Khmer: 0.14, Other: 0.14 } },
+    { geoid: '250173424002', town: 'Everett', area: 'Mystic side', x: 300, y: 130, hh: 800, LIMENGHHPCT: 31.5, BG_MHHI: 53900, PCT_MINORITY: 70, SVI: 0.87, floodsAt: 14.8, langs: { Spanish: 0.45, Portuguese: 0.30, 'Haitian Creole': 0.15, Other: 0.10 } }
+  ];
+
+  function money(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
+
+  // Each rule is ONE transparent sort on ONE real column. No combined score.
+  var RULES = {
+    lep:    { label: 'LIMENGHHPCT, highest first', col: 3, key: function (r) { return -r.LIMENGHHPCT; } },
+    income: { label: 'BG_MHHI, lowest first',      col: 4, key: function (r) { return r.BG_MHHI; } },
+    svi:    { label: 'CDC SVI, highest first',     col: 5, key: function (r) { return -r.SVI; } },
+    size:   { label: 'household count, biggest first (baseline)', col: 2, key: function (r) { return -r.hh; } }
+  };
+
+  function stageFor(tide) {
+    for (var i = 0; i < STAGES.length; i++) if (tide >= STAGES[i].ft) return STAGES[i].name;
+    return null;
+  }
+
+  function lepHH(r) { return Math.round(r.hh * r.LIMENGHHPCT / 100); }
+
+  function num(v) { v = Number(v); return isFinite(v) && v > 0 ? v : 0; }
+
+  function plan(rows, o) {
+    var rule = RULES[o.rule] || RULES.lep;
+    var tide = Number(o.tide);
+    var capacity = Math.floor(num(o.teams) * num(o.hours) * num(o.rate));
+    var flooded = rows.filter(function (r) { return r.floodsAt <= tide; });
+    var dry = rows.filter(function (r) { return r.floodsAt > tide; });
+
+    flooded.sort(function (a, b) {
+      var d = rule.key(a) - rule.key(b);
+      return d !== 0 ? d : (a.geoid < b.geoid ? -1 : 1);
+    });
+
+    var left = capacity;
+    var items = flooded.map(function (r, i) {
+      var doors = Math.min(r.hh, left);
+      left -= doors;
+      var frac = r.hh ? doors / r.hh : 0;
+      return { rank: i + 1, row: r, doors: doors, frac: frac,
+               status: frac >= 1 ? 'full' : (frac > 0 ? 'partial' : 'missed') };
+    });
+
+    var t = { groups: items.length, hh: 0, reached: 0, lep: 0, lepReached: 0, capacity: capacity };
+    var byLang = {};
+    items.forEach(function (p) {
+      var r = p.row, l = lepHH(r);
+      t.hh += r.hh; t.reached += p.doors; t.lep += l; t.lepReached += l * p.frac;
+      Object.keys(r.langs).forEach(function (k) {
+        var n = l * r.langs[k];
+        if (!byLang[k]) byLang[k] = { lang: k, reached: 0, missed: 0 };
+        byLang[k].reached += n * p.frac;
+        byLang[k].missed += n * (1 - p.frac);
+      });
+    });
+    t.lepReached = Math.round(t.lepReached);
+    t.missed = t.hh - t.reached;
+    t.lepMissed = t.lep - t.lepReached;
+
+    var langs = Object.keys(byLang).map(function (k) {
+      var v = byLang[k];
+      return { lang: k, reached: Math.round(v.reached), missed: Math.round(v.missed) };
+    }).sort(function (a, b) {
+      // "Other" always last; otherwise most households first.
+      if (a.lang === 'Other') return 1;
+      if (b.lang === 'Other') return -1;
+      return (b.reached + b.missed) - (a.reached + a.missed);
+    });
+
+    return { tide: tide, stage: stageFor(tide), rule: o.rule in RULES ? o.rule : 'lep',
+             items: items, dry: dry, totals: t, langs: langs };
+  }
+
+  function toCSV(p) {
+    var head = ['rank', 'geoid', 'town', 'area', 'households', 'LIMENGHHPCT', 'BG_MHHI', 'PCT_MINORITY', 'SVI', 'floods_at_ft', 'doors_planned', 'status', 'languages'];
+    function esc(v) { v = String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+    var lines = [head.join(',')];
+    p.items.forEach(function (it) {
+      var r = it.row;
+      var langs = Object.keys(r.langs).filter(function (k) { return k !== 'Other'; }).join('; ');
+      lines.push([it.rank, r.geoid, r.town, r.area, r.hh, r.LIMENGHHPCT, r.BG_MHHI, r.PCT_MINORITY, r.SVI,
+                  r.floodsAt, it.doors, it.status, langs].map(esc).join(','));
+    });
+    return lines.join('\n') + '\n';
+  }
+
+  return { STAGES: STAGES, EVENTS: EVENTS, ROWS: ROWS, RULES: RULES, plan: plan, stageFor: stageFor,
+           lepHH: lepHH, toCSV: toCSV, money: money };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
+</script>
+
+<!-- UI -->
 <script>
-const D = window.EMREADY;
-const $ = s => document.querySelector(s);
-const fmtUSD = n => "$" + n.toLocaleString("en-US");
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = 'http://www.w3.org/2000/svg';
+  var fmt = function (n) { return Math.round(n).toLocaleString('en-US'); };
+  var STATUS = { full: '✓ Reached', partial: '◐ Partly', missed: '✕ Missed' };
+  var COLOR = { full: 'var(--ok)', partial: 'var(--part)', missed: 'var(--miss)' };
 
-// ---------- map (optional: app works even if Leaflet fails to load) ----------
-let map=null, layer=null, mapReady=false;
-function initMap(){
-  try{
-    if(typeof L==="undefined"){ throw new Error("Leaflet not loaded"); }
-    map = L.map("map",{scrollWheelZoom:false}).setView([42.42,-70.98],9);
-    L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",{
-      attribution:'© OpenStreetMap, © CARTO', maxZoom:18
-    }).addTo(map);
-    layer = L.layerGroup().addTo(map);
-    mapReady = true;
-  }catch(err){
-    mapReady = false;
-    const el=document.getElementById("map");
-    if(el){ el.innerHTML='<div style="padding:16px" class="note">Map unavailable offline '+
-      '(could not load Leaflet). The ranked list, languages and hazard context below '+
-      'still work.</div>'; }
-    console.warn("map init skipped:", err);
+  EMO.EVENTS.forEach(function (e) {
+    var o = document.createElement('option');
+    o.value = e.id;
+    o.textContent = e.label + (e.tide != null ? ' (' + e.tide.toFixed(1) + ' ft)' : '');
+    $('event').appendChild(o);
+  });
+  $('stageNote').textContent = 'Flood stages (sample): minor ' + EMO.STAGES[2].ft +
+    ' · moderate ' + EMO.STAGES[1].ft + ' · major ' + EMO.STAGES[0].ft + ' ft.';
+
+  function opts() {
+    return { tide: $('tide').value, rule: $('rule').value,
+             teams: $('teams').value, hours: $('hours').value, rate: $('rate').value };
   }
-}
-const markers = {};
-function drawMap(ranked){
-  if(!mapReady || !layer) return;
-  layer.clearLayers();
-  for(const k in markers) delete markers[k];
-  const pts=[];
-  ranked.forEach(bg=>{
-    const color = bg.band==="hi"?"#ef4444":bg.band==="mid"?"#f59e0b":"#22c55e";
-    const r = 6 + Math.sqrt(bg.pop)/6;
-    const m = L.circleMarker([bg.lat,bg.lng],{radius:r,color:color,weight:2,
-              fillColor:color,fillOpacity:.45});
-    m.bindTooltip(`#${bg.rank} ${bg.town} · ${bg.limEngPct}% lim-Eng · ${fmtUSD(bg.mhhi)}`);
-    m.on("click",()=>select(bg.id));
-    m.addTo(layer); markers[bg.id]=m; pts.push([bg.lat,bg.lng]);
-  });
-  if(pts.length) map.fitBounds(pts,{padding:[30,30],maxZoom:11});
-}
 
-// ---------- ranking ----------
-function band(i,n){ const q=i/n; return q<0.34?"hi":q<0.67?"mid":"lo"; }
-
-function rank(rule, inScopeTowns){
-  // only flood-adjacent block groups inside the event footprint
-  let pool = D.blockGroups.filter(b=>b.floodAdj);
-  if(inScopeTowns) pool = pool.filter(b=>inScopeTowns.includes(b.town));
-  const cmp = {
-    limeng: (a,b)=> b.limEngPct-a.limEngPct || a.mhhi-b.mhhi || b.svi-a.svi,
-    income: (a,b)=> a.mhhi-b.mhhi || b.limEngPct-a.limEngPct || b.svi-a.svi,
-    svi:    (a,b)=> b.svi-a.svi || b.limEngPct-a.limEngPct || a.mhhi-b.mhhi
-  }[rule];
-  pool = pool.slice().sort(cmp);
-  const n = pool.length;
-  return pool.map((b,i)=>({...b, rank:i+1, band:band(i,n)}));
-}
-
-function ruleText(rule){
-  return {
-    limeng:"sorted by limited-English household % (desc), ties broken by lower median income, then higher CDC SVI",
-    income:"sorted by lower median household income, ties broken by higher limited-English %, then higher CDC SVI",
-    svi:"sorted by CDC SVI (desc), ties broken by higher limited-English %, then lower income"
-  }[rule];
-}
-
-// ---------- render ----------
-let selectedId=null;
-function select(id){
-  selectedId=id;
-  document.querySelectorAll("tr.row").forEach(tr=>tr.classList.toggle("sel",tr.dataset.id===id));
-  if(mapReady && markers[id]){ map.panTo(markers[id].getLatLng()); markers[id].openTooltip(); }
-}
-
-function render(ranked, rule, eventType){
-  // table
-  const tb=$("#rows"); tb.innerHTML="";
-  ranked.forEach(bg=>{
-    const tr=document.createElement("tr");
-    tr.className="row"; tr.dataset.id=bg.id;
-    const rc = bg.band==="hi"?"r-hi":bg.band==="mid"?"r-mid":"r-lo";
-    tr.innerHTML = `
-      <td><span class="rankpill ${rc}">${bg.rank}</span></td>
-      <td><b>${bg.town}</b><div class="trace">${bg.id}</div></td>
-      <td>${bg.limEngPct}%</td>
-      <td>${fmtUSD(bg.mhhi)}</td>
-      <td>${bg.svi.toFixed(2)}</td>
-      <td>${bg.pop.toLocaleString()}</td>
-      <td>${bg.languages.length?bg.languages.map(l=>`<span class="lang">${l}</span>`).join(""):'<span class="note">English only</span>'}</td>`;
-    tr.onclick=()=>select(bg.id);
-    tb.appendChild(tr);
-  });
-
-  // KPIs
-  const households = ranked.reduce((s,b)=>s+b.pop,0);
-  const highN = ranked.filter(b=>b.band==="hi").length;
-  const langs = [...new Set(ranked.flatMap(b=>b.languages))];
-  $("#kpi").innerHTML = `
-    <div class="b"><div class="n">${ranked.length}</div><div class="l">Block groups</div></div>
-    <div class="b"><div class="n">${highN}</div><div class="l">High priority</div></div>
-    <div class="b"><div class="n">${households.toLocaleString()}</div><div class="l">People in scope</div></div>
-    <div class="b"><div class="n">${langs.length}</div><div class="l">Languages</div></div>`;
-
-  // language coverage
-  const counts={};
-  ranked.forEach(b=>b.languages.forEach(l=>counts[l]=(counts[l]||0)+1));
-  const sorted = Object.entries(counts).sort((a,b)=>b[1]-a[1]);
-  $("#langCover").innerHTML = `<div class="note" style="margin-bottom:6px">Outreach must cover these languages
-     (count = block groups needing each):</div>` +
-     (sorted.length ? sorted.map(([l,c])=>`<span class="lang">${l} · ${c}</span>`).join("")
-                    : '<span class="note">English only in scope.</span>');
-
-  // hazard context
-  const hz = D.hazardContext[eventType] || D.hazardContext["Coastal Flood"];
-  $("#hazard").innerHTML = `<b>${eventType}</b> — statewide hazard rank <b>#${hz.rank}</b>.<br>${hz.note}
-     <div style="margin-top:6px">${hz.drivers.map(d=>`<span class="lang">${d}</span>`).join("")}</div>`;
-
-  // trace
-  $("#trace").textContent =
-    `rule = ${rule}; order = ${ruleText(rule)}. ` +
-    `Pool = flood-adjacent block groups in the event footprint (${ranked.length}). ` +
-    `Every value is a raw column from EJ2020 (LIMENGHHPCT, BG_MHHI, PCT_MINORITY), CDC SVI, ` +
-    `and population for per-capita normalization — no composite black-box score.`;
-
-  drawMap(ranked);
-  if(selectedId) select(selectedId);
-}
-
-// ---------- trigger wiring ----------
-function latestTide(){ return D.tide.series.reduce((m,p)=>p.h>m.h?p:m, D.tide.series[0]); }
-function paintTide(){
-  const peak = latestTide();
-  $("#tideVal").textContent = peak.h.toFixed(1) + " ft";
-  const over = peak.h >= D.tide.floodThreshold;
-  $("#tideBadge").innerHTML = over
-    ? `<span class="badge warn">ADVISORY · over ${D.tide.floodThreshold} ft</span>`
-    : `<span class="badge ok">below stage</span>`;
-}
-
-function run(){
-  const mode=$("#mode").value, rule=$("#rule").value;
-  let eventType="Coastal Flood", towns=null;
-  if(mode==="hist"){
-    const ev = D.historicalEvents.find(e=>e.id===$("#evList").dataset.sel) || D.historicalEvents[0];
-    eventType = ev.incidentType; towns = ev.towns;
+  function el(tag, attrs, text) {
+    var n = document.createElement(tag);
+    if (attrs) Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    if (text != null) n.textContent = text;
+    return n;
   }
-  const ranked = rank(rule, towns);
-  render(ranked, rule, eventType);
-}
 
-function buildEvList(){
-  const box=$("#evList");
-  box.innerHTML="";
-  D.historicalEvents.forEach((e,i)=>{
-    const b=document.createElement("button");
-    b.className="ev"+(i===0?" primary":"");
-    b.innerHTML=`<b>${e.title}</b><br><span class="note">${e.id} · ${e.date} · ${e.incidentType}</span>`;
-    b.onclick=()=>{ box.dataset.sel=e.id; [...box.children].forEach(c=>c.classList.remove("primary")); b.classList.add("primary"); };
-    box.appendChild(b);
+  function svg(tag, attrs, text) {
+    var n = document.createElementNS(NS, tag);
+    Object.keys(attrs).forEach(function (k) { n.setAttribute(k, attrs[k]); });
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function renderAlert(p) {
+    var a = $('alert');
+    if (p.stage) {
+      a.className = 'alert on';
+      a.textContent = 'Coastal flood advisory: ' + p.stage.toUpperCase() + ' — tide ' + p.tide.toFixed(1) +
+        ' ft. ' + p.items.length + ' block group' + (p.items.length === 1 ? '' : 's') + ' flood.';
+    } else {
+      a.className = 'alert off';
+      a.textContent = 'No advisory — tide ' + p.tide.toFixed(1) + ' ft is below minor flood stage (' +
+        EMO.STAGES[2].ft + ' ft).';
+    }
+  }
+
+  function renderStats(p) {
+    var t = p.totals, box = $('stats');
+    box.textContent = '';
+    [[fmt(t.hh), 'households to reach', false],
+     [fmt(t.reached), 'reached in time', false],
+     [fmt(t.missed), 'households missed', t.missed > 0],
+     [fmt(t.lepMissed), 'limited-English missed', t.lepMissed > 0]
+    ].forEach(function (s) {
+      var d = el('div', { 'class': 'stat' + (s[2] ? ' bad' : '') });
+      d.appendChild(el('b', null, s[0]));
+      d.appendChild(el('span', null, s[1]));
+      box.appendChild(d);
+    });
+  }
+
+  function renderTable(p) {
+    var tb = $('tbl').querySelector('tbody');
+    tb.textContent = '';
+    var keyCol = EMO.RULES[p.rule].col, cutDone = false;
+    if (!p.items.length) {
+      var tr0 = el('tr'); var td0 = el('td', { colspan: '9' }, 'Nothing floods at this tide.');
+      tr0.appendChild(td0); tb.appendChild(tr0);
+    }
+    p.items.forEach(function (it) {
+      var r = it.row, tr = el('tr');
+      if (!cutDone && it.status !== 'full' && it.rank > 1) { tr.className = 'cut'; cutDone = true; }
+      if (it.status !== 'full') cutDone = true;
+      var name = el('td');
+      name.appendChild(document.createTextNode(r.town + ' — ' + r.area));
+      name.appendChild(el('br'));
+      name.appendChild(el('span', { 'class': 'geo' }, 'GEOID ' + r.geoid));
+      var cells = [
+        el('td', { 'class': 'num' }, String(it.rank)), name,
+        el('td', { 'class': 'num' }, fmt(r.hh)),
+        el('td', { 'class': 'num' }, r.LIMENGHHPCT.toFixed(1) + '%'),
+        el('td', { 'class': 'num' }, EMO.money(r.BG_MHHI)),
+        el('td', { 'class': 'num' }, r.SVI.toFixed(2)),
+        el('td', { 'class': 'num' }, r.floodsAt.toFixed(1) + ' ft'),
+        el('td', { 'class': 'num' }, fmt(it.doors)),
+        el('td', { 'class': 'st-' + it.status },
+           STATUS[it.status] + (it.status === 'partial' ? ' ' + Math.round(it.frac * 100) + '%' : ''))
+      ];
+      cells[keyCol].className += ' key';
+      cells.forEach(function (c) { tr.appendChild(c); });
+      tb.appendChild(tr);
+    });
+    var o = opts();
+    $('trace').textContent = 'Order = sort by ' + EMO.RULES[p.rule].label + '; ties broken by GEOID. ' +
+      'No combined score. Dashed line = where capacity runs out. ' + p.dry.length + ' group' +
+      (p.dry.length === 1 ? ' stays' : 's stay') + ' dry.';
+    $('capNote').textContent = (Number(o.teams) || 0) + ' teams × ' + (Number(o.hours) || 0) + ' h × ' +
+      (Number(o.rate) || 0) + ' doors = ' + fmt(p.totals.capacity) + ' doors.';
+  }
+
+  function renderMap(p) {
+    var m = $('map');
+    while (m.childNodes.length > 1) m.removeChild(m.lastChild);
+    m.appendChild(svg('rect', { x: 0, y: 0, width: 600, height: 450, fill: 'var(--land)' }));
+    m.appendChild(svg('path', { fill: 'var(--water)',
+      d: 'M600 0 L600 450 L320 450 C350 430 380 400 360 370 C340 340 380 320 400 300 C430 270 460 280 470 250 C480 225 455 200 480 185 C520 160 545 160 540 120 C535 90 580 80 600 30 Z' }));
+    m.appendChild(svg('text', { x: 500, y: 330, 'class': 'town' }, 'Boston Harbor'));
+    [['Lynn', 520, 25], ['Revere', 445, 70], ['Winthrop', 520, 245], ['Chelsea', 345, 135],
+     ['Everett', 260, 110], ['Charlestown', 255, 190], ['E. Boston', 400, 275], ['S. Boston', 280, 275],
+     ['Dorchester', 235, 345], ['Quincy', 255, 445]].forEach(function (l) {
+      m.appendChild(svg('text', { x: l[1], y: l[2], 'class': 'town' }, l[0]));
+    });
+    var byId = {};
+    p.items.forEach(function (it) { byId[it.row.geoid] = it; });
+    EMO.ROWS.forEach(function (r) {
+      var it = byId[r.geoid];
+      var rad = 7 + Math.sqrt(r.hh) / 4;
+      var g = svg('g', {});
+      var label = r.town + ' — ' + r.area + ': ' +
+        (it ? 'rank ' + it.rank + ', ' + STATUS[it.status].slice(2).toLowerCase() : 'dry at this tide');
+      g.appendChild(svg('title', {}, label));
+      g.appendChild(svg('circle', { cx: r.x, cy: r.y, r: rad,
+        fill: it ? COLOR[it.status] : 'var(--line)', 'fill-opacity': it ? 0.85 : 0.6,
+        stroke: 'var(--fg)', 'stroke-opacity': 0.35, 'stroke-dasharray': it ? '' : '3 2' }));
+      if (it) g.appendChild(svg('text', { x: r.x, y: r.y + 4, 'text-anchor': 'middle',
+        style: 'font-weight:700;fill:var(--card)' }, String(it.rank)));
+      m.appendChild(g);
+    });
+    var miss = p.items.filter(function (i) { return i.status !== 'full'; }).length;
+    $('mapDesc').textContent = 'Schematic map. ' + p.items.length + ' flooded block groups, ' +
+      miss + ' not fully reached.';
+  }
+
+  function renderLangs(p) {
+    var box = $('langs');
+    box.textContent = '';
+    if (!p.langs.length) { box.appendChild(el('span', { 'class': 'muted' }, 'No flooded groups.')); return; }
+    var max = Math.max.apply(null, p.langs.map(function (l) { return l.reached + l.missed; })) || 1;
+    p.langs.forEach(function (l) {
+      var tot = l.reached + l.missed;
+      box.appendChild(el('span', null, l.lang));
+      var bar = el('div', { 'class': 'bar', role: 'img',
+        'aria-label': l.lang + ': ' + fmt(l.reached) + ' reached, ' + fmt(l.missed) + ' missed' });
+      var r = el('i', { 'class': 'r' }); r.style.width = (l.reached / max * 100) + '%';
+      var mm = el('i', { 'class': 'm' }); mm.style.width = (l.missed / max * 100) + '%';
+      bar.appendChild(r); bar.appendChild(mm);
+      box.appendChild(bar);
+      box.appendChild(el('span', { 'class': 'muted' }, fmt(tot) + (l.missed ? ' (' + fmt(l.missed) + ' missed)' : '')));
+    });
+  }
+
+  function renderFair(p) {
+    var t = p.totals, o = opts();
+    if (!t.lep) { $('fair').textContent = 'No limited-English households in flooded groups.'; return; }
+    var other = p.rule === 'size' ? 'lep' : 'size';
+    var q = EMO.plan(EMO.ROWS, { tide: o.tide, rule: other, teams: o.teams, hours: o.hours, rate: o.rate });
+    var pct = function (n) { return Math.round(n / t.lep * 100) + '%'; };
+    var names = { lep: 'limited-English first', income: 'lowest income first', svi: 'highest SVI first', size: 'biggest first' };
+    $('fair').textContent = 'This rule (' + names[p.rule] + ') reaches ' + fmt(t.lepReached) + ' of ' +
+      fmt(t.lep) + ' limited-English households (' + pct(t.lepReached) + '). ' +
+      names[other].charAt(0).toUpperCase() + names[other].slice(1) + ' would reach ' +
+      fmt(q.totals.lepReached) + ' (' + pct(q.totals.lepReached) + ').';
+  }
+
+  function render() {
+    var p = EMO.plan(EMO.ROWS, opts());
+    $('tideOut').textContent = p.tide.toFixed(1);
+    renderAlert(p); renderStats(p); renderTable(p); renderMap(p); renderLangs(p); renderFair(p);
+    return p;
+  }
+
+  $('event').addEventListener('change', function () {
+    var e = EMO.EVENTS.filter(function (x) { return x.id === $('event').value; })[0];
+    if (e && e.tide != null) $('tide').value = e.tide;
+    render();
   });
-  box.dataset.sel = D.historicalEvents[0].id;
-}
+  $('tide').addEventListener('input', function () { $('event').value = 'custom'; render(); });
+  ['rule', 'teams', 'hours', 'rate'].forEach(function (id) { $(id).addEventListener('input', render); });
 
-$("#mode").onchange = e=>{
-  const hist = e.target.value==="hist";
-  $("#liveBox").classList.toggle("hidden",hist);
-  $("#histBox").classList.toggle("hidden",!hist);
-};
-$("#run").onclick = run;
+  $('csv').addEventListener('click', function () {
+    var p = EMO.plan(EMO.ROWS, opts());
+    var blob = new Blob([EMO.toCSV(p)], { type: 'text/csv' });
+    var a = el('a', { href: URL.createObjectURL(blob), download: 'outreach-list-' + p.tide.toFixed(1) + 'ft-' + p.rule + '.csv' });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(a.href); }, 1000);
+  });
 
-// init — bind handlers and build the list FIRST, so a map failure can't disable the button
-paintTide();
-buildEvList();
-run();        // show the headline coastal-flood plan immediately
-initMap();    // optional; render map last
-if(mapReady) run();  // redraw markers now that the map exists
+  $('event').value = 'live';
+  $('tide').value = 13.6;
+  render();
+})();
 </script>
 </body>
 </html>
