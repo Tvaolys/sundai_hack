@@ -10,6 +10,7 @@ NOT applied here (that is task T12 / app/names.py).
 """
 from __future__ import annotations
 
+import gzip
 import html
 import json
 from datetime import datetime, timezone
@@ -165,22 +166,60 @@ def normalize_legacy(row: dict) -> dict:
     }
 
 
-def load_cases(path) -> list[dict]:
-    """Read the slim slice (JSON list from scripts/slim_311.py).
+_DATE_FIELDS = ("open_date", "close_date")
 
-    open_date / close_date are stored as ISO strings; parse them back to
-    tz-aware datetimes (None stays None).
-    """
-    with open(path, "r", encoding="utf-8") as fh:
-        rows = json.load(fh)
-    for row in rows:
-        for key in ("open_date", "close_date"):
-            val = row.get(key)
-            if isinstance(val, str) and val:
-                try:
-                    row[key] = datetime.fromisoformat(val)
-                except ValueError:
-                    row[key] = None
-            elif not val:
+
+def _open(path):
+    """Open a slice file, transparently decompressing ``.gz``."""
+    p = str(path)
+    if p.endswith(".gz"):
+        return gzip.open(p, "rt", encoding="utf-8")
+    return open(p, "r", encoding="utf-8")
+
+
+def _parse_dates(row: dict) -> dict:
+    """Parse ISO date fields in a row dict to tz-aware datetimes (in place)."""
+    for key in _DATE_FIELDS:
+        val = row.get(key)
+        if isinstance(val, str) and val:
+            try:
+                row[key] = datetime.fromisoformat(val)
+            except ValueError:
                 row[key] = None
-    return rows
+        elif not val:
+            row[key] = None
+    return row
+
+
+def _load_raw(path):
+    """Return the parsed JSON payload of a slice file (plain or columnar)."""
+    with _open(path) as fh:
+        return json.load(fh)
+
+
+def load_cases(path) -> list[dict]:
+    """Read the slim slice and return a list of normalized case dicts.
+
+    Supports two on-disk formats:
+      * Columnar (new): ``{"meta": {...}, "columns": [...], "rows": [[...]]}``,
+        typically gzip'd to ``data/311_slice.json.gz`` by ``scripts/slim_311.py``.
+      * Plain list (legacy/back-compat): a JSON list of row dicts.
+
+    ``open_date`` / ``close_date`` are stored as ISO strings and parsed back
+    to tz-aware datetimes (None stays None).
+    """
+    data = _load_raw(path)
+    if isinstance(data, dict) and "columns" in data and "rows" in data:
+        columns = data["columns"]
+        rows = [_parse_dates(dict(zip(columns, values))) for values in data["rows"]]
+        return rows
+    # Back-compat: plain list of dicts.
+    return [_parse_dates(row) for row in data]
+
+
+def load_meta(path) -> dict:
+    """Return the ``meta`` block of a columnar slice (``{}`` for plain lists)."""
+    data = _load_raw(path)
+    if isinstance(data, dict):
+        return data.get("meta", {})
+    return {}
