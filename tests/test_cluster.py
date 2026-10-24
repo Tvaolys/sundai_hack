@@ -55,6 +55,39 @@ def test_two_nearby_same_category_cluster_together():
     assert cl["category"] == "Pothole"
 
 
+def test_clusters_across_cell_boundary_when_dist_m_large():
+    """Regression: with dist_m=150 two cases ~120 m apart must cluster.
+
+    The old fixed 0.001-deg grid cell (~82 m of longitude at Boston) meant the
+    3x3 neighbourhood spanned less than 150 m, so distant-but-within-threshold
+    neighbours were silently missed. Cell size is now derived from dist_m.
+    """
+    import math
+
+    cos_lat = math.cos(math.radians(42.3))
+    dlon_120m = 120.0 / (111_320.0 * cos_lat)
+    cases = [
+        _case("A", "Pothole", 0, 42.3, -71.06),
+        _case("B", "Pothole", 1, 42.3, -71.06 + dlon_120m),  # ~120 m east
+    ]
+    result = cluster(cases, 150.0, DAYS)
+    assert len(result) == 1
+    assert result[0]["size"] == 2
+    assert set(result[0]["case_ids"]) == {"A", "B"}
+
+
+def test_cluster_case_ids_sorted_chronologically():
+    # Members added out of chronological order must come back sorted by
+    # (open_date, case_id).
+    cases = [
+        _case("A", "Pothole", 0, 42.35, -71.06),
+        _case("C", "Pothole", 2, 42.35 + 5 * _DEG_PER_M, -71.06),
+        _case("B", "Pothole", 1, 42.35 + 8 * _DEG_PER_M, -71.06),
+    ]
+    [cl] = cluster(cases, DIST_M, DAYS)
+    assert cl["case_ids"] == ["A", "B", "C"]
+
+
 def test_different_category_never_clusters():
     cases = [
         _case("A", "Pothole", 0, 42.35, -71.06),
