@@ -57,3 +57,15 @@ VERDICT: WEAK (reporting system and its friction are documented at state level �
 - Competitor count: DeleteMe, deleteme.com (separate company), Incogni, Optery, PrivacyBee — well past the 3+ threshold. Track-fit: consumer privacy SaaS, no MA-specific angle, not energy/robotics/building compliance.
 
 VERDICT: CROWDED (pain verified and even quantified — 40 hr/yr DIY, quarterly re-listing — but 4+ funded incumbents including Incogni (Deloitte-audited) and Optery; MA privacy law near passage will further formalize the space. Also off-theme for the hackathon.)
+
+## SC3: Robotics track without hardware — community-college sim curricula gap
+
+- https://webots.academy/ — Webots Academy: browser-based robotics teaching platform, "Zero setup... auto-grading... Pre-built labs for PID Control, Kinematics, and Obstacle Avoidance ready to deploy to your class", actively partnering with universities ("working closely with select universities", "Join the Priority List"). The exact product space (no-hardware sim course tooling) already has a funded startup building it. Confidence: verified.
+- https://github.com/felipenmartins/Robotics-Simulation-Labs — free open-source Webots+Python course labs with published pedagogy paper (Springer, from COVID-era remote teaching, evaluated in Portugal/Netherlands). Free incumbent covers "sim-only robotics course" need. Confidence: verified.
+- https://www.coursera.org/specializations/introduction-robotics-webots — Coursera specialization "Introduction to Robotics with Webots" (University of Colorado). Confidence: verified.
+- https://innovation.masstech.org/robobench — MassTech RoboBench grant program: on 2026-08-20 Healey-Driscoll administration awarded $6,571,823 to four nonprofits/HEIs for shared robotics hardware infrastructure ("vital resources robotics groups need to commercialize their hardware"). Confidence: verified.
+- https://www.middlesex.edu/newsroom/2026/08.25.26.html — dated 2026-08-25: Middlesex Community College received $367,038 (MLSC) to expand its Pathmaker Robotics and Automation Program (hands-on, Bedford campus). Confidence: verified.
+- https://www.northshore.edu/news/2024/robotics_program_boosted_by_state_grant.html — dated 2024: North Shore CC got $90,528 MA Skills Capital Grant to purchase robotics equipment; dean cites "robotics, 3D printers, electronics, advanced simulation software" already. Confidence: verified.
+- Counter-evidence summary: MA community colleges are actively funded for real robotics hardware (Skills Capital Grants, RoboBench, MLSC), undercutting the "no hardware, sim-only gap" premise; and sim-course tooling is covered free (GitHub labs) and commercially (Webots Academy). A third search phrasing for student/faculty pain returned no dated first-person complaints (one phrasing returned only junk results).
+
+VERDICT: WEAK (no trace of the hypothesized sim-curricula gap found in 3 phrasings; MA CCs are receiving hardware funding, and browser-sim courseware already exists free and commercial.)
