@@ -187,3 +187,41 @@ def test_map_unknown_404(client):
     r = client.get("/api/map", params={"name": "UNKNOWN"})
     assert r.status_code == 404
     assert "detail" in r.json()
+
+
+# --- robust bbox (outlier clipping) --------------------------------------
+
+def test_robust_bbox_clips_default_geocode_outlier():
+    # 100 tightly-clustered Roslindale points plus one City Hall outlier
+    # (the default-geocode pin) that would otherwise blow the bbox way north.
+    mapped = [
+        {"latitude": 42.284 + (i % 5) * 0.001, "longitude": -71.128 + (i % 5) * 0.001}
+        for i in range(100)
+    ]
+    outlier = {"latitude": 42.35982, "longitude": -71.05899}  # Boston City Hall
+    mapped.append(dict(outlier))
+
+    bbox = server._robust_bbox(mapped)
+
+    # The 98th-percentile clip keeps the outlier out of the box.
+    assert bbox["max_lat"] < outlier["latitude"]
+    assert bbox["max_lon"] < outlier["longitude"]
+    assert not server._in_bbox(bbox, outlier["latitude"], outlier["longitude"])
+    # The dense real cluster stays inside the padded box.
+    assert server._in_bbox(bbox, 42.284, -71.128)
+    assert bbox["min_lat"] <= bbox["max_lat"]
+    assert bbox["min_lon"] <= bbox["max_lon"]
+
+
+def test_robust_bbox_single_point_has_nonzero_span():
+    bbox = server._robust_bbox([{"latitude": 42.3, "longitude": -71.1}])
+    assert bbox["min_lat"] < bbox["max_lat"]
+    assert bbox["min_lon"] < bbox["max_lon"]
+    assert server._in_bbox(bbox, 42.3, -71.1)
+
+
+def test_percentile_endpoints_and_interpolation():
+    data = [0.0, 1.0, 2.0, 3.0, 4.0]
+    assert server._percentile(data, 0.0) == 0.0
+    assert server._percentile(data, 1.0) == 4.0
+    assert server._percentile(data, 0.5) == 2.0

@@ -245,6 +245,53 @@ def cluster_detail(cluster_id: str) -> dict:
     raise HTTPException(status_code=404, detail=f"Not a cluster seed: {cluster_id}")
 
 
+def _percentile(sorted_values: list[float], p: float) -> float:
+    """Linear-interpolated percentile of a pre-sorted, non-empty list.
+
+    ``p`` is a fraction in [0, 1]. Used to clip default-geocode outliers (e.g.
+    City Hall) out of the /api/map bounding box.
+    """
+    if len(sorted_values) == 1:
+        return sorted_values[0]
+    k = (len(sorted_values) - 1) * p
+    lo = int(k)
+    hi = min(lo + 1, len(sorted_values) - 1)
+    if lo == hi:
+        return sorted_values[lo]
+    return sorted_values[lo] * (hi - k) + sorted_values[hi] * (k - lo)
+
+
+def _robust_bbox(mapped: list[dict]) -> dict:
+    """2nd..98th percentile bbox of mapped case lat/lon, padded ~10%.
+
+    Percentile clipping keeps a few default-geocode outliers (e.g. 27 Roslindale
+    cases pinned to City Hall at 42.35982,-71.05899) from blowing up the box so
+    the map stays centered on the real neighborhood.
+    """
+    lats = sorted(c["latitude"] for c in mapped)
+    lons = sorted(c["longitude"] for c in mapped)
+    min_lat = _percentile(lats, 0.02)
+    max_lat = _percentile(lats, 0.98)
+    min_lon = _percentile(lons, 0.02)
+    max_lon = _percentile(lons, 0.98)
+    # ~10% padding on each side (guard against a zero-span box).
+    lat_pad = (max_lat - min_lat) * 0.1 or 1e-4
+    lon_pad = (max_lon - min_lon) * 0.1 or 1e-4
+    return {
+        "min_lon": min_lon - lon_pad,
+        "min_lat": min_lat - lat_pad,
+        "max_lon": max_lon + lon_pad,
+        "max_lat": max_lat + lat_pad,
+    }
+
+
+def _in_bbox(bbox: dict, lat: float, lon: float) -> bool:
+    return (
+        bbox["min_lat"] <= lat <= bbox["max_lat"]
+        and bbox["min_lon"] <= lon <= bbox["max_lon"]
+    )
+
+
 @app.get("/api/map")
 def map_view(name: str = Query(...)) -> dict:
     state = get_state()
@@ -252,21 +299,15 @@ def map_view(name: str = Query(...)) -> dict:
     if cases is None:
         raise HTTPException(status_code=404, detail=f"Unknown neighborhood: {name}")
 
-    # Bounding box of the neighborhood's mapped cases.
+    # Robust bounding box (2nd..98th percentile + ~10% pad) of mapped cases, so
+    # default-geocode outliers don't blow the box up and squeeze the map.
     mapped = [c for c in cases if c.get("latitude") is not None and c.get("longitude") is not None]
     if mapped:
-        lats = [c["latitude"] for c in mapped]
-        lons = [c["longitude"] for c in mapped]
-        bbox = {
-            "min_lon": min(lons),
-            "min_lat": min(lats),
-            "max_lon": max(lons),
-            "max_lat": max(lats),
-        }
+        bbox = _robust_bbox(mapped)
     else:
         bbox = {"min_lon": None, "min_lat": None, "max_lon": None, "max_lat": None}
 
-    # Block groups whose bbox intersects the neighborhood case bbox.
+    # Block groups whose bbox intersects the (robust) neighborhood case bbox.
     block_groups = []
     if mapped:
         for bg in state.bgs:
@@ -285,10 +326,12 @@ def map_view(name: str = Query(...)) -> dict:
                     }
                 )
 
-    # Markers: clusters size >= 2, largest first, capped at 400.
+    # Markers: clusters size >= 2, largest first, inside the bbox, capped at 400.
     markers = []
     for cl in state.clusters_for(name):
         if cl["size"] < 2:
+            continue
+        if not _in_bbox(bbox, cl["lat"], cl["lon"]):
             continue
         markers.append(
             {
