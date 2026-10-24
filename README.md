@@ -30,9 +30,12 @@ The flow judges must see (see `.kiro/specs/n1-311triage/design.md` "Demo"):
 
 1. Select **Downtown**. The raw equity box shows a big gap — late rate in
    limited-English EJ block groups is far above the rest. Then look at the
-   **category-mix-adjusted** excess: it nearly vanishes (+0.5 pt). The raw gap is
-   almost entirely *what people report there* (≈950 Illegal Parking cases), not
-   slower service. The tool is honest about this.
+   **category-mix-adjusted** excess: the limited-English blocks' excess (+0.5 pt)
+   is actually *lower* than the rest of Downtown (+2.7 pt), so after adjustment
+   there is no gap — if anything the limited-English blocks do slightly better.
+   The raw gap is almost entirely *what people report there* (≈950 Illegal
+   Parking cases, as of the 2026-10-24 slice), not slower service. The tool is
+   honest about this.
 2. Select **Roslindale**. Here the gap **survives** the adjustment (+4.3 pt excess,
    small n, clearly labeled) — a real pattern worth raising.
 3. Scroll to the map: repeat reports of the same problem collapse into single
@@ -43,9 +46,9 @@ The flow judges must see (see `.kiro/specs/n1-311triage/design.md` "Demo"):
 ## How the numbers work
 
 - **Late rate** = `late / (on-time + late)`. Cases with a missing/unparseable
-  `on_time` are counted as "SLA UNKNOWN" and excluded from the rate, never silently
-  treated as on-time. Every rate is shown with its numerator and denominator,
-  e.g. `41% (82 of 200)` — there is no composite score.
+  `on_time` have an unknown SLA result and are excluded from the rate, never
+  silently treated as on-time. Every rate is shown with its numerator and
+  denominator, e.g. `41% (82 of 200)` — there is no composite score.
 - **Repeat-report clusters.** A report joins an existing cluster if it has the
   **same category**, is within **50 m** of the cluster seed, and opened within
   **14 days** after the seed. Seeds are taken in `open_date`, then `case_id` order
@@ -65,9 +68,9 @@ The flow judges must see (see `.kiro/specs/n1-311triage/design.md` "Demo"):
   are excluded. The meta endpoint reports how many were dropped and why.
 - **Two 311 systems.** Boston is mid-migration. The new BOS311 system (`BCS-…` ids)
   and the legacy 2026 system are merged but treated as disjoint (no cross-file
-  dedup). Their SLA definitions differ (legacy ≈38% late vs new ≈25%), so the
-  category-mix baseline is computed per `(category, system)` to avoid mixing them
-  silently.
+  dedup). Their SLA definitions differ (legacy ≈38% late vs new ≈25%, as of the
+  2026-10-24 slice), so the category-mix baseline is computed per
+  `(category, system)` to avoid mixing them silently.
 
 ## Data refresh
 
@@ -96,14 +99,18 @@ and `data/category_map.json`.
 
 ## Data sources & licenses
 
-- **Boston 311 service requests** — City of Boston open data (data.boston.gov).
-  Published as open data (ODC-PDDL / public domain dedication); confirm the current
-  terms on the portal before redistributing.
-- **MassGIS EJ2020 block groups** — MassGIS (Commonwealth of Massachusetts) public
-  data, via the ArcGIS service. MassGIS data is published for public use; see the
-  portal for the applicable terms.
-
-Where licensing is uncertain, check the source portal rather than assuming.
+- **Boston 311 service requests** — City of Boston open data. The portal page
+  (<https://data.boston.gov/dataset/311-service-requests>) states the dataset is
+  licensed under the **Open Data Commons Public Domain Dedication and License
+  (PDDL)** (verified 2026-10-24). The same page describes an October-2025
+  transition to a new backend system, during which cases are split between the
+  legacy dataset ("311 Service Requests - 2026") and the "NEW SYSTEM" dataset
+  (expected complete by mid-2026). That split is why we download and merge two
+  files (see "Data refresh").
+- **MassGIS EJ2020 block groups** — MassGIS (Commonwealth of Massachusetts),
+  via the ArcGIS service at
+  <https://arcgisserver.digital.mass.gov/arcgisserver/rest/services/AGOL/EJ2020/MapServer/0>.
+  We make no license claim here; see MassGIS for the applicable terms.
 
 ## Known limitations
 
