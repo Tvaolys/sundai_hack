@@ -49,7 +49,7 @@ Tasks marked HUMAN are not dispatched to executors.
   - Done when: `compare(cases, bgs, params)` returns late/known/rate for limited-English EJ vs other, or "NOT ENOUGH DATA TO COMPARE" below min_n; property test: the two groups' known counts sum to the number of assigned cases with known SLA.
   - Depends on: T3, T6
 
-- [ ] T13: Category-mix adjustment in overlay (added after H2 analysis)
+- [x] T13: Category-mix adjustment in overlay (added after H2 analysis)
   - Files: app/overlay.py, tests/test_overlay.py
   - Done when: `baseline(all_cases)` returns city-wide late rate per (category, system); `compare(cases, bgs, min_n, base=None)` adds `expected` and `excess_pt` per group when `base` given, per design.md "Category-mix adjustment"; tests: if every case's late outcome equals its category baseline exactly, excess is 0; property test: expected in [0, 1].
   - Depends on: T7
@@ -59,7 +59,7 @@ Tasks marked HUMAN are not dispatched to executors.
   - Done when: `.venv/bin/python scripts/slim_311.py` produced the slice (< 15 MB); human reviewed per-neighborhood stats/equity output split by system (lead can print it), confirmed thresholds, resident filter, and both name maps; `placeholder` set to false.
   - Depends on: H1, T5, T7, T12
 
-- [ ] T8: API routes
+- [x] T8: API routes
   - Files: app/server.py, tests/test_api.py
   - Done when: all routes in design.md work using T1–T7 modules; data loaded once at startup; unknown neighborhood/cluster → 404; TestClient tests pass offline against fixture data (path overridable by env var).
   - Depends on: T1, T3, T4, T6, T7
