@@ -208,11 +208,13 @@
     return label + ": " + size + " reports, " + late + " late";
   }
 
-  // Attach keyboard + click handlers that call opts.onSelect(id).
+  // Attach keyboard + click handlers that call opts.onSelect(id). Markers only
+  // become focusable buttons (tabindex + role=button) when onSelect is a real
+  // function; otherwise they stay inert decoration with no false affordance.
   function wireSelect(node, id, onSelect) {
+    if (typeof onSelect !== "function") return;
     node.setAttribute("tabindex", "0");
     node.setAttribute("role", "button");
-    if (typeof onSelect !== "function") return;
     node.addEventListener("click", function () {
       onSelect(id);
     });
@@ -224,16 +226,23 @@
     });
   }
 
-  // Draw a text legend group (returned so the caller can place it too).
-  function makeLegend(width, height) {
-    var pad = 8;
-    var lineH = 22;
+  // Height of the legend strip reserved below the map (4 rows + padding).
+  var LEGEND_PAD = 8;
+  var LEGEND_LINE_H = 22;
+  var LEGEND_STRIP_H = LEGEND_LINE_H * 4 + LEGEND_PAD * 2;
+
+  // Draw a text legend group in the reserved strip below the map.
+  // ``stripTop`` is the y where the map ends and the legend strip begins, so
+  // the legend never covers map geometry.
+  function makeLegend(width, stripTop) {
+    var pad = LEGEND_PAD;
+    var lineH = LEGEND_LINE_H;
     var g = el("g", { class: "n1-legend", "aria-hidden": "false" });
 
-    // Opaque backing box so legend text stays readable over geometry.
+    // Opaque backing box filling the reserved strip.
     var boxW = 320;
-    var boxH = lineH * 4 + pad * 2;
-    var boxY = height - boxH - pad;
+    var boxH = LEGEND_STRIP_H;
+    var boxY = stripTop;
     g.appendChild(
       el("rect", {
         x: pad,
@@ -346,10 +355,15 @@
     var pad = num(opts.padding) ? opts.padding : 20;
     var onSelect = opts.onSelect;
 
+    // ``height`` is the MAP drawing area. Reserve an extra strip below it for
+    // the legend so the legend never covers map geometry; the SVG viewBox is
+    // extended to cover both.
+    var totalHeight = height + LEGEND_STRIP_H;
+
     clear(svgEl);
-    svgEl.setAttribute("viewBox", "0 0 " + width + " " + height);
+    svgEl.setAttribute("viewBox", "0 0 " + width + " " + totalHeight);
     svgEl.setAttribute("preserveAspectRatio", "xMidYMid meet");
-    svgEl.setAttribute("role", "img");
+    svgEl.setAttribute("role", "group");
     if (!svgEl.getAttribute("aria-label")) {
       svgEl.setAttribute(
         "aria-label",
@@ -359,13 +373,13 @@
 
     svgEl.appendChild(makeHatchDefs());
 
-    // White background (no dark theme, req 16).
+    // White background over the whole viewBox (no dark theme, req 16).
     svgEl.appendChild(
       el("rect", {
         x: 0,
         y: 0,
         width: width,
-        height: height,
+        height: totalHeight,
         fill: "#fff",
         rx: 0,
         ry: 0,
@@ -373,6 +387,7 @@
     );
 
     var bbox = resolveBbox(data);
+    // Project into the map area only (height), not the legend strip.
     var project = makeProjection(bbox, width, height, pad);
 
     // Block-group outlines.
@@ -457,7 +472,7 @@
     }
     svgEl.appendChild(markerGroup);
 
-    // Text legend inside the SVG.
+    // Text legend in the reserved strip below the map.
     var legend = makeLegend(width, height);
     svgEl.appendChild(legend);
     return legend;

@@ -101,3 +101,34 @@ def test_no_external_script_or_import(source: str):
     """No CDN/script tags or ES-module imports of remote URLs."""
     assert "import(" not in source or "https://" not in source
     assert "<script" not in source.lower()
+
+
+def test_svg_root_is_group_not_img(source: str):
+    """The root <svg> is a labelled 'group', not 'img' (it has focusable
+    children when interactive, so 'img' would hide them from AT)."""
+    assert 'setAttribute("role", "group")' in source
+    assert 'setAttribute("role", "img")' not in source
+    # The root still carries an aria-label.
+    assert re.search(r'"aria-label"[\s\S]{0,120}clusters', source)
+
+
+def test_marker_affordance_only_when_selectable(source: str):
+    """tabindex/role=button are only set when onSelect is a function.
+
+    In wireSelect the function returns early for a non-function onSelect, so the
+    setAttribute calls for tabindex/role=button must come AFTER that guard.
+    """
+    guard = source.index('if (typeof onSelect !== "function") return;')
+    tabindex = source.index('node.setAttribute("tabindex"')
+    role_button = source.index('node.setAttribute("role", "button")')
+    assert guard < tabindex, "tabindex set before onSelect guard"
+    assert guard < role_button, "role=button set before onSelect guard"
+
+
+def test_legend_strip_below_map(source: str):
+    """The legend sits in a reserved strip below the map (viewBox extended by
+    the strip height) rather than overlapping geometry."""
+    assert "LEGEND_STRIP_H" in source
+    # viewBox height is the map height plus the reserved legend strip.
+    assert "height + LEGEND_STRIP_H" in source
+    assert "totalHeight" in source
