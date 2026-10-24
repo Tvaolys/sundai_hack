@@ -24,12 +24,12 @@ Tasks marked HUMAN are not dispatched to executors.
   - Done when: `params.json` holds the design.md defaults (incl. resident filter `exclude_sources`) with `"placeholder": true`; `group_stats(cases)` returns total/open/known/late/rate; `chronic(cases, min_n)` returns top 3 + too-few list per design.md ordering; property tests: 0 ≤ rate ≤ 1, late ≤ known ≤ total, ranking non-increasing and never below min_n.
   - Depends on: none
 
-- [ ] T4: Duplicate clustering
+- [x] T4: Duplicate clustering
   - Files: app/cluster.py, tests/test_cluster.py
   - Done when: `cluster(cases, dist_m, days)` implements the design.md greedy rule using `app/geo.haversine_m`; skips unmapped rows; property tests: partition, single category per cluster, every member within dist and window of seed, order-independent output.
   - Depends on: T2
 
-- [ ] T12: Neighborhood + category name maps
+- [x] T12: Neighborhood + category name maps
   - Files: data/neighborhood_map.json, data/category_map.json, app/names.py, tests/test_names.py
   - Done when: both JSON files implement the design.md maps (category list completed for every raw value with ≥ 200 resident rows, computed from data/raw/ and the count recorded per entry; each entry `"placeholder": true`); `canon_neighborhood(raw)` / `canon_category(raw)` fall back per design.md ("UNKNOWN" / raw name); tests: every seed pair from design.md maps correctly, unknown values pass through, property test that canon_* is idempotent.
   - Depends on: none
@@ -39,7 +39,7 @@ Tasks marked HUMAN are not dispatched to executors.
   - Done when: reads both raw files via `app/cases.py` normalizers, applies the resident filter from params.json and `app/names.py` maps, keeps open_date ≥ 2026-01-01, rounds coords to 5 dp, writes `data/311_slice.json` plus a printed summary (rows per system, excluded by source, per-month counts); exits non-zero with a clear message naming any missing required column; test runs it on both T1 fixtures into a tmp dir and checks row counts and the filter.
   - Depends on: T1, T3, T12
 
-- [ ] T6: EJ2020 Boston fetch + loader + assignment
+- [x] T6: EJ2020 Boston fetch + loader + assignment
   - Files: scripts/fetch_ej2020_boston.py, data/ej2020_boston.json, app/equity.py, tests/test_equity.py, tests/fixtures/ej_sample.json
   - Done when: script pages through MassGIS EJ2020 for Boston with geometry (outSR=4326, coords rounded to 5 dp) and the cache is committed; executor reports the real field names for the language-isolation flag; `load_block_groups()` normalizes LIMENGHHPCT to 0–100; `assign(cases, bgs)` sets `geoid` via `app/geo.point_in_polygon` with bbox prefilter; offline tests on a 3-polygon fixture.
   - Depends on: T2
