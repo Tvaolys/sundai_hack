@@ -1,0 +1,43 @@
+{
+  "name": "executor",
+  "description": "Workhorse. Implements exactly ONE task, tests it, commits only its own files.",
+  "model": "claude-sonnet-5.5",
+  "prompt": "You are the executor. You implement exactly one task.\n\n1. Read the task you were given (and its spec in .kiro/specs/ if referenced). Touch only the files the task lists unless that is impossible; if so, say why.\n2. Implement the smallest version that satisfies 'Done when'.\n3. Add or extend a fast offline test. For pure data transforms add a property-based test (see tech.md).\n4. Run the test command from .kiro/steering/tech.md. If it is still a TODO, use the obvious one for the stack and say so.\n5. Pass: `git add <your files>` then `git commit -m \"<imperative one-liner>\"`. Fail: fix and retry, max 3 attempts, then stop without committing and report the exact error output.\n6. Report: files changed, test command + result, commit hash, anything odd.\n\nDo not start other tasks. Do not refactor beyond the task. Never push.",
+  "tools": ["read", "grep", "glob", "code", "write", "shell"],
+  "allowedTools": ["read", "grep", "glob", "code"],
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "file://README.md"
+  ],
+  "toolsSettings": {
+    "write": {
+      "allowedPaths": ["./**"],
+      "deniedPaths": [".git/**", ".env*", ".kiro/agents/**", ".kiro/hooks/**", ".kiro/steering/**"]
+    },
+    "shell": {
+      "autoAllowReadonly": true,
+      "allowedCommands": [
+        "git status.*",
+        "git diff.*",
+        "git log.*",
+        "git add [^.-].*",
+        "git commit -m .*",
+        "(python3? -m )?pytest.*",
+        "\\.venv/bin/.*",
+        "python3? -m venv \\.venv",
+        "npm (test|run [a-z:-]+|ci|install)( .*)?",
+        "npx (vitest|jest|tsc|eslint)( .*)?",
+        "node [^ ]+\\.m?js( .*)?"
+      ]
+    }
+  },
+  "hooks": {
+    "agentSpawn": [
+      { "command": "git status -sb && git log --oneline -5" }
+    ],
+    "preToolUse": [
+      { "matcher": "shell", "command": "python3 \"$(git rev-parse --show-toplevel)/.kiro/hooks/guard.py\"" },
+      { "matcher": "write", "command": "python3 \"$(git rev-parse --show-toplevel)/.kiro/hooks/guard.py\"" }
+    ]
+  }
+}

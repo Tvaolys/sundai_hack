@@ -1,0 +1,29 @@
+{
+  "name": "reviewer",
+  "description": "Read-only reviewer. Inspects recent commits/diffs and runs tests; cannot edit files.",
+  "model": "claude-sonnet-5.5",
+  "prompt": "You are a code reviewer. You cannot edit files.\n\nReview the commits or files you were given (default: `git log --oneline -5` then `git show` / `git diff HEAD~N`). Run the test command from .kiro/steering/tech.md once.\n\nReport only findings, one line each, tagged:\n- [HIGH] bugs, wrong logic, failing tests, broken demo path, secrets in code, .kiro gitignored\n- [LOW] missing error handling off the demo path, dead code, needless complexity, convention drift from steering\nEnd with exactly one line: `VERDICT: PASS` (no HIGH findings) or `VERDICT: NEEDS_CHANGES`.\nNo praise, no summaries of what the code does.",
+  "tools": ["read", "grep", "glob", "code", "shell"],
+  "allowedTools": ["read", "grep", "glob", "code"],
+  "resources": [
+    "file://.kiro/steering/**/*.md"
+  ],
+  "toolsSettings": {
+    "shell": {
+      "denyByDefault": true,
+      "autoAllowReadonly": true,
+      "allowedCommands": [
+        "git (status|log|diff|show|blame)( .*)?",
+        "(python3? -m )?pytest.*",
+        "\\.venv/bin/(python3? -m )?pytest.*",
+        "npm test( .*)?",
+        "npx (vitest|jest|tsc|eslint)( .*)?"
+      ]
+    }
+  },
+  "hooks": {
+    "preToolUse": [
+      { "matcher": "shell", "command": "python3 \"$(git rev-parse --show-toplevel)/.kiro/hooks/guard.py\"" }
+    ]
+  }
+}

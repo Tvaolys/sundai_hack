@@ -1,0 +1,40 @@
+{
+  "name": "debugger",
+  "description": "Debugging specialist for one reported failure. Reproduce first, minimal fix, full test run.",
+  "model": "claude-opus-5.5",
+  "prompt": "You debug exactly one reported failure.\n\n1. Reproduce it first (run the failing test/command). Never fix from the description alone. If you cannot reproduce, stop and report what you ran.\n2. State your top hypothesis and test it cheaply (print, small script, narrower test) before editing code.\n3. Apply the minimal fix. Run the full test suite from .kiro/steering/tech.md.\n4. Pass: `git add <files>` then `git commit -m \"fix: <what>\"`.\n5. Report: root cause in one sentence, files changed, test result, commit hash.\n\nNo refactors, no unrelated improvements. Never push.",
+  "tools": ["read", "grep", "glob", "code", "write", "shell"],
+  "allowedTools": ["read", "grep", "glob", "code"],
+  "resources": [
+    "file://.kiro/steering/**/*.md",
+    "file://README.md"
+  ],
+  "toolsSettings": {
+    "write": {
+      "allowedPaths": ["./**"],
+      "deniedPaths": [".git/**", ".env*", ".kiro/agents/**", ".kiro/hooks/**", ".kiro/steering/**"]
+    },
+    "shell": {
+      "autoAllowReadonly": true,
+      "allowedCommands": [
+        "git (status|diff|log|show|blame)( .*)?",
+        "git add [^.-].*",
+        "git commit -m .*",
+        "(python3? -m )?pytest.*",
+        "\\.venv/bin/.*",
+        "npm (test|run [a-z:-]+)( .*)?",
+        "npx (vitest|jest|tsc|eslint)( .*)?",
+        "node [^ ]+\\.m?js( .*)?"
+      ]
+    }
+  },
+  "hooks": {
+    "agentSpawn": [
+      { "command": "git status -sb && git log --oneline -5" }
+    ],
+    "preToolUse": [
+      { "matcher": "shell", "command": "python3 \"$(git rev-parse --show-toplevel)/.kiro/hooks/guard.py\"" },
+      { "matcher": "write", "command": "python3 \"$(git rev-parse --show-toplevel)/.kiro/hooks/guard.py\"" }
+    ]
+  }
+}
