@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PreCheck ER — your emergency profile</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="patient">
+  <div class="phone">
+    <div class="phone-top">
+      <div>
+        <div class="app-name">PreCheck ER</div>
+        <div class="app-sub">Your info, ready before you arrive</div>
+      </div>
+      <a class="er-link" href="/er" target="_blank" title="Open the ER dashboard">ER view →</a>
+    </div>
+
+    <div id="screen-profile" class="screen">
+      <h2>Medical profile <span class="saved" id="saved-tag">saved</span></h2>
+      <p class="muted">Fill this once. In an emergency it's sent to the ER automatically — no forms at the door.</p>
+
+      <label>Name<input id="f-name" /></label>
+      <div class="two">
+        <label>Age<input id="f-age" type="number" /></label>
+        <label>Blood type<input id="f-blood" /></label>
+      </div>
+      <label>Preferred language<input id="f-lang" placeholder="e.g. Portuguese" /></label>
+      <label>Conditions (comma-separated)<input id="f-cond" /></label>
+      <label>Medications (comma-separated)<input id="f-meds" /></label>
+      <label>Allergies (comma-separated)<input id="f-allerg" /></label>
+      <label>Emergency contact<input id="f-contact" /></label>
+      <label>Notes for responders<input id="f-notes" /></label>
+      <button id="save" class="secondary">Save profile</button>
+    </div>
+
+    <div class="sos-zone">
+      <label class="etype">
+        Emergency type
+        <select id="etype">
+          <option value="cardiac">Cardiac / chest pain</option>
+          <option value="stroke">Suspected stroke</option>
+          <option value="trauma">Major trauma / fall</option>
+          <option value="burn">Severe burn</option>
+          <option value="pediatric">Pediatric emergency</option>
+          <option value="general">General / unknown</option>
+        </select>
+      </label>
+      <div class="loc muted" id="loc-line">Location: Boston (demo)</div>
+      <div class="sos-actions">
+        <button id="sos" class="sos-btn">SOS<span>send to nearest ER</span></button>
+        <button id="fall" class="fall-btn" title="Simulate Apple Watch fall detection">Simulate fall detection</button>
+      </div>
+    </div>
+
+    <!-- Fall-detection auto countdown overlay -->
+    <div id="fall-overlay" class="fall-overlay hidden">
+      <div class="fall-card">
+        <div class="fall-title">Hard fall detected</div>
+        <div class="fall-sub">Calling emergency services &amp; sharing your profile in</div>
+        <div class="fall-count" id="fall-count">10</div>
+        <button id="fall-cancel" class="secondary">I'm OK — cancel</button>
+        <div class="muted" style="margin-top:8px;font-size:11px">No response auto-sends (as on Apple Watch).</div>
+      </div>
+    </div>
+
+    <div id="screen-active" class="screen active-screen hidden">
+      <div id="unresp-badge" class="unresp hidden">Patient unresponsive — profile is their voice</div>
+      <div class="pulse-ring"><div class="hr-big"><span id="hr-val">--</span><small>bpm</small></div></div>
+      <canvas id="ecg" class="ecg" width="340" height="70"></canvas>
+      <div class="sent-to">
+        <div class="muted">Help is on the way. Sent to:</div>
+        <div class="er-name" id="dest-name">—</div>
+        <div class="er-meta" id="dest-meta">—</div>
+        <div class="er-cap" id="dest-cap">—</div>
+      </div>
+      <div class="vital-row">
+        <div class="vital"><span id="spo2-val">--</span><small>SpO₂ %</small></div>
+        <div class="vital"><span id="eta-val">--</span><small>ETA min</small></div>
+      </div>
+      <p class="muted center">Your profile and live vitals are streaming to the ER now.</p>
+      <div class="qr-wrap">
+        <div id="qr" class="qr"></div>
+        <div class="muted center" style="font-size:11px">Responders can scan this for your full record</div>
+      </div>
+      <button id="cancel" class="secondary">Cancel / resolve</button>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script src="/static/patient.js"></script>
+</body>
+</html>

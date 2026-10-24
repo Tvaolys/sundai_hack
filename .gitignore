@@ -34,3 +34,6 @@ report/*.out
 report/*.synctex.gz
 report/*.toc
 report/*.pdf
+
+# PreCheck ER runtime state (regenerated at runtime)
+precheck-er/data/state.json

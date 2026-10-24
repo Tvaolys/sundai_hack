@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PreCheck ER — EMS crew</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="ems">
+  <header class="ems-header">
+    <div class="brand">
+      <span class="logo amb">&#128657;</span>
+      <div>
+        <h1>EMS Crew — Enroute</h1>
+        <p class="tag">The ambulance crew's view: patient, destination, live vitals</p>
+      </div>
+    </div>
+    <div class="live-pill" id="live-pill">● live</div>
+  </header>
+
+  <main class="ems-main">
+    <div id="empty" class="empty">
+      <h2>No active transport</h2>
+      <p>When a patient triggers SOS from the <a href="/" target="_blank">patient app</a>,
+         the crew's enroute view appears here. (Handles the most severe active case.)</p>
+    </div>
+
+    <div id="panel" class="ems-panel hidden">
+      <div class="ems-left">
+        <div class="ems-dest">
+          <div class="muted">Transporting to</div>
+          <div class="dest-big" id="dest-name">—</div>
+          <div class="dest-sub" id="dest-sub">—</div>
+          <div class="eta-huge"><span id="eta">--</span><small>min ETA</small></div>
+        </div>
+        <div id="map" class="ems-map"></div>
+      </div>
+
+      <div class="ems-right">
+        <div class="ems-vitals">
+          <div class="vbig"><span id="hr">--</span><small>HR</small></div>
+          <div class="vbig"><span id="spo2">--</span><small>SpO₂</small></div>
+          <div class="triage" id="triage"><span class="triage-dot"></span><b>—</b></div>
+        </div>
+        <canvas id="ecg" class="ecg" width="420" height="90"></canvas>
+
+        <div class="patient-card">
+          <h3 id="pname">—</h3>
+          <div class="flags" id="flags"></div>
+          <div class="intake" id="intake"></div>
+        </div>
+
+        <div class="sbar">
+          <h3>SBAR handoff</h3>
+          <div class="sbar-grid" id="sbar"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/static/ems.js"></script>
+</body>
+</html>

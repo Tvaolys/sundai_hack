@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PreCheck ER — incoming patients</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body class="er">
+  <header class="er-header">
+    <div class="brand">
+      <span class="logo">&#10010;</span>
+      <div>
+        <h1>PreCheck ER — Charge Nurse Board</h1>
+        <p class="tag">Inbound patients arrive pre-registered, with live vitals &amp; triage</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <a class="er-link" href="/ems" target="_blank">EMS crew view →</a>
+      <button id="mci" class="mci-btn" title="Simulate a mass-casualty incident">Simulate MCI</button>
+      <div class="live-pill" id="live-pill">● live</div>
+    </div>
+  </header>
+
+  <div id="events" class="events-bar"></div>
+
+  <main class="er-main">
+    <div class="er-grid">
+      <div class="map-col">
+        <div id="map" class="er-map"></div>
+        <div class="map-note muted">Chosen ER (green) vs nearer ERs the router skipped (grey, with reason).</div>
+      </div>
+      <div class="cases-col">
+        <div id="empty" class="empty">
+          <h2>No inbound patients</h2>
+          <p>Trigger SOS from the <a href="/" target="_blank">patient app</a> to see a patient
+             appear here — pre-registered, routed, with live vitals &amp; an early-warning score.</p>
+        </div>
+        <div id="cases" class="cases"></div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="/static/er.js"></script>
+</body>
+</html>
