@@ -95,8 +95,13 @@ Every entry carries `"placeholder": true` until a human confirms.
 - Duplicate rule: same `category`, within **50 m** of the cluster seed, opened within **14 days**
   after the seed. Seed order: by open_date, then case_id (deterministic). Greedy single pass.
 - Minimum count for a category to be ranked / a group to be compared: **20** reports with known SLA.
-- "Limited-English EJ block group": EJ2020 language-isolation criterion flag if present in the
-  schema; otherwise `LIMENGHHPCT ≥ 25`. Executor must check the real field names and report.
+- "Limited-English EJ block group": `LIMITEDENGLISH == 'E'` (CONFIRMED 2026-10-24: 72 of 462 Boston
+  EJ block groups). Comparison = reports in those block groups vs. all other reports in the
+  neighborhood. NOTE: the EJ2020 layer contains ONLY EJ block groups (all 462 Boston rows have
+  EJ='Yes'), so reports outside every polygon are non-EJ areas → geoid None, counted in "other".
+  Source: https://arcgisserver.digital.mass.gov/arcgisserver/rest/services/AGOL/EJ2020/MapServer/0
+  (maxRecordCount 2000; fields GEOID, MUNICIPALITY, TOTAL_POP, PCT_MINORITY, LIMENGHHPCT, BG_MHHI,
+  LIMITEDENGLISH, EJ_CRITERIA, EJ_CRIT_DESC).
 - Late rate = late / (on-time + late). Unknown excluded (req 2).
 - Chronic ranking: late rate desc, then late count desc, then category asc.
 
