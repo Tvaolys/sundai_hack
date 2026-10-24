@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Is my block chronically missed? — Boston 311</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main class="n1-page">
+      <!-- 1. Header: title + data window + sources (req 4). -->
+      <header class="n1-header">
+        <h1>Is my block chronically missed? — Boston 311</h1>
+        <p id="n1-window" class="n1-window">Loading data window…</p>
+        <p id="n1-sources" class="n1-sources"></p>
+        <p id="n1-placeholder" class="n1-placeholder" hidden>
+          Thresholds are placeholders and not yet confirmed by a human.
+        </p>
+      </header>
+
+      <!-- Status / loading / error, announced to screen readers (req 19). -->
+      <p id="n1-status" class="n1-status" role="status" aria-live="polite"></p>
+
+      <!-- 2. Neighborhood picker + button. -->
+      <section class="n1-section" aria-labelledby="n1-pick-heading">
+        <h2 id="n1-pick-heading">Choose a neighborhood</h2>
+        <div class="n1-pick">
+          <label for="n1-neighborhood">Neighborhood</label>
+          <select id="n1-neighborhood" name="neighborhood">
+            <option value="">Loading neighborhoods…</option>
+          </select>
+          <button id="n1-show" type="button">Show neighborhood</button>
+        </div>
+      </section>
+
+      <!-- Results region: everything below depends on a selected neighborhood. -->
+      <div id="n1-results" hidden>
+        <h2 id="n1-nb-name" class="n1-nb-name"></h2>
+
+        <!-- 3. Stats box. -->
+        <section class="n1-section" aria-labelledby="n1-stats-heading">
+          <h3 id="n1-stats-heading">Service stats</h3>
+          <table class="n1-table" id="n1-stats-table">
+            <caption class="n1-caption">Case counts and late rate for this neighborhood.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Measure</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody id="n1-stats-body"></tbody>
+          </table>
+        </section>
+
+        <!-- 4. Chronic categories table. -->
+        <section class="n1-section" aria-labelledby="n1-chronic-heading">
+          <h3 id="n1-chronic-heading">Chronic categories</h3>
+          <table class="n1-table" id="n1-chronic-table">
+            <caption class="n1-caption">Top categories ranked by late rate.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Rank</th>
+                <th scope="col">Category</th>
+                <th scope="col">Late rate</th>
+                <th scope="col">Late</th>
+                <th scope="col">Known</th>
+              </tr>
+            </thead>
+            <tbody id="n1-chronic-body"></tbody>
+          </table>
+          <h4 id="n1-toofew-heading">Too few cases to rank</h4>
+          <p id="n1-toofew" class="n1-toofew"></p>
+        </section>
+
+        <!-- 5. Equity box. -->
+        <section class="n1-section" aria-labelledby="n1-equity-heading">
+          <h3 id="n1-equity-heading">
+            Limited-English environmental-justice block groups vs. the rest
+          </h3>
+          <p id="n1-equity-reading" class="n1-equity-reading"></p>
+          <table class="n1-table" id="n1-equity-table">
+            <caption class="n1-caption">
+              Observed vs. expected late rate, adjusted for what people report.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Group</th>
+                <th scope="col">Observed late rate</th>
+                <th scope="col">Expected from category mix</th>
+                <th scope="col">Excess (points)</th>
+              </tr>
+            </thead>
+            <tbody id="n1-equity-body"></tbody>
+          </table>
+          <p id="n1-equity-caveat" class="n1-caveat"></p>
+        </section>
+
+        <!-- 6. Map + legend. -->
+        <section class="n1-section" aria-labelledby="n1-map-heading">
+          <h3 id="n1-map-heading">Map of repeat-report clusters</h3>
+          <p class="n1-map-note">
+            Each marker is one cluster of repeat reports. Select a marker to open
+            its reports in the table below. The clusters table is the text
+            equivalent of this map.
+          </p>
+          <svg id="n1-map" class="n1-map" width="800" height="600"></svg>
+        </section>
+
+        <!-- 7. Clusters table + raw rows. -->
+        <section class="n1-section" aria-labelledby="n1-clusters-heading">
+          <h3 id="n1-clusters-heading">Repeat-report clusters (top 25)</h3>
+          <table class="n1-table" id="n1-clusters-table">
+            <caption class="n1-caption">
+              Clusters of repeat reports, largest first. Text equivalent of the map.
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">Category</th>
+                <th scope="col">Reports</th>
+                <th scope="col">Late</th>
+                <th scope="col">First / last date</th>
+                <th scope="col">Reports</th>
+              </tr>
+            </thead>
+            <tbody id="n1-clusters-body"></tbody>
+          </table>
+
+          <div id="n1-rows" hidden>
+            <h4 id="n1-rows-heading" class="n1-rows-heading"></h4>
+            <table class="n1-table" id="n1-rows-table">
+              <caption class="n1-caption">Raw reports behind the selected cluster.</caption>
+              <thead>
+                <tr>
+                  <th scope="col">Case id</th>
+                  <th scope="col">Open date</th>
+                  <th scope="col">Status</th>
+                  <th scope="col">On time</th>
+                  <th scope="col">Address</th>
+                </tr>
+              </thead>
+              <tbody id="n1-rows-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <script src="map.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

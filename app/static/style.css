@@ -1,0 +1,198 @@
+/* n1-311triage page styling (task T10).
+ *
+ * Readability rules (requirements 16-19): white background, #111 text, base
+ * font >= 18px, 2px solid borders on buttons/inputs/tables, border-radius: 0
+ * everywhere, a visible 3px focus outline (including SVG markers), and status
+ * conveyed with words, never color alone. No external fonts or URLs. */
+
+* {
+  box-sizing: border-box;
+  border-radius: 0;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: #ffffff;
+  color: #111111;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 18px;
+  line-height: 1.5;
+}
+
+.n1-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 {
+  font-size: 30px;
+  margin: 0 0 8px 0;
+}
+
+h2 {
+  font-size: 24px;
+  margin: 24px 0 8px 0;
+}
+
+h3 {
+  font-size: 21px;
+  margin: 16px 0 8px 0;
+}
+
+h4 {
+  font-size: 19px;
+  margin: 12px 0 6px 0;
+}
+
+.n1-header {
+  border-bottom: 2px solid #111111;
+  padding-bottom: 12px;
+}
+
+.n1-window,
+.n1-sources {
+  margin: 4px 0;
+  font-size: 18px;
+}
+
+.n1-placeholder {
+  margin: 8px 0;
+  padding: 8px;
+  border: 2px solid #111111;
+  background: #ffffff;
+  font-weight: bold;
+}
+
+.n1-status {
+  margin: 12px 0;
+  padding: 8px;
+  border: 2px solid #111111;
+  background: #ffffff;
+  min-height: 1.5em;
+}
+
+.n1-status:empty {
+  display: none;
+}
+
+.n1-section {
+  margin: 24px 0;
+}
+
+.n1-pick {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
+label {
+  font-weight: bold;
+}
+
+select,
+button {
+  font-size: 18px;
+  font-family: inherit;
+  color: #111111;
+  background: #ffffff;
+  border: 2px solid #111111;
+  padding: 8px 12px;
+  border-radius: 0;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:hover {
+  background: #eeeeee;
+}
+
+/* Visible 3px keyboard focus outline on every interactive element (req 17). */
+a:focus,
+a:focus-visible,
+select:focus,
+select:focus-visible,
+button:focus,
+button:focus-visible {
+  outline: 3px solid #111111;
+  outline-offset: 2px;
+}
+
+/* SVG cluster markers are focusable buttons; keep a visible focus ring. */
+.n1-marker:focus,
+.n1-marker:focus-visible {
+  outline: 3px solid #111111;
+  outline-offset: 2px;
+  stroke: #111111;
+  stroke-width: 3;
+}
+
+.n1-table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 8px 0;
+  border: 2px solid #111111;
+}
+
+.n1-table caption {
+  text-align: left;
+  font-style: italic;
+  margin-bottom: 6px;
+}
+
+.n1-table th,
+.n1-table td {
+  border: 2px solid #111111;
+  padding: 8px 10px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.n1-table th {
+  background: #ffffff;
+  font-weight: bold;
+}
+
+.n1-caption {
+  font-size: 16px;
+}
+
+.n1-map {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 800px;
+  border: 2px solid #111111;
+  background: #ffffff;
+}
+
+.n1-map-note,
+.n1-toofew,
+.n1-equity-reading {
+  margin: 8px 0;
+}
+
+.n1-equity-reading {
+  font-weight: bold;
+}
+
+.n1-caveat {
+  margin: 8px 0;
+  padding: 8px;
+  border: 2px solid #111111;
+  font-style: italic;
+}
+
+.n1-nb-name {
+  border-bottom: 2px solid #111111;
+  padding-bottom: 8px;
+}
+
+.n1-rows-heading {
+  margin-top: 16px;
+}
