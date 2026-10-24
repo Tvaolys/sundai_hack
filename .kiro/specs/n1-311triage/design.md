@@ -8,7 +8,7 @@ The map is a hand-drawn SVG (lon/lat → x/y) of EJ2020 block-group outlines plu
 markers — no Leaflet, no tiles, so nothing breaks without Wi-Fi.
 
 ## Components & files
-- `app/cases.py` — load + normalize 311 rows from `data/311_slice.json`
+- `app/cases.py` — load + normalize 311 rows from `data/311_slice.json.gz`
 - `app/geo.py` — haversine, point-in-polygon, bbox check (pure)
 - `app/equity.py` — load EJ2020 Boston block groups (+ geometry), assign report → block group
 - `app/cluster.py` — duplicate-report clustering (pure)
@@ -16,7 +16,7 @@ markers — no Leaflet, no tiles, so nothing breaks without Wi-Fi.
 - `app/overlay.py` — EJ vs non-EJ late-rate comparison (pure)
 - `app/server.py` — routes, serves `app/static/`
 - `app/static/index.html`, `style.css`, `app.js`, `map.js` — UI
-- `scripts/slim_311.py` — raw CSV (gitignored) → `data/311_slice.json`
+- `scripts/slim_311.py` — raw CSV (gitignored) → `data/311_slice.json.gz`
 - `scripts/fetch_ej2020_boston.py` — MassGIS EJ2020 query → `data/ej2020_boston.json`
 - `tests/fixtures/311_sample.csv` — ~40 hand-made rows incl. edge cases; all tests use this
 

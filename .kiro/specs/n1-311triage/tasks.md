@@ -55,7 +55,7 @@ Tasks marked HUMAN are not dispatched to executors.
   - Depends on: T7
 
 - [ ] H2 (HUMAN): Run slim on the real export and pick the demo neighborhood
-  - Files: data/311_slice.json, data/params.json
+  - Files: data/311_slice.json.gz, data/params.json
   - Done when: `.venv/bin/python scripts/slim_311.py` produced the slice (< 15 MB); human reviewed per-neighborhood stats/equity output split by system (lead can print it), confirmed thresholds, resident filter, and both name maps; `placeholder` set to false.
   - Depends on: H1, T5, T7, T12
 

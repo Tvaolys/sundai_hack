@@ -15,7 +15,7 @@ def test_load_params_defaults():
     params = load_params()
     assert params["cluster_distance_m"] == 50
     assert params["cluster_window_days"] == 14
-    assert params["min_n"] == 20
+    assert params["min_n"] == 50
     assert params["lim_eng_pct_threshold"] == 25
     assert params["window_start"] == "2026-01-01"
     assert params["exclude_sources"] == ["Employee Generated", "City Worker App"]
@@ -23,7 +23,7 @@ def test_load_params_defaults():
 
 
 def test_load_params_explicit_path():
-    assert load_params(PARAMS_PATH)["min_n"] == 20
+    assert load_params(PARAMS_PATH)["min_n"] == 50
 
 
 # --- group_stats --------------------------------------------------------
