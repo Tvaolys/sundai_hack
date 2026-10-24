@@ -2,7 +2,7 @@
 
 Spec: `.kiro/specs/emready/` (requirements.md, design.md). Tests: `.venv/bin/python -m pytest -q`.
 
-- [ ] T1: Scaffold Python app + venv + health route
+- [x] T1: Scaffold Python app + venv + health route
   - Files: requirements.txt, app/__init__.py, app/server.py, tests/__init__.py, tests/test_health.py
   - Done when: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt` works; pinned fastapi, uvicorn, httpx, pytest, hypothesis; `GET /api/health` returns `{"ok": true}`; test passes.
   - Depends on: none
