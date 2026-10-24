@@ -13,6 +13,7 @@ lazily and cached per neighborhood; a ``case_id -> neighborhood`` index lets
 """
 from __future__ import annotations
 
+import logging
 import os
 from contextlib import asynccontextmanager
 from pathlib import Path
@@ -26,6 +27,9 @@ from app.equity import assign, load_block_groups
 from app.overlay import baseline, compare
 from app.sla import chronic, group_stats, load_params
 
+_log = logging.getLogger(__name__)
+
+
 @asynccontextmanager
 async def _lifespan(app: FastAPI):
     """Warm the data cache at startup so the first demo click isn't slow.
@@ -34,13 +38,13 @@ async def _lifespan(app: FastAPI):
     slice); doing it here means the first ``/api`` request is already warm. Env
     vars are read at this point, so tests that set ``N1_SLICE`` / ``N1_EJ`` /
     ``N1_PARAMS`` and call ``reset_state()`` before entering the TestClient
-    context still load their fixtures. A load failure is swallowed so the app
-    still starts and the first request can surface the real error.
+    context still load their fixtures. A load failure is logged (not raised) so
+    the app still starts and the first request can surface the real error.
     """
     try:
         get_state()
     except Exception:  # noqa: BLE001 - don't block startup on a data error.
-        pass
+        _log.exception("startup data load failed; first request will retry")
     yield
 
 
@@ -355,6 +359,7 @@ def map_view(name: str = Query(...)) -> dict:
         markers.append(
             {
                 "id": cl["id"],
+                "category": cl["category"],
                 "lat": cl["lat"],
                 "lon": cl["lon"],
                 "size": cl["size"],

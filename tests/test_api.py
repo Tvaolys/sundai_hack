@@ -177,10 +177,12 @@ def test_map_shape(client):
     assert "LE_ALLSTON" in geoids
     for bg in body["block_groups"]:
         assert "limited_english" in bg and "rings" in bg
-    # Markers are clusters size >= 2.
+    # Markers are clusters size >= 2, and every marker carries its category.
     assert all(m["size"] >= 2 for m in body["markers"])
+    assert all("category" in m and m["category"] for m in body["markers"])
     m = next(m for m in body["markers"] if m["id"] == "BCS-00250001")
     assert m["has_late"] is True  # the Pothole cluster has 1 late
+    assert m["category"] == "Pothole"
 
 
 def test_map_unknown_404(client):
