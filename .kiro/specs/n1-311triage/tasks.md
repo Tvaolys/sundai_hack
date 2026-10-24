@@ -9,17 +9,17 @@ Tasks marked HUMAN are not dispatched to executors.
   - Done when: both files saved (new system 75,851 rows; legacy 2026 190,668 rows); schemas confirmed and recorded in design.md "Raw schemas".
   - Depends on: none
 
-- [ ] T1: Fixtures + 311 row normalizer (both schemas)
+- [x] T1: Fixtures + 311 row normalizer (both schemas)
   - Files: tests/fixtures/311_new_sample.csv, tests/fixtures/311_legacy_sample.csv, app/cases.py, tests/test_cases.py
   - Done when: each fixture has ~25 rows using the exact header of its raw file (design.md "Raw schemas") incl. missing on_time, no coords, out-of-bbox coords, bad dates, `&amp;` in legacy addresses, both timestamp formats; `normalize_new(row)` / `normalize_legacy(row)` return the canonical fields (on_time True/False/None, lat/lon None when invalid, tz-aware open_date, `system` = "new"/"legacy"); `load_cases(path)` reads `data/311_slice.json`; hypothesis test: on_time is always in {True, False, None}.
   - Depends on: none
 
-- [ ] T2: Geo helpers
+- [x] T2: Geo helpers
   - Files: app/geo.py, tests/test_geo.py
   - Done when: `haversine_m`, `in_bbox`, `point_in_polygon(lon, lat, rings)` (holes handled) implemented; property tests: distance ≥ 0 and symmetric; random points inside/outside a known square classified correctly.
   - Depends on: none
 
-- [ ] T3: Params file + SLA stats + chronic ranking
+- [x] T3: Params file + SLA stats + chronic ranking
   - Files: data/params.json, app/sla.py, tests/test_sla.py
   - Done when: `params.json` holds the design.md defaults (incl. resident filter `exclude_sources`) with `"placeholder": true`; `group_stats(cases)` returns total/open/known/late/rate; `chronic(cases, min_n)` returns top 3 + too-few list per design.md ordering; property tests: 0 ≤ rate ≤ 1, late ≤ known ≤ total, ranking non-increasing and never below min_n.
   - Depends on: none
