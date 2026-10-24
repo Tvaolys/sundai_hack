@@ -1,0 +1,420 @@
+{
+  "placeholder": true,
+  "map": {
+    "Abandoned Bicycle": {
+      "canonical": "Abandoned Bicycle",
+      "rows": 481,
+      "placeholder": true
+    },
+    "Abandoned Vehicles": {
+      "canonical": "Abandoned Vehicles",
+      "rows": 1898,
+      "placeholder": true
+    },
+    "BWSC Pothole": {
+      "canonical": "Pothole",
+      "rows": 18,
+      "placeholder": true
+    },
+    "Ballfield Issue": {
+      "canonical": "Ballfield Issue",
+      "rows": 290,
+      "placeholder": true
+    },
+    "Broken Park Equipment": {
+      "canonical": "Broken Park Equipment",
+      "rows": 1256,
+      "placeholder": true
+    },
+    "Building Inspection Request": {
+      "canonical": "Building Inspection Request",
+      "rows": 406,
+      "placeholder": true
+    },
+    "CE Collection": {
+      "canonical": "Code Enforcement Collection",
+      "rows": 0,
+      "placeholder": true
+    },
+    "Chronic Dampness/Mold": {
+      "canonical": "Chronic Dampness/Mold",
+      "rows": 203,
+      "placeholder": true
+    },
+    "Code Enforcement Collection": {
+      "canonical": "Code Enforcement Collection",
+      "rows": 142,
+      "placeholder": true
+    },
+    "Construction Debris": {
+      "canonical": "Construction Debris",
+      "rows": 623,
+      "placeholder": true
+    },
+    "Contractor Complaints": {
+      "canonical": "Contractor Complaints",
+      "rows": 229,
+      "placeholder": true
+    },
+    "Contractors Complaint": {
+      "canonical": "Contractors Complaint",
+      "rows": 298,
+      "placeholder": true
+    },
+    "Damaged/Faded Sign": {
+      "canonical": "Sign Repair",
+      "rows": 2,
+      "placeholder": true
+    },
+    "Dead Animal General": {
+      "canonical": "Dead Animal",
+      "rows": 3259,
+      "placeholder": true
+    },
+    "Domestic Animal Issue": {
+      "canonical": "Domestic Animal Issue",
+      "rows": 4738,
+      "placeholder": true
+    },
+    "Electrical": {
+      "canonical": "Electrical",
+      "rows": 456,
+      "placeholder": true
+    },
+    "Empty Litter Basket": {
+      "canonical": "Empty Litter Basket",
+      "rows": 894,
+      "placeholder": true
+    },
+    "Encampments": {
+      "canonical": "Encampments",
+      "rows": 340,
+      "placeholder": true
+    },
+    "Fallen Tree or Branches": {
+      "canonical": "Fallen Tree or Branches",
+      "rows": 2929,
+      "placeholder": true
+    },
+    "Graffiti Removal": {
+      "canonical": "Graffiti",
+      "rows": 291,
+      "placeholder": true
+    },
+    "Heat - Excessive  Insufficient": {
+      "canonical": "Heat - Excessive  Insufficient",
+      "rows": 927,
+      "placeholder": true
+    },
+    "Illegal Dumping": {
+      "canonical": "Illegal Dumping",
+      "rows": 548,
+      "placeholder": true
+    },
+    "Illegal Dumping or Disposal": {
+      "canonical": "Illegal Dumping",
+      "rows": 3105,
+      "placeholder": true
+    },
+    "Illegal Graffiti": {
+      "canonical": "Graffiti",
+      "rows": 1207,
+      "placeholder": true
+    },
+    "Illegal Parking": {
+      "canonical": "Illegal Parking",
+      "rows": 2063,
+      "placeholder": true
+    },
+    "Illegally Blocked Sidewalk": {
+      "canonical": "Illegally Blocked Sidewalk",
+      "rows": 1841,
+      "placeholder": true
+    },
+    "Improper Storage of Trash (Barrels)": {
+      "canonical": "Improper Trash Storage",
+      "rows": 4424,
+      "placeholder": true
+    },
+    "Improper Trash Storage": {
+      "canonical": "Improper Trash Storage",
+      "rows": 3505,
+      "placeholder": true
+    },
+    "Knocked Down Sign": {
+      "canonical": "Sign Repair",
+      "rows": 2,
+      "placeholder": true
+    },
+    "Litter & Debris": {
+      "canonical": "Litter & Debris",
+      "rows": 10359,
+      "placeholder": true
+    },
+    "Lost Pet": {
+      "canonical": "Lost Pet",
+      "rows": 372,
+      "placeholder": true
+    },
+    "Maintenance Complaint - Residential": {
+      "canonical": "Maintenance Complaint - Residential",
+      "rows": 592,
+      "placeholder": true
+    },
+    "Mice Infestation - Residential": {
+      "canonical": "Mice Infestation - Residential",
+      "rows": 394,
+      "placeholder": true
+    },
+    "Missed Trash/Recycling/Yard Waste/Bulk Item": {
+      "canonical": "Missed Waste Pick-up",
+      "rows": 2175,
+      "placeholder": true
+    },
+    "Missed Waste Pick-up": {
+      "canonical": "Missed Waste Pick-up",
+      "rows": 4027,
+      "placeholder": true
+    },
+    "Missing / Knocked Down Sign": {
+      "canonical": "Sign Repair",
+      "rows": 277,
+      "placeholder": true
+    },
+    "Missing Sign": {
+      "canonical": "Sign Repair",
+      "rows": 94,
+      "placeholder": true
+    },
+    "Needle Pickup": {
+      "canonical": "Needle Pickup",
+      "rows": 4715,
+      "placeholder": true
+    },
+    "New Sign  Crosswalk or Pavement Marking": {
+      "canonical": "New Sign  Crosswalk or Pavement Marking",
+      "rows": 334,
+      "placeholder": true
+    },
+    "Other": {
+      "canonical": "Other",
+      "rows": 1687,
+      "placeholder": true
+    },
+    "Overflowing Trash": {
+      "canonical": "Overflowing Trash",
+      "rows": 2053,
+      "placeholder": true
+    },
+    "Overgrown Weeds": {
+      "canonical": "Overgrown Weeds",
+      "rows": 1198,
+      "placeholder": true
+    },
+    "PWD Graffiti": {
+      "canonical": "Graffiti",
+      "rows": 276,
+      "placeholder": true
+    },
+    "Park Groundskeeping": {
+      "canonical": "Park Groundskeeping",
+      "rows": 1912,
+      "placeholder": true
+    },
+    "Park Litter & Debris": {
+      "canonical": "Park Litter & Debris",
+      "rows": 363,
+      "placeholder": true
+    },
+    "Park Overflowing Trash Can": {
+      "canonical": "Park Overflowing Trash Can",
+      "rows": 253,
+      "placeholder": true
+    },
+    "Parking Enforcement": {
+      "canonical": "Illegal Parking",
+      "rows": 17478,
+      "placeholder": true
+    },
+    "Parks General Request": {
+      "canonical": "Parks General Request",
+      "rows": 384,
+      "placeholder": true
+    },
+    "Pest Infestation - Residential": {
+      "canonical": "Pest Infestation - Residential",
+      "rows": 1434,
+      "placeholder": true
+    },
+    "Pick up Dead Animal": {
+      "canonical": "Dead Animal",
+      "rows": 1432,
+      "placeholder": true
+    },
+    "Planting Request": {
+      "canonical": "Planting Request",
+      "rows": 544,
+      "placeholder": true
+    },
+    "Poor Conditions of Property": {
+      "canonical": "Poor Conditions of Property",
+      "rows": 1715,
+      "placeholder": true
+    },
+    "Pothole": {
+      "canonical": "Pothole",
+      "rows": 2355,
+      "placeholder": true
+    },
+    "Pruning Request": {
+      "canonical": "Tree Pruning",
+      "rows": 2627,
+      "placeholder": true
+    },
+    "Public Works General Request": {
+      "canonical": "Public Works General Request",
+      "rows": 295,
+      "placeholder": true
+    },
+    "Recycling Cart Return": {
+      "canonical": "Recycling Cart Return",
+      "rows": 380,
+      "placeholder": true
+    },
+    "Request for Pothole Repair": {
+      "canonical": "Pothole",
+      "rows": 4270,
+      "placeholder": true
+    },
+    "Request for Recycling Cart": {
+      "canonical": "Request for Recycling Cart",
+      "rows": 1952,
+      "placeholder": true
+    },
+    "Request for Snow Plowing": {
+      "canonical": "Snow Plowing",
+      "rows": 5208,
+      "placeholder": true
+    },
+    "Requests for Street Cleaning": {
+      "canonical": "Requests for Street Cleaning",
+      "rows": 4947,
+      "placeholder": true
+    },
+    "Rodent Activity": {
+      "canonical": "Rodent Activity",
+      "rows": 2561,
+      "placeholder": true
+    },
+    "Sidewalk Repair": {
+      "canonical": "Sidewalk Repair",
+      "rows": 2753,
+      "placeholder": true
+    },
+    "Sidewalk Repair (Make Safe)": {
+      "canonical": "Sidewalk Repair",
+      "rows": 2358,
+      "placeholder": true
+    },
+    "Sign Repair": {
+      "canonical": "Sign Repair",
+      "rows": 3191,
+      "placeholder": true
+    },
+    "Snow Plowing": {
+      "canonical": "Snow Plowing",
+      "rows": 1,
+      "placeholder": true
+    },
+    "Sticker Request": {
+      "canonical": "Sticker Request",
+      "rows": 1457,
+      "placeholder": true
+    },
+    "Street Light Knockdown": {
+      "canonical": "Street Light Knockdown",
+      "rows": 697,
+      "placeholder": true
+    },
+    "Street Light Other": {
+      "canonical": "Street Light Other",
+      "rows": 1036,
+      "placeholder": true
+    },
+    "Street Light Outage": {
+      "canonical": "Street Light Outage",
+      "rows": 4497,
+      "placeholder": true
+    },
+    "Student Move-In (Trash Collection)": {
+      "canonical": "Student Move-In (Trash Collection)",
+      "rows": 280,
+      "placeholder": true
+    },
+    "Traffic Signal Inspection": {
+      "canonical": "Traffic Signal Inspection",
+      "rows": 1820,
+      "placeholder": true
+    },
+    "Traffic Signal Request": {
+      "canonical": "Traffic Signal Request",
+      "rows": 287,
+      "placeholder": true
+    },
+    "Transportation General Request": {
+      "canonical": "Transportation General Request",
+      "rows": 316,
+      "placeholder": true
+    },
+    "Trash Placed Out Early": {
+      "canonical": "Trash Placed Out Early",
+      "rows": 3049,
+      "placeholder": true
+    },
+    "Tree Maintenance Requests": {
+      "canonical": "Tree Pruning",
+      "rows": 1,
+      "placeholder": true
+    },
+    "Tree or Stump Removal": {
+      "canonical": "Tree or Stump Removal",
+      "rows": 1323,
+      "placeholder": true
+    },
+    "Unauthorized Signage": {
+      "canonical": "Unauthorized Signage",
+      "rows": 450,
+      "placeholder": true
+    },
+    "Unauthorized Vending": {
+      "canonical": "Unauthorized Vending",
+      "rows": 210,
+      "placeholder": true
+    },
+    "Unsatisfactory Living Conditions": {
+      "canonical": "Unsatisfactory Living Conditions",
+      "rows": 2330,
+      "placeholder": true
+    },
+    "Unsatisfactory Utilities - Electrical  Plumbing": {
+      "canonical": "Unsatisfactory Utilities - Electrical  Plumbing",
+      "rows": 249,
+      "placeholder": true
+    },
+    "Unshoveled Sidewalk": {
+      "canonical": "Unshoveled Sidewalk",
+      "rows": 4967,
+      "placeholder": true
+    },
+    "Utility Contractor Complaints": {
+      "canonical": "Utility Contractor Complaints",
+      "rows": 1092,
+      "placeholder": true
+    },
+    "Wild Animal Issue": {
+      "canonical": "Wild Animal Issue",
+      "rows": 3088,
+      "placeholder": true
+    }
+  }
+}

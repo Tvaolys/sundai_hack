@@ -1,0 +1,26 @@
+{
+  "placeholder": true,
+  "map": {
+    "Allston": {"canonical": "Allston / Brighton", "placeholder": true},
+    "Brighton": {"canonical": "Allston / Brighton", "placeholder": true},
+    "Allston / Brighton": {"canonical": "Allston / Brighton", "placeholder": true},
+    "South Boston": {"canonical": "South Boston", "placeholder": true},
+    "South Boston Waterfront": {"canonical": "South Boston", "placeholder": true},
+    "South Boston / South Boston Waterfront": {"canonical": "South Boston", "placeholder": true},
+    "Fenway": {"canonical": "Fenway / Longwood", "placeholder": true},
+    "Longwood": {"canonical": "Fenway / Longwood", "placeholder": true},
+    "Fenway / Kenmore / Audubon Circle / Longwood": {"canonical": "Fenway / Longwood", "placeholder": true},
+    "Mattapan": {"canonical": "Mattapan", "placeholder": true},
+    "Greater Mattapan": {"canonical": "Mattapan", "placeholder": true},
+    "Downtown": {"canonical": "Downtown", "placeholder": true},
+    "Downtown / Financial District": {"canonical": "Downtown", "placeholder": true},
+    "Chinatown": {"canonical": "Downtown", "placeholder": true},
+    "Leather District": {"canonical": "Downtown", "placeholder": true},
+    "Bay Village": {"canonical": "Downtown", "placeholder": true},
+    "West End": {"canonical": "Downtown", "placeholder": true},
+    "North End": {"canonical": "Downtown", "placeholder": true},
+    "": {"canonical": "UNKNOWN", "placeholder": true},
+    "Boston": {"canonical": "UNKNOWN", "placeholder": true},
+    "Chestnut Hill": {"canonical": "UNKNOWN", "placeholder": true}
+  }
+}
