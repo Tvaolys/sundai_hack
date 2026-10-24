@@ -5,17 +5,22 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Who Gets Missed — Emergency Outreach Planner</title>
 <style>
-:root{--bg:#f6f8fa;--card:#ffffff;--fg:#1f2328;--muted:#59636e;--line:#d1d9e0;--accent:#0969da;--ok:#1a7f37;--part:#9a6700;--miss:#cf222e;--water:#dbeafe;--land:#eef1f4;--zone:#c8d1da}
-@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--fg:#e6edf3;--muted:#9198a1;--line:#30363d;--accent:#4493f8;--ok:#3fb950;--part:#d29922;--miss:#f85149;--water:#102a43;--land:#21262d;--zone:#3d444d}}
+:root{--bg:#f6f8fa;--card:#ffffff;--fg:#1f2328;--muted:#59636e;--line:#d1d9e0;--accent:#0969da;--ok:#1a7f37;--part:#9a6700;--miss:#cf222e;--water:#dbeafe;--land:#eef1f4;--zone:#c8d1da;--county:#6639ba;--cty0:#6639ba;--cty1:#0550ae;--cty2:#bf3989;--cty3:#1b7c83;--cty4:#7d4e2d;--cty5:#424a53}
+@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--fg:#e6edf3;--muted:#9198a1;--line:#30363d;--accent:#4493f8;--ok:#3fb950;--part:#d29922;--miss:#f85149;--water:#102a43;--land:#21262d;--zone:#3d444d;--county:#d2a8ff;--cty0:#d2a8ff;--cty1:#79c0ff;--cty2:#ff9bce;--cty3:#56d4dd;--cty4:#c9a27e;--cty5:#b1bac4}}
 *{box-sizing:border-box}
+[hidden]{display:none !important}
 body{margin:0;font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--fg)}
 header{padding:16px 20px;border-bottom:1px solid var(--line);background:var(--card);color:var(--fg)}
 h1{margin:0;font-size:21px}
 h2{font-size:15px;margin:0 0 10px}
 .sub{color:var(--muted);margin:4px 0 0}
-.safety{margin:12px 20px 0;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--card);color:var(--fg);border-radius:6px}
-main{display:grid;grid-template-columns:340px 1fr;gap:16px;padding:16px 20px}
-@media (max-width:900px){main{grid-template-columns:1fr}}
+.safety{margin:12px 20px 0;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--card);color:var(--fg);border-radius:6px;font-size:13px}
+.layout{display:grid;grid-template-columns:340px 1fr;gap:16px;padding:16px 20px}
+@media (max-width:900px){.layout{grid-template-columns:1fr}}
+.tabs{display:flex;gap:4px;padding:8px 20px 0;background:var(--card);border-bottom:1px solid var(--line)}
+.tabs button{width:auto;background:transparent;color:var(--fg);border:1px solid transparent;border-bottom:0;border-radius:6px 6px 0 0;padding:8px 16px;margin-bottom:-1px;font-weight:600}
+.tabs button[aria-selected="true"]{background:var(--bg);border-color:var(--line);color:var(--accent)}
+.tabs .badge{margin-left:6px}
 .card{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:14px}
 aside .card+.card{margin-top:12px}
 label{display:block;font-weight:600;margin:10px 0 4px}
@@ -26,9 +31,28 @@ fieldset{border:1px solid var(--line);border-radius:6px;margin:10px 0 0;padding:
 legend{font-weight:600;padding:0 4px}
 .towns{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:13px}
 .towns label{font-weight:400;margin:0;display:flex;gap:6px;align-items:center}
+.counties{max-height:190px;overflow:auto;padding-right:4px}
+.hzset{margin-top:0}
+.hzgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.hzgrid label{display:flex;gap:6px;align-items:center;margin:0;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-weight:500;font-size:13px;cursor:pointer;background:var(--card);color:var(--fg)}
+.hzgrid label.on{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent);font-weight:700}
+.hzgrid label:focus-within{outline:2px solid var(--accent);outline-offset:1px}
+.hzgrid input{accent-color:var(--accent);margin:0}
+.badge{margin-left:auto;font-size:11px;padding:1px 6px;border-radius:9px;background:var(--miss);color:var(--card);white-space:nowrap}
 .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .row3 label{font-size:12px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px}
+@media (max-width:1100px){.stats{grid-template-columns:repeat(3,1fr)}}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sos{margin:0 0 6px;padding:8px 10px;border-radius:6px;border:1px solid var(--line);border-left:4px solid var(--miss);background:var(--card);color:var(--fg);font-size:13px}
+button[aria-pressed="true"]{background:var(--miss);border-color:var(--miss);color:var(--card)}
+#map.adding{cursor:crosshair}
+.quiet{display:inline-block;margin-left:4px;font-size:11px;padding:0 6px;border-radius:9px;border:1px dashed var(--miss);color:var(--miss);font-weight:700;white-space:nowrap}
+.sev{display:inline-block;min-width:22px;text-align:center;font-size:11px;font-weight:700;padding:1px 6px;border-radius:9px;color:var(--card)}
+.sev1{background:var(--miss)} .sev2{background:var(--part)} .sev3{background:var(--muted)}
+.queue{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto;font-size:13px}
+.queue li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;padding:6px 4px;border-bottom:1px solid var(--line);cursor:pointer}
+.queue li:focus-visible{outline:2px solid var(--accent)}
 @media (max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
 .stat{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px}
 .stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
@@ -57,7 +81,17 @@ tr.cut td{border-top:2px dashed var(--miss)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
 @media (max-width:1100px){.grid2{grid-template-columns:1fr}}
 svg{width:100%;height:auto;display:block;border-radius:6px}
-svg text{font-size:11px;font-family:inherit;font-weight:700;paint-order:stroke;stroke-width:3px}
+#map{max-height:640px;touch-action:none;cursor:grab}
+#map.dragging{cursor:grabbing}
+#map path{vector-effect:non-scaling-stroke}
+.maphead{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.zoombtns{display:flex;gap:4px}
+.zoombtns button{width:auto;min-width:34px;padding:4px 10px}
+tr.hl td{background:var(--bg)}
+#tbl tbody tr{cursor:pointer}
+svg text{font-size:calc(11px * var(--lblk, 1));font-family:inherit;font-weight:700;paint-order:stroke;stroke-width:calc(3px * var(--lblk, 1))}
+svg text.countylbl{font-size:calc(13px * var(--lblk, 1));font-weight:800;font-style:italic;letter-spacing:.1em;fill:var(--county);stroke:var(--card);stroke-width:calc(4px * var(--lblk, 1));stroke-linejoin:round}
+svg text.townlbl{font-size:calc(10px * var(--lblk, 1));font-weight:600;letter-spacing:.06em;opacity:.85;stroke-width:calc(3.5px * var(--lblk, 1))}
 button{padding:8px 12px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--card);font:inherit;font-weight:600;cursor:pointer;width:100%}
 button.ghost{background:var(--card);color:var(--accent)}
 button:disabled{opacity:.6;cursor:wait}
@@ -75,34 +109,53 @@ button:disabled{opacity:.6;cursor:wait}
 <body>
 <header>
   <h1>Who Gets Missed</h1>
-  <p class="sub">Emergency outreach planner for Boston-area coastal floods · live public data</p>
+  <p class="sub">Emergency outreach planner for any US county · live public data</p>
 </header>
-<p class="safety" role="note"><strong>Planning aid only.</strong> It shows who to reach first and in which languages. It never writes or sends alert messages — a person decides and acts.</p>
+<div class="tabs" role="tablist" aria-label="Sections">
+  <button type="button" role="tab" id="tabPlan" aria-selected="true" aria-controls="panelPlan">Planning aid</button>
+  <button type="button" role="tab" id="tabRep" aria-selected="false" aria-controls="panelRep" tabindex="-1">Resident reports <span class="badge" id="tabRepCount" hidden></span></button>
+</div>
 <p class="banner" id="banner" hidden></p>
 
 <main>
+<div class="layout" id="panelPlan" role="tabpanel" aria-labelledby="tabPlan">
   <aside>
+    <p class="safety" role="note" style="margin:0 0 12px"><strong>Planning aid only.</strong> It shows who to reach first and in which languages. It never writes or sends alert messages — a person decides and acts.</p>
     <div class="card">
       <h2>Scenario</h2>
-      <label for="event">Event</label>
+      <fieldset class="hzset">
+        <legend>1. Emergency type</legend>
+        <div class="hzgrid" id="hazards"></div>
+      </fieldset>
+      <label for="event">2. Source</label>
       <select id="event"></select>
       <p class="muted" id="eventNote"></p>
       <p class="muted" id="countdown" role="timer" aria-live="off" style="font-variant-numeric:tabular-nums"></p>
 
-      <label for="tide">Boston tide (ft MLLW): <output id="tideOut" for="tide">—</output></label>
-      <input id="tide" type="range" min="8" max="18" step="0.1" value="12.5">
-      <p class="muted" id="stageNote"></p>
+      <div id="tideBox">
+        <label for="tide"><span id="tideLabel">Tide</span> (ft MLLW): <output id="tideOut" for="tide">—</output></label>
+        <input id="tide" type="range" min="8" max="18" step="0.1" value="12.5">
+        <p class="muted" id="stageNote"></p>
+      </div>
 
       <label for="rule">Who goes first?</label>
       <select id="rule">
         <option value="lep">Most limited-English households (%)</option>
-        <option value="income">Lowest median income</option>
+        <option value="income">Lowest median income (Massachusetts only)</option>
+        <option value="poverty">Most people below 150% of poverty (tract %)</option>
         <option value="svi">Highest CDC SVI</option>
+        <option value="age65">Most adults 65+ (tract %)</option>
+        <option value="noveh">Most homes without a car (tract %)</option>
+        <option value="disabl">Most people with a disability (tract %)</option>
         <option value="size">Biggest group first (baseline)</option>
       </select>
-      <label style="font-weight:400;display:flex;gap:6px;align-items:flex-start">
+      <label id="coastBox" style="font-weight:400;display:flex;gap:6px;align-items:flex-start">
         <input id="coastFirst" type="checkbox" checked style="margin-top:4px">
-        <span><strong>Coast first</strong> — worst flood zone first (VE coast → A → 0.2%), then the rule above</span>
+        <span><strong>Worst flood zone first</strong> — VE coast → A → 0.2%, then the rule above</span>
+      </label>
+      <label id="quietBox" style="font-weight:400;display:flex;gap:6px;align-items:flex-start">
+        <input id="quietFirst" type="checkbox" style="margin-top:4px">
+        <span><strong>Quiet at-risk areas first</strong> — exposed, in the top third of the order, and no resident reports (see the Resident reports tab)</span>
       </label>
 
       <h2 style="margin-top:18px">Door-knock capacity</h2>
@@ -115,15 +168,17 @@ button:disabled{opacity:.6;cursor:wait}
       <button id="csv" type="button" style="margin-top:8px">Download outreach list (CSV)</button>
     </div>
 
-    <div class="card">
-      <h2>Data</h2>
+    <div id="areaSlotPlan">
+    <div class="card" id="areaCard">
+      <h2>Area</h2>
+      <label for="state">State</label>
+      <select id="state"></select>
       <fieldset>
-        <legend>Towns</legend>
-        <div class="towns" id="towns"></div>
+        <legend>Counties <span class="muted" id="countyCount"></span></legend>
+        <input id="countyFilter" type="text" placeholder="Type to filter counties" aria-label="Filter counties" autocomplete="off">
+        <div class="towns counties" id="counties" style="margin-top:6px"></div>
       </fieldset>
-      <label for="censusKey">Census API key <span class="muted">(free, for languages)</span></label>
-      <input id="censusKey" type="text" autocomplete="off" spellcheck="false" placeholder="optional">
-      <p class="muted">Get one at <a href="https://api.census.gov/data/key_signup.html" target="_blank" rel="noopener">api.census.gov</a>. Saved in this browser only.</p>
+      <p class="muted" id="areaNote">Massachusetts uses block groups (MassGIS EJ 2020). Other states use census tracts (CDC SVI).</p>
       <button id="load" type="button">Load live data</button>
       <div class="btns">
         <button id="saveSnap" type="button" class="ghost">Save snapshot</button>
@@ -132,9 +187,10 @@ button:disabled{opacity:.6;cursor:wait}
       <input id="snapFile" type="file" accept="application/json,.json" hidden>
       <ul class="status" id="status" aria-live="polite" style="margin-top:10px"></ul>
     </div>
+    </div>
   </aside>
 
-  <section aria-label="Results">
+  <section aria-label="Outreach plan">
     <div id="alert" class="alert wait" role="status" aria-live="polite">Loading live data…</div>
     <div class="stats" id="stats"></div>
 
@@ -142,12 +198,13 @@ button:disabled{opacity:.6;cursor:wait}
       <h2>Outreach order</h2>
       <div class="tablewrap">
         <table id="tbl">
-          <caption class="visually-hidden">Flood-exposed block groups in outreach order, with planned doors and status</caption>
+          <caption class="visually-hidden">Exposed areas in outreach order, with planned doors and status</caption>
           <thead><tr>
-            <th scope="col" class="num">#</th><th scope="col">Block group</th>
+            <th scope="col" class="num">#</th><th scope="col">Area</th>
             <th scope="col" class="num">Households</th><th scope="col" class="num">Limited-English</th>
-            <th scope="col" class="num">Median income</th><th scope="col" class="num">SVI</th>
-            <th scope="col">Floods at</th><th scope="col" class="num">Doors planned</th>
+            <th scope="col" class="num">Median income · poverty</th><th scope="col" class="num">SVI</th>
+            <th scope="col" class="num">65+ · no car · disab.</th>
+            <th scope="col" id="whyCol">Why exposed</th><th scope="col" class="num" id="repCol">Reports</th><th scope="col" class="num">Doors planned</th>
             <th scope="col">Status</th>
           </tr></thead>
           <tbody></tbody>
@@ -157,19 +214,35 @@ button:disabled{opacity:.6;cursor:wait}
     </div>
 
     <div class="grid2">
-      <div class="card">
-        <h2>Map</h2>
-        <svg id="map" viewBox="0 0 600 450" role="img" aria-labelledby="mapDesc">
+      <div id="mapSlotPlan">
+      <div class="card" id="mapCard">
+        <div class="maphead">
+          <h2 style="margin:0">Map</h2>
+          <div class="zoombtns" role="group" aria-label="Map zoom">
+            <button type="button" id="zoomIn" class="ghost" aria-label="Zoom in" title="Zoom in">+</button>
+            <button type="button" id="zoomOut" class="ghost" aria-label="Zoom out" title="Zoom out">−</button>
+            <button type="button" id="zoomReset" class="ghost" aria-label="Show the whole area" title="Show the whole area">Reset</button>
+          </div>
+        </div>
+        <p class="muted" style="margin:4px 0 8px" id="mapHelp">Scroll or pinch to zoom, drag to move. Click a table row to find it on the map.</p>
+        <svg id="map" viewBox="0 0 600 450" role="img" aria-labelledby="mapDesc" tabindex="0">
           <desc id="mapDesc">Map of block groups.</desc>
         </svg>
         <div class="legend">
           <span><i class="dot" style="background:var(--ok)"></i>Reached</span>
           <span><i class="dot" style="background:var(--part)"></i>Partly</span>
           <span><i class="dot" style="background:var(--miss)"></i>Missed</span>
-          <span><i class="dot" style="background:var(--zone)"></i>Flood zone, dry now</span>
-          <span><i class="dot" style="background:var(--land)"></i>No flood zone</span>
+          <span id="zoneLegend"><i class="dot" style="background:var(--zone)"></i>Flood zone, not exposed now</span>
+          <span><i class="dot" style="border:2px solid var(--cty0);background:transparent"></i><i class="dot" style="border:2px solid var(--cty1);background:transparent"></i><i class="dot" style="border:2px solid var(--cty2);background:transparent"></i>County border (one color each)</span>
           <span>Number = rank</span>
+          <span id="repLegend"><i class="dot" style="background:var(--miss);border-radius:50%"></i>Report (1 life safety · 2 urgent · 3 routine) · dashed outline = quiet at-risk area</span>
+          <label style="margin:0;font-weight:400;display:inline-flex;gap:4px;align-items:center"><input id="townNames" type="checkbox" checked>Town names</label>
+          <label style="margin:0;font-weight:400;display:inline-flex;gap:4px;align-items:center"><input id="countyNames" type="checkbox" checked>County names</label>
+          <label style="margin:0;font-weight:400;display:inline-flex;gap:4px;align-items:center"><input id="baseMap" type="checkbox" checked>Street map</label>
+          <select id="baseStyle" aria-label="Street map style" style="width:auto;padding:2px 6px;font-size:12px"><option value="topo">Topo</option><option value="imagery">Imagery</option></select>
         </div>
+        <p class="muted" style="margin:6px 0 0" id="attrib">Street map: <a href="https://www.usgs.gov/programs/national-geospatial-program/national-map" target="_blank" rel="noopener">USGS The National Map</a> (public domain).</p>
+      </div>
       </div>
       <div class="card">
         <h2>Languages needed (limited-English households)</h2>
@@ -180,9 +253,50 @@ button:disabled{opacity:.6;cursor:wait}
         <p id="fair" style="margin:0"></p>
       </div>
     </div>
-    <p class="muted" style="margin-top:16px">Sources: NOAA CO-OPS gauge 8443970 (Boston) · MassGIS EJ 2020 block groups · CDC/ATSDR SVI 2022 (tract) · FEMA National Flood Hazard Layer · OpenFEMA disaster declarations · Census ACS 2022 5-year C16001 (tract).</p>
   </section>
+</div>
+
+<div class="layout" id="panelRep" role="tabpanel" aria-labelledby="tabRep" hidden>
+  <aside>
+    <p class="sos" role="note" style="margin:0 0 12px"><strong>Danger to life or a medical emergency? Call 911.</strong> This page collects reports for planning. It does not dispatch help.</p>
+    <div class="card">
+      <h2>Add or import reports</h2>
+      <p class="muted" id="repArea" style="margin:0 0 6px"></p>
+      <div class="row2">
+        <div><label for="repType">Type</label><select id="repType"></select></div>
+        <div><label for="repSev">Severity</label>
+          <select id="repSev"><option value="1">1 · Life safety</option><option value="2">2 · Urgent</option><option value="3">3 · Routine</option></select></div>
+      </div>
+      <label for="repNote">Note <span class="muted">(optional)</span></label>
+      <input id="repNote" type="text" maxlength="300" autocomplete="off" placeholder="e.g. water over the road, two cars stuck">
+      <button id="repAdd" type="button" style="margin-top:8px" aria-pressed="false">Add a report on the map</button>
+      <div class="btns">
+        <button id="repImport" type="button" class="ghost">Import CSV</button>
+        <button id="repExport" type="button" class="ghost">Export CSV</button>
+        <button id="repSample" type="button" class="ghost">Load sample reports</button>
+        <button id="repClear" type="button" class="ghost">Clear reports</button>
+      </div>
+      <input id="repFile" type="file" accept=".csv,text/csv" hidden>
+      <p class="muted" id="repNoteLine">CSV columns: lat, lon, and optional type, severity, time, note.</p>
+    </div>
+    <div class="card">
+      <h2>Quiet at-risk areas <span class="muted" id="quietCount"></span></h2>
+      <p class="muted" style="margin:0 0 8px">Exposed in the current planning scenario, high in the outreach order, and nobody has reported anything. Silence here may mean people can't ask for help.</p>
+      <ul class="queue" id="quietList"></ul>
+    </div>
+    <div id="areaSlotRep"></div>
+  </aside>
+  <section aria-label="Resident reports">
+    <div id="mapSlotRep"></div>
+    <div class="card" style="margin-top:16px">
+      <h2>Incident queue <span class="muted" id="queueCount"></span></h2>
+      <p class="muted" style="margin:0 0 8px">Resident reports, sorted by severity, then oldest first. Click one to find it on the map. Medical and life-safety reports belong with 911.</p>
+      <ul class="queue" id="queue"></ul>
+    </div>
+  </section>
+</div>
 </main>
+<p class="muted" style="margin:0 20px 20px">Sources: NWS active alerts and gridpoint forecast (api.weather.gov) · NOAA CO-OPS tide stations · NOAA NWPS river gauges · Open-Meteo air quality (CAMS) · MEMA power outages (MA) · MassGIS EJ 2020 block groups (MA) · CDC/ATSDR SVI 2022 (tract) · Census TIGERweb · FEMA National Flood Hazard Layer · OpenFEMA disaster declarations · ACS 2022 C16001 via Esri Living Atlas (tract) · street map: USGS The National Map (public domain).</p>
 
 <!-- Core: planning logic + live data adapters. No DOM here, so it runs headless in Node. -->
 <script id="core">
@@ -190,18 +304,64 @@ var EMO = (function () {
   'use strict';
 
   var NOAA = 'https://api.tidesandcurrents.noaa.gov';
-  var STATION = '8443970';
   var EJ_URL = 'https://arcgisserver.digital.mass.gov/arcgisserver/rest/services/AGOL/EJ2020/FeatureServer/0/query';
   var SVI_URL = 'https://onemap.cdc.gov/OneMapServices/rest/services/SVI/CDC_ATSDR_Social_Vulnerability_Index_2022_USA/FeatureServer/2/query';
   var NFHL_URL = 'https://hazards.fema.gov/arcgis/rest/services/public/NFHL/MapServer/28/query';
   var FEMA_URL = 'https://www.fema.gov/api/open/v2/DisasterDeclarationsSummaries';
-  var CENSUS_URL = 'https://api.census.gov/data/2022/acs/acs5';
+  var TIGER_URL = 'https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/tigerWMS_ACS2022/MapServer';
+  var LANG_URL = 'https://services.arcgis.com/P3ePLMYs2RVChkJx/ArcGIS/rest/services/ACS_Specific_Language_Spoken_by_English_Ability_Boundaries/FeatureServer/2/query';
   var APP = 'whogetsmissed';
 
-  var TOWNS_ALL = ['Boston', 'Chelsea', 'Revere', 'Winthrop', 'Quincy', 'Lynn', 'Everett', 'Nahant',
-                   'Swampscott', 'Saugus', 'Hull', 'Weymouth', 'Hingham', 'Cambridge', 'Somerville',
-                   'Medford', 'Milton', 'Braintree', 'Salem', 'Marblehead'];
-  var TOWNS_DEFAULT = ['Boston', 'Chelsea', 'Revere', 'Winthrop', 'Quincy'];
+  // States: [FIPS, postal code, name]. Massachusetts uses MassGIS block groups; everywhere else uses CDC census tracts.
+  var STATES = [['01','AL','Alabama'],['02','AK','Alaska'],['04','AZ','Arizona'],['05','AR','Arkansas'],['06','CA','California'],
+    ['08','CO','Colorado'],['09','CT','Connecticut'],['10','DE','Delaware'],['11','DC','District of Columbia'],['12','FL','Florida'],
+    ['13','GA','Georgia'],['15','HI','Hawaii'],['16','ID','Idaho'],['17','IL','Illinois'],['18','IN','Indiana'],['19','IA','Iowa'],
+    ['20','KS','Kansas'],['21','KY','Kentucky'],['22','LA','Louisiana'],['23','ME','Maine'],['24','MD','Maryland'],
+    ['25','MA','Massachusetts'],['26','MI','Michigan'],['27','MN','Minnesota'],['28','MS','Mississippi'],['29','MO','Missouri'],
+    ['30','MT','Montana'],['31','NE','Nebraska'],['32','NV','Nevada'],['33','NH','New Hampshire'],['34','NJ','New Jersey'],
+    ['35','NM','New Mexico'],['36','NY','New York'],['37','NC','North Carolina'],['38','ND','North Dakota'],['39','OH','Ohio'],
+    ['40','OK','Oklahoma'],['41','OR','Oregon'],['42','PA','Pennsylvania'],['44','RI','Rhode Island'],['45','SC','South Carolina'],
+    ['46','SD','South Dakota'],['47','TN','Tennessee'],['48','TX','Texas'],['49','UT','Utah'],['50','VT','Vermont'],
+    ['51','VA','Virginia'],['53','WA','Washington'],['54','WV','West Virginia'],['55','WI','Wisconsin'],['56','WY','Wyoming'],
+    ['72','PR','Puerto Rico']];
+  var AREA_DEFAULT = { state: '25', counties: ['25025'] };   // Suffolk County, MA (Boston)
+  function stateInfo(fips) { var s = STATES.filter(function (x) { return x[0] === fips; })[0]; return s ? { fips: s[0], abbr: s[1], name: s[2] } : null; }
+
+  // Emergency types. "flood" types use FEMA flood zones to decide who is exposed;
+  // every other type exposes everyone inside the alert area (or the chosen towns, for a what-if).
+  var HAZARDS = {
+    coastal: { label: 'Coastal flood', flood: true },
+    flood:   { label: 'Inland or flash flood', flood: true },
+    heat:    { label: 'Extreme heat' },
+    winter:  { label: 'Winter storm or extreme cold' },
+    wind:    { label: 'Hurricane, high wind or severe storm' },
+    power:   { label: 'Power outage' },
+    air:     { label: 'Poor air quality' },
+    other:   { label: 'Any other emergency' }
+  };
+
+  // NWS alerts that only matter at sea or on the beach, or are tests.
+  var SKIP_EVENTS = /small craft|gale|marine|rip current|beach hazard|hazardous seas|brisk wind|test message|freezing spray|low water|dense fog|^storm (warning|watch)$|hurricane force wind (warning|watch)$/i;
+
+  function classify(event) {
+    var e = String(event || '');
+    if (!e || SKIP_EVENTS.test(e)) return null;
+    if (/coastal flood|storm surge|high surf/i.test(e)) return 'coastal';
+    if (/flood/i.test(e)) return 'flood';
+    if (/heat/i.test(e)) return 'heat';
+    if (/winter|blizzard|ice storm|snow|sleet|freez|frost|cold|wind chill/i.test(e)) return 'winter';
+    if (/hurricane|tropical|tornado|thunderstorm|wind|extreme wind/i.test(e)) return 'wind';
+    if (/air quality|smoke|dust|ashfall/i.test(e)) return 'air';
+    return 'other';
+  }
+
+  // Coastal alerts map to the flood stage NWS issues them for.
+  function coastalStage(event) {
+    if (/storm surge/i.test(event)) return 'Major';
+    if (/high surf/i.test(event)) return 'Minor';
+    if (/warning|watch/i.test(event)) return 'Moderate';
+    return 'Minor';
+  }
 
   // Planner-owned exposure rule: which FEMA zones count as flooding at each stage.
   // VE = coastal high-hazard (wave) zone, A = 1%/yr flood zone, X02 = 0.2%/yr flood zone.
@@ -251,10 +411,15 @@ var EMO = (function () {
   }
 
   // Each rule is ONE plain sort on ONE real column. Missing values go last. No combined score.
+  // col = table column the rule reads from (highlighted in the UI).
   var RULES = {
-    lep:    { label: 'LIMENGHHPCT, highest first', col: 3, key: function (r) { return r.LIMENGHHPCT == null ? null : -r.LIMENGHHPCT; } },
-    income: { label: 'BG_MHHI, lowest first',      col: 4, key: function (r) { return r.BG_MHHI; } },
+    lep:    { label: 'limited-English share, highest first', col: 3, key: function (r) { return r.LIMENGHHPCT == null ? null : -r.LIMENGHHPCT; } },
+    income: { label: 'median household income (MA block groups), lowest first', col: 4, key: function (r) { return r.BG_MHHI; } },
+    poverty:{ label: 'people below 150% of poverty % (SVI EP_POV150, tract), highest first', col: 4, key: function (r) { return r.POV150 == null ? null : -r.POV150; } },
     svi:    { label: 'CDC SVI, highest first',     col: 5, key: function (r) { return r.SVI == null ? null : -r.SVI; } },
+    age65:  { label: 'adults 65+ % (SVI EP_AGE65, tract), highest first', col: 6, key: function (r) { return r.AGE65 == null ? null : -r.AGE65; } },
+    noveh:  { label: 'homes without a car % (SVI EP_NOVEH, tract), highest first', col: 6, key: function (r) { return r.NOVEH == null ? null : -r.NOVEH; } },
+    disabl: { label: 'people with a disability % (SVI EP_DISABL, tract), highest first', col: 6, key: function (r) { return r.DISABL == null ? null : -r.DISABL; } },
     size:   { label: 'household count, biggest first (baseline)', col: 2, key: function (r) { return -r.hh; } }
   };
 
@@ -275,31 +440,105 @@ var EMO = (function () {
   }
   var SEVERITY_TEXT = ['VE coast', 'A zone', '0.2% zone'];
 
+  // ---------- alert areas ----------
+  var centers = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
+  function center(r) {
+    if (centers && centers.has(r)) return centers.get(r);
+    var ring = r.rings && r.rings[0], c = null;
+    if (ring && ring.length) {
+      var x = 0, y = 0;
+      ring.forEach(function (p) { x += p[0]; y += p[1]; });
+      c = [x / ring.length, y / ring.length];
+    }
+    if (centers) centers.set(r, c);
+    return c;
+  }
+
+  function inRing(pt, ring) {
+    var inside = false;
+    for (var i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      var xi = ring[i][0], yi = ring[i][1], xj = ring[j][0], yj = ring[j][1];
+      if ((yi > pt[1]) !== (yj > pt[1]) && pt[0] < (xj - xi) * (pt[1] - yi) / (yj - yi) + xi) inside = !inside;
+    }
+    return inside;
+  }
+
+  // area = { polys: [GeoJSON polygon coords], counties: ['25025', ...] }.
+  // A polygon (storm-based warning) is used when NWS gives one; otherwise whole counties.
+  function inArea(r, area) {
+    if (!area) return true;
+    if (area.polys && area.polys.length) {
+      var c = center(r);
+      if (!c) return false;
+      return area.polys.some(function (poly) { return poly && poly[0] && inRing(c, poly[0]); });
+    }
+    return (area.counties || []).indexOf(String(r.geoid).slice(0, 5)) >= 0;
+  }
+
+  // Why a block group is exposed in this scenario: {why, stage?}; null = not exposed; undefined = unknown.
+  function exposure(r, sc, stages) {
+    if (sc.kind === 'live' && !sc.active) return null;            // live conditions below the planner rule
+    if (sc.area && !inArea(r, sc.area)) return null;
+    if (sc.towns && sc.towns.indexOf(String(r.town).toUpperCase()) < 0) return null;
+    if (sc.near) {
+      var c = center(r), rad = sc.radiusKm || GAUGE_KM;
+      if (!c || !sc.near.some(function (p) { return km(c, p) <= rad; })) return null;
+    }
+    if (sc.hazard === 'coastal') {
+      if (!r.zones) return undefined;
+      var st = floodsAt(r.zones, stages);
+      if (!st || st.ft > sc.level) return null;
+      return { why: st.name + ' flood' + (st.nominal ? '' : ' (' + st.ft.toFixed(1) + ' ft)') + ' · ' + r.zones.join(', '), stage: st };
+    }
+    if (sc.hazard === 'flood') {
+      if (!r.zones) return undefined;
+      return r.zones.length ? { why: (sc.why ? sc.why + ' · ' : '') + 'FEMA flood zone ' + r.zones.join(', ') } : null;
+    }
+    return { why: sc.why || (sc.area ? 'In NWS alert area' : 'In selected area') };
+  }
+
   function plan(rows, o) {
     var ruleId = RULES[o.rule] ? o.rule : 'lep';
     var rule = RULES[ruleId];
     var tide = Number(o.tide);
     var stages = o.stages || [];
     var capacity = Math.floor(num(o.teams) * num(o.hours) * num(o.rate));
+    // Default scenario = coastal flood at the given tide (the original tide mode).
+    var sc = o.scenario || { kind: 'tide', hazard: 'coastal', level: tide, area: null };
+    var hz = HAZARDS[sc.hazard] ? sc.hazard : 'other';
+    sc = { kind: sc.kind, hazard: hz, level: Number(sc.level), area: sc.area || null, alert: sc.alert || null,
+           active: sc.active !== false, towns: sc.towns || null, near: sc.near || null, radiusKm: sc.radiusKm || null,
+           why: sc.why || null, live: sc.live || null };
+    var floodType = !!HAZARDS[hz].flood;
 
     var flooded = [], dry = 0, unknown = 0;
     rows.forEach(function (r) {
-      if (!r.zones) { unknown++; return; }
-      var st = floodsAt(r.zones, stages);
-      if (st && st.ft <= tide) flooded.push({ row: r, at: st });
+      var x = exposure(r, sc, stages);
+      if (x === undefined) unknown++;
+      else if (x) flooded.push({ row: r, why: x.why });
       else dry++;
     });
+    var coastFirst = !!o.coastFirst && floodType;
     flooded.sort(function (a, b) {
-      if (o.coastFirst) { var d = severity(a.row) - severity(b.row); if (d) return d; }
+      if (coastFirst) { var d = severity(a.row) - severity(b.row); if (d) return d; }
       return comparator(rule)(a.row, b.row);
     });
+
+    // Resident reports: "quiet" = exposed, in the top third of this order, and no reports at all.
+    // Those are the places most likely to be in trouble without anyone calling it in.
+    var counts = o.reportCounts || null;
+    if (counts) {
+      var third = Math.ceil(flooded.length / 3);
+      flooded.forEach(function (f, i) { f.reports = counts[f.row.id] || 0; f.quiet = i < third && f.reports === 0; });
+      if (o.quietFirst) flooded = flooded.filter(function (f) { return f.quiet; }).concat(flooded.filter(function (f) { return !f.quiet; }));
+    }
 
     var left = capacity;
     var items = flooded.map(function (f, i) {
       var r = f.row, doors = Math.min(r.hh, left);
       left -= doors;
       var frac = r.hh ? doors / r.hh : 1;
-      return { rank: i + 1, row: r, floodsAt: f.at, doors: doors, frac: frac,
+      return { rank: i + 1, row: r, why: f.why, doors: doors, frac: frac, reports: f.reports || 0, quiet: !!f.quiet,
                status: frac >= 1 ? 'full' : (frac > 0 ? 'partial' : 'missed') };
     });
 
@@ -320,6 +559,8 @@ var EMO = (function () {
     t.lepReached = Math.round(t.lepReached);
     t.missed = t.hh - t.reached;
     t.lepMissed = t.lep - t.lepReached;
+    t.quiet = items.filter(function (i) { return i.quiet; }).length;
+    t.quietHH = items.reduce(function (n, i) { return n + (i.quiet ? i.row.hh : 0); }, 0);
 
     var langs = Object.keys(byLang).map(function (k) {
       var v = byLang[k];
@@ -330,13 +571,15 @@ var EMO = (function () {
       return (b.reached + b.missed) - (a.reached + a.missed);
     });
 
-    return { tide: tide, stage: stageFor(tide, stages), rule: ruleId, coastFirst: !!o.coastFirst,
-             items: items, totals: t, langs: langs };
+    return { tide: tide, stage: hz === 'coastal' ? stageFor(sc.level, stages) : null, hazard: hz, floodType: floodType,
+             scenario: sc, rule: ruleId, coastFirst: coastFirst, quietFirst: !!(counts && o.quietFirst),
+             hasReports: !!counts, items: items, totals: t, langs: langs };
   }
 
   function toCSV(p) {
     var head = ['rank', 'geoid', 'town', 'block_group', 'households', 'limited_english_households', 'LIMENGHHPCT',
-                'BG_MHHI', 'PCT_MINORITY', 'SVI', 'flood_zones', 'floods_at_stage', 'doors_planned', 'status', 'top_languages'];
+                'BG_MHHI', 'PCT_MINORITY', 'SVI', 'pct_age65_tract', 'pct_no_vehicle_tract', 'pct_disability_tract',
+                'flood_zones', 'why_exposed', 'resident_reports', 'quiet_at_risk', 'doors_planned', 'status', 'top_languages'];
     function esc(v) { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
     var lines = [head.join(',')];
     p.items.forEach(function (it) {
@@ -344,10 +587,131 @@ var EMO = (function () {
       var langs = r.langs ? Object.keys(r.langs).sort(function (a, b) { return r.langs[b] - r.langs[a]; })
         .filter(function (k) { return r.langs[k] >= 0.1; }).join('; ') : '';
       lines.push([it.rank, r.geoid, r.town, r.name, r.hh, r.lepHH, r.LIMENGHHPCT == null ? '' : r2(r.LIMENGHHPCT),
-                  r.BG_MHHI, r.PCT_MINORITY == null ? '' : r2(r.PCT_MINORITY), r.SVI, (r.zones || []).join(' '),
-                  it.floodsAt.name + ' ' + it.floodsAt.ft, it.doors, it.status, langs].map(esc).join(','));
+                  r.BG_MHHI, r.PCT_MINORITY == null ? '' : r2(r.PCT_MINORITY), r.SVI, r.AGE65, r.NOVEH, r.DISABL,
+                  p.floodType ? (r.zones || []).join(' ') : '', it.why, p.hasReports ? it.reports : '', it.quiet ? 'yes' : '',
+                  it.doors, it.status, langs].map(esc).join(','));
     });
     return lines.join('\n') + '\n';
+  }
+
+  // ---------- resident reports ----------
+  // Types and their default severity (1 = life safety, 2 = urgent, 3 = routine). Planners can change it.
+  var REPORT_TYPES = [['medical', 'Medical emergency', 1], ['help', 'Person needs help', 1], ['fire', 'Fire or smoke', 1],
+    ['wire', 'Power line down', 2], ['flooding', 'Flooded road or home', 2], ['tree', 'Fallen tree', 3],
+    ['power', 'Power out', 3], ['other', 'Other', 3]];
+  var SEV_TEXT = { 1: 'Life safety', 2: 'Urgent', 3: 'Routine' };
+  function reportType(id) { return REPORT_TYPES.filter(function (t) { return t[0] === id; })[0] || REPORT_TYPES[REPORT_TYPES.length - 1]; }
+
+  var boxes = typeof WeakMap !== 'undefined' ? new WeakMap() : null;
+  function rowBox(r) {
+    if (boxes && boxes.has(r)) return boxes.get(r);
+    var b = [Infinity, Infinity, -Infinity, -Infinity];
+    (r.rings || []).forEach(function (ring) { ring.forEach(function (p) {
+      if (p[0] < b[0]) b[0] = p[0]; if (p[1] < b[1]) b[1] = p[1]; if (p[0] > b[2]) b[2] = p[0]; if (p[1] > b[3]) b[3] = p[1];
+    }); });
+    if (boxes) boxes.set(r, b);
+    return b;
+  }
+  // Which area a point falls in (ray test on each ring), or null if outside every loaded area.
+  function areaAt(pt, rows) {
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i], b = rowBox(r);
+      if (pt[0] < b[0] || pt[0] > b[2] || pt[1] < b[1] || pt[1] > b[3]) continue;
+      var inside = false;
+      (r.rings || []).forEach(function (ring) { if (inRing(pt, ring)) inside = !inside; });   // holes flip it back
+      if (inside) return r;
+    }
+    return null;
+  }
+  function assignReports(reports, rows) {
+    var counts = {};
+    reports.forEach(function (rep) {
+      var r = areaAt([rep.lon, rep.lat], rows);
+      rep.areaId = r ? r.id : null;
+      if (r) counts[r.id] = (counts[r.id] || 0) + 1;
+    });
+    return counts;
+  }
+  // Incident queue: one plain sort — severity first, then the oldest report. No hidden score.
+  function incidentQueue(reports) {
+    return reports.slice().sort(function (a, b) {
+      return (a.sev - b.sev) || (Date.parse(a.time) - Date.parse(b.time)) || (a.id < b.id ? -1 : 1);
+    });
+  }
+
+  function parseCSV(text) {
+    var rows = [], row = [], cell = '', q = false;
+    for (var i = 0; i < text.length; i++) {
+      var ch = text[i];
+      if (q) { if (ch === '"') { if (text[i + 1] === '"') { cell += '"'; i++; } else q = false; } else cell += ch; }
+      else if (ch === '"') q = true;
+      else if (ch === ',') { row.push(cell); cell = ''; }
+      else if (ch === '\n' || ch === '\r') { if (ch === '\r' && text[i + 1] === '\n') i++; row.push(cell); rows.push(row); row = []; cell = ''; }
+      else cell += ch;
+    }
+    if (cell || row.length) { row.push(cell); rows.push(row); }
+    return rows.filter(function (r) { return r.some(function (c) { return c.trim(); }); });
+  }
+
+  // CSV with a header: lat, lon (or latitude/longitude/lng), and optional type, severity, time, note.
+  function reportsFromCSV(text) {
+    var t = parseCSV(String(text || '').replace(/^\uFEFF/, ''));
+    if (t.length < 2) throw new Error('no rows');
+    var head = t[0].map(function (h) { return h.trim().toLowerCase(); });
+    function col() { for (var i = 0; i < arguments.length; i++) { var k = head.indexOf(arguments[i]); if (k >= 0) return k; } return -1; }
+    var iLat = col('lat', 'latitude', 'y'), iLon = col('lon', 'lng', 'long', 'longitude', 'x');
+    var iType = col('type', 'category', 'kind'), iSev = col('severity', 'sev', 'priority'), iTime = col('time', 'timestamp', 'reported', 'date'), iNote = col('note', 'notes', 'description', 'details');
+    if (iLat < 0 || iLon < 0) throw new Error('needs lat and lon columns');
+    var out = [], bad = 0;
+    t.slice(1).forEach(function (r, n) {
+      var lat = Number(r[iLat]), lon = Number(r[iLon]);
+      if (!isFinite(lat) || !isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) { bad++; return; }
+      var raw = iType >= 0 ? String(r[iType] || '').toLowerCase() : '';
+      var type = REPORT_TYPES.filter(function (x) { return raw === x[0] || raw.indexOf(x[1].toLowerCase().split(' ')[0]) >= 0; })[0] || reportType('other');
+      var sv = iSev >= 0 ? String(r[iSev] || '').toLowerCase() : '';
+      var sev = /^[123]$/.test(sv) ? +sv : /life|critical|high/.test(sv) ? 1 : /urgent|medium/.test(sv) ? 2 : /low|routine/.test(sv) ? 3 : type[2];
+      var tm = iTime >= 0 ? Date.parse(r[iTime]) : NaN;
+      out.push({ id: 'csv' + n + '-' + Math.round(lat * 1e5) + Math.round(lon * 1e5), lat: lat, lon: lon, type: type[0], sev: sev,
+                 time: new Date(isFinite(tm) ? tm : Date.now()).toISOString(), note: iNote >= 0 ? String(r[iNote] || '').slice(0, 300) : '', source: 'csv' });
+    });
+    return { reports: out, skipped: bad };
+  }
+
+  function reportsToCSV(reports) {
+    function esc(v) { v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+    return ['lat,lon,type,severity,time,note,source,area_id'].concat(reports.map(function (r) {
+      return [r.lat, r.lon, r.type, r.sev, r.time, r.note, r.source, r.areaId || ''].map(esc).join(',');
+    })).join('\n') + '\n';
+  }
+
+  // SAMPLE reports for a demo. They are drawn where reporting is easiest — more households, fewer
+  // limited-English homes, lower SVI — to show the gap the "quiet" flag catches. Clearly marked sample.
+  function sampleReports(rows, hazard, seed) {
+    var s = seed >>> 0 || 1;
+    function rnd() { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; }
+    var mix = { coastal: ['flooding', 'flooding', 'help', 'tree', 'power'], flood: ['flooding', 'flooding', 'help', 'tree'],
+      heat: ['medical', 'help', 'power', 'help'], winter: ['tree', 'wire', 'power', 'help', 'medical'],
+      wind: ['tree', 'tree', 'wire', 'power', 'help'], power: ['power', 'power', 'wire', 'help', 'medical'],
+      air: ['medical', 'help', 'other'], other: ['help', 'other', 'tree', 'medical'] }[hazard] || ['help', 'other'];
+    var cand = rows.filter(function (r) { return r.rings && r.hh > 0; });
+    var w = cand.map(function (r) { return r.hh * (1 - (r.LIMENGHHPCT || 0) / 100) * (1 - 0.6 * (r.SVI == null ? 0.5 : r.SVI)); });
+    var tot = w.reduce(function (a, b) { return a + b; }, 0), n = Math.min(150, Math.max(15, Math.round(cand.length * 0.12))), out = [];
+    for (var k = 0; k < n && tot > 0; k++) {
+      var x = rnd() * tot, i = 0;
+      while (i < w.length - 1 && x > w[i]) { x -= w[i]; i++; }
+      var r = cand[i], b = rowBox(r), pt = null;
+      for (var tries = 0; tries < 30 && !pt; tries++) {
+        var p = [b[0] + rnd() * (b[2] - b[0]), b[1] + rnd() * (b[3] - b[1])];
+        var inside = false;
+        r.rings.forEach(function (ring) { if (inRing(p, ring)) inside = !inside; });
+        if (inside) pt = p;
+      }
+      if (!pt) continue;
+      var type = reportType(mix[Math.floor(rnd() * mix.length)]);
+      out.push({ id: 'sample' + k, lat: Math.round(pt[1] * 1e5) / 1e5, lon: Math.round(pt[0] * 1e5) / 1e5, type: type[0], sev: type[2],
+                 time: new Date(Date.now() - Math.round(rnd() * 12 * 3600000)).toISOString(), note: 'SAMPLE report for the demo', source: 'sample' });
+    }
+    return out;
   }
 
   // ---------- live data adapters ----------
@@ -389,10 +753,13 @@ var EMO = (function () {
     return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
   }
 
-  // "YYYY-MM-DD HH:MM" in Boston time, the format NOAA uses with time_zone=lst_ldt.
+  // "YYYY-MM-DD HH:MM" in the area's own time zone, the format NOAA uses with time_zone=lst_ldt.
+  var TZ = 'America/New_York';
+  function setTimeZone(tz) { try { new Intl.DateTimeFormat('en-US', { timeZone: tz }); TZ = tz; } catch (e) {} }
+  function timeZone() { return TZ; }
   function bostonStr(ms) {
     var p = {};
-    new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+    new Intl.DateTimeFormat('en-US', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit',
       hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms))
       .forEach(function (x) { p[x.type] = x.value; });
     return p.year + '-' + p.month + '-' + p.day + ' ' + p.hour + ':' + p.minute;
@@ -404,7 +771,26 @@ var EMO = (function () {
     return m ? Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5]) : null;
   }
 
-  function loadTide() {
+  // Nearest NOAA water-level station (within 60 km) that has official flood levels, or null.
+  function findStation(pt) {
+    return getJSON(NOAA + '/mdapi/prod/webapi/stations.json?type=waterlevels').then(function (j) {
+      var near = (j.stations || []).filter(function (s) { return !s.greatlakes; })   // Great Lakes gauges have no tidal datum
+        .map(function (s) { return { id: String(s.id), name: s.name, state: s.state, pt: [Number(s.lng), Number(s.lat)] }; })
+        .map(function (s) { s.km = km(pt, s.pt); return s; }).filter(function (s) { return s.km <= 60; })
+        .sort(function (a, b) { return a.km - b.km; }).slice(0, 4);
+      function tryAt(i) {
+        if (i >= near.length) return null;
+        return getJSON(NOAA + '/mdapi/prod/webapi/stations/' + near[i].id + '/floodlevels.json?units=english', { tries: 1 })
+          .then(function (fl) { return fl && (fl.nws_minor != null || fl.nos_minor != null) ? near[i] : tryAt(i + 1); },
+                function () { return tryAt(i + 1); });
+      }
+      return tryAt(0);
+    });
+  }
+
+  function loadTide(station) {
+    if (!station) return Promise.reject(new Error('no NOAA tide station with flood levels near this area'));
+    var STATION = station.id;
     var base = NOAA + '/api/prod/datagetter?';
     var common = { station: STATION, datum: 'MLLW', units: 'english', time_zone: 'lst_ldt', format: 'json', application: APP };
     var now = new Date(), later = new Date(now.getTime() + 2 * 86400000);
@@ -431,14 +817,14 @@ var EMO = (function () {
       var highs = (res[1].predictions || []).filter(function (p) { return p.type === 'H' && p.t > latest.t; })
         .map(function (p) { return { t: p.t, v: Number(p.v) }; });
       var nextHigh = highs.reduce(function (m, h) { return !m || h.v > m.v ? h : m; }, null);
-      return { latest: latest, nextHigh: nextHigh, stages: stages,
+      return { latest: latest, nextHigh: nextHigh, stages: stages, station: station,
                source: fl.nws_minor != null ? 'NWS' : 'NOS' };
     });
   }
 
-  function loadEvents() {
+  function loadEvents(abbr) {
     var types = ['Hurricane', 'Severe Storm', 'Snowstorm', 'Coastal Storm', 'Flood', 'Tropical Storm', 'Winter Storm'];
-    var filter = "state eq 'MA' and (" + types.map(function (t) { return "incidentType eq '" + t + "'"; }).join(' or ') + ')';
+    var filter = "state eq '" + abbr + "' and (" + types.map(function (t) { return "incidentType eq '" + t + "'"; }).join(' or ') + ')';
     var url = FEMA_URL + '?' + qs({ '$filter': filter, '$orderby': 'declarationDate desc', '$top': '1000',
       '$select': 'disasterNumber,declarationTitle,incidentType,incidentBeginDate,incidentEndDate,declarationDate' });
     return getJSON(url).then(function (j) {
@@ -453,12 +839,12 @@ var EMO = (function () {
     });
   }
 
-  // Highest verified high tide at the Boston gauge during an incident window.
-  function eventPeak(ev) {
+  // Highest verified high tide at the area's tide station during an incident window.
+  function eventPeak(ev, stationId) {
     var b = new Date(ev.begin + 'T12:00:00'), e = new Date(ev.end + 'T12:00:00');
     b = new Date(b.getTime() - 86400000);
     e = new Date(Math.min(e.getTime() + 86400000, b.getTime() + 30 * 86400000));
-    var url = NOAA + '/api/prod/datagetter?' + qs({ station: STATION, product: 'high_low', datum: 'MLLW', units: 'english',
+    var url = NOAA + '/api/prod/datagetter?' + qs({ station: stationId, product: 'high_low', datum: 'MLLW', units: 'english',
       time_zone: 'lst_ldt', format: 'json', application: APP, begin_date: ymd(b), end_date: ymd(e) });
     return getJSON(url).then(function (j) {
       return (j.data || []).reduce(function (m, d) {
@@ -473,10 +859,10 @@ var EMO = (function () {
     return m ? 'Tract ' + m[2] + ' · BG ' + m[1] : (s || '');
   }
 
-  function loadEJ(towns) {
-    var list = towns.filter(function (t) { return TOWNS_ALL.indexOf(t) >= 0; });
+  function loadEJ(counties) {
+    var list = (counties || []).filter(function (c) { return /^25\d{3}$/.test(c); });
     if (!list.length) return Promise.resolve([]);
-    var where = 'MUNICIPALITY IN (' + list.map(function (t) { return "'" + t.replace(/'/g, "''") + "'"; }).join(',') + ')';
+    var where = '(' + list.map(function (c) { return "GEOID LIKE '" + c + "%'"; }).join(' OR ') + ')';
     var rows = [];
     function page(offset) {
       var body = qs({ where: where, outFields: 'GEOID,GEOGRAPHICAREANAME,MUNICIPALITY,TOTAL_POP,TOTALHH,LIMENGHH,LIMENGHHPCT,BG_MHHI,PCT_MINORITY,EJ_CRIT_DESC',
@@ -488,7 +874,7 @@ var EMO = (function () {
           rows.push({ id: a.GEOID + '|' + a.MUNICIPALITY, geoid: a.GEOID, town: a.MUNICIPALITY, name: shortName(a.GEOGRAPHICAREANAME),
             pop: a.TOTAL_POP || 0, hh: Math.round(a.TOTALHH || 0), lepHH: a.LIMENGHH || 0,
             LIMENGHHPCT: a.LIMENGHHPCT == null ? null : a.LIMENGHHPCT, BG_MHHI: a.BG_MHHI > 0 ? a.BG_MHHI : null,
-            PCT_MINORITY: a.PCT_MINORITY == null ? null : a.PCT_MINORITY, EJ: a.EJ_CRIT_DESC || '',
+            PCT_MINORITY: a.PCT_MINORITY == null ? null : a.PCT_MINORITY, EJ: a.EJ_CRIT_DESC || '', unit: 'bg',
             rings: f.geometry && f.geometry.rings ? f.geometry.rings : null, SVI: null, zones: null, langs: null });
         });
         if (j.exceededTransferLimit || (j.features || []).length === 1000) return page(offset + 1000);
@@ -498,24 +884,125 @@ var EMO = (function () {
     return page(0);
   }
 
+  // Counties of one state, from Census TIGERweb.
+  function loadCounties(stateFips) {
+    var body = qs({ where: "STATE='" + stateFips + "'", outFields: 'GEOID,BASENAME', returnGeometry: 'false',
+                    orderByFields: 'BASENAME', f: 'json' });
+    return getJSON(TIGER_URL + '/78/query', { body: body }).then(function (j) {
+      return (j.features || []).map(function (f) { return { geoid: f.attributes.GEOID, name: f.attributes.BASENAME }; });
+    });
+  }
+
+  // County borders for the map outline: Census cartographic boundaries (1:500k), which stop at the
+  // shoreline. The legal TIGER lines run far out to sea (Suffolk's goes ~25 km into the bay).
+  var CB_COUNTY_URL = 'https://tigerweb.geo.census.gov/arcgis/rest/services/Generalized_ACS2022/State_County/MapServer/11/query';
+  function loadCountyShapes(counties) {
+    if (!counties.length) return Promise.resolve([]);
+    var body = qs({ where: 'GEOID IN (' + counties.map(function (c) { return "'" + c + "'"; }).join(',') + ')', outFields: 'GEOID,BASENAME,NAME',
+                    outSR: '4326', geometryPrecision: '5', f: 'json' });
+    return getJSON(CB_COUNTY_URL, { body: body }).then(function (j) {
+      return (j.features || []).filter(function (f) { return f.geometry && f.geometry.rings; })
+        .map(function (f) { return { geoid: f.attributes.GEOID, name: f.attributes.BASENAME, label: f.attributes.NAME || f.attributes.BASENAME,
+                                     rings: f.geometry.rings }; });
+    });
+  }
+
+  // Web Mercator (the projection every web street map uses), as 0..1 world coordinates.
+  function mercX(lon) { return (lon + 180) / 360; }
+  function mercY(lat) {
+    var p = Math.max(-85.05, Math.min(85.05, lat)) * Math.PI / 180;
+    return (1 - Math.log(Math.tan(p) + 1 / Math.cos(p)) / Math.PI) / 2;
+  }
+  function unMercX(x) { return x * 360 - 180; }
+  function unMercY(y) { return Math.atan(Math.sinh(Math.PI * (1 - 2 * y))) * 180 / Math.PI; }
+
+  function svipct(v) { return v == null || v < 0 ? null : v; }   // SVI uses -999 for missing
+
+  // Census tracts with CDC SVI data and shapes, for any US county. Household counts are real;
+  // limited-English households are estimated as households × EP_LIMENG (a share of people, not homes).
+  function loadTracts(counties) {
+    if (!counties.length) return Promise.resolve([]);
+    var where = 'STCNTY IN (' + counties.map(function (c) { return "'" + c + "'"; }).join(',') + ')';
+    var rows = [];
+    function page(offset) {
+      var body = qs({ where: where, outFields: 'FIPS,LOCATION,COUNTY,E_TOTPOP,E_HH,EP_LIMENG,EP_MINRTY,EP_POV150,RPL_THEMES,EP_AGE65,EP_NOVEH,EP_DISABL',
+        outSR: '4326', maxAllowableOffset: '0.0004', geometryPrecision: '5', orderByFields: 'FIPS',
+        resultOffset: String(offset), resultRecordCount: '2000', f: 'json' });
+      return getJSON(SVI_URL, { body: body }).then(function (j) {
+        (j.features || []).forEach(function (f) {
+          var a = f.attributes, hh = Math.max(0, Math.round(a.E_HH || 0)), lep = svipct(a.EP_LIMENG);
+          var m = /Census Tract ([\d.]+)/.exec(a.LOCATION || '');
+          rows.push({ id: a.FIPS, geoid: a.FIPS, town: String(a.COUNTY || '').replace(/ County$/, ''), county: a.COUNTY || '',
+            name: m ? 'Tract ' + m[1] : a.FIPS, pop: a.E_TOTPOP || 0, hh: hh,
+            lepHH: lep == null ? 0 : Math.round(hh * lep / 100), LIMENGHHPCT: lep, BG_MHHI: null,
+            PCT_MINORITY: svipct(a.EP_MINRTY), POV150: svipct(a.EP_POV150), EJ: '', unit: 'tract',
+            SVI: svipct(a.RPL_THEMES), AGE65: svipct(a.EP_AGE65), NOVEH: svipct(a.EP_NOVEH), DISABL: svipct(a.EP_DISABL),
+            rings: f.geometry && f.geometry.rings ? f.geometry.rings : null, zones: null, langs: null });
+        });
+        if (j.exceededTransferLimit || (j.features || []).length === 2000) return page(offset + 2000);
+        return rows;
+      });
+    }
+    return page(0);
+  }
+
+  // Rows for the chosen area: MassGIS block groups in Massachusetts, CDC tracts elsewhere.
+  function loadArea(stateFips, counties) {
+    return stateFips === '25' ? loadEJ(counties) : loadTracts(counties);
+  }
+
+  // Town names for tract rows (Census county subdivisions), by testing each tract's center.
+  function loadTownNames(rows, counties) {
+    var todo = rows.filter(function (r) { return r.unit === 'tract'; });
+    if (!todo.length) return Promise.resolve(0);
+    return Promise.all(counties.map(function (c) {
+      var body = qs({ where: "STATE='" + c.slice(0, 2) + "' AND COUNTY='" + c.slice(2) + "'", outFields: 'BASENAME',
+        outSR: '4326', maxAllowableOffset: '0.001', geometryPrecision: '4', f: 'json' });
+      return getJSON(TIGER_URL + '/18/query', { body: body }).then(function (j) { return j.features || []; }, function () { return []; });
+    })).then(function (lists) {
+      var subs = [].concat.apply([], lists).filter(function (f) { return f.geometry && f.geometry.rings && f.attributes.BASENAME; });
+      var n = 0;
+      todo.forEach(function (r) {
+        var c = center(r);
+        if (!c) return;
+        for (var i = 0; i < subs.length; i++) {
+          if (subs[i].geometry.rings.some(function (ring) { return inRing(c, ring); })) { r.town = subs[i].attributes.BASENAME; n++; return; }
+        }
+      });
+      return n;
+    });
+  }
+
   function loadSVI(rows) {
     var tracts = {}, list;
+    rows = rows.filter(function (r) { return r.unit !== 'tract'; });   // tract rows already carry SVI
+    if (!rows.length) return Promise.resolve(0);
     rows.forEach(function (r) { tracts[r.geoid.slice(0, 11)] = 1; });
     list = Object.keys(tracts);
     var chunks = [];
     for (var i = 0; i < list.length; i += 80) chunks.push(list.slice(i, i + 80));
     var svi = {};
+    function pct(v) { return v == null || v < 0 ? null : v; }   // SVI uses -999 for missing
     return Promise.all(chunks.map(function (c) {
-      var body = qs({ where: "FIPS IN ('" + c.join("','") + "')", outFields: 'FIPS,RPL_THEMES', returnGeometry: 'false', f: 'json' });
+      var body = qs({ where: "FIPS IN ('" + c.join("','") + "')", outFields: 'FIPS,RPL_THEMES,EP_AGE65,EP_NOVEH,EP_DISABL,EP_POV150',
+                      returnGeometry: 'false', f: 'json' });
       return getJSON(SVI_URL, { body: body }).then(function (j) {
         (j.features || []).forEach(function (f) {
-          var v = f.attributes.RPL_THEMES;
-          svi[f.attributes.FIPS] = v == null || v < 0 ? null : v;
+          var a = f.attributes;
+          svi[a.FIPS] = { SVI: pct(a.RPL_THEMES), AGE65: pct(a.EP_AGE65), NOVEH: pct(a.EP_NOVEH), DISABL: pct(a.EP_DISABL), POV150: pct(a.EP_POV150) };
         });
       });
     })).then(function () {
       var n = 0;
-      rows.forEach(function (r) { var v = svi[r.geoid.slice(0, 11)]; r.SVI = v == null ? null : v; if (v != null) n++; });
+      rows.forEach(function (r) {
+        var v = svi[r.geoid.slice(0, 11)] || {};
+        r.SVI = v.SVI == null ? null : v.SVI;
+        r.AGE65 = v.AGE65 == null ? null : v.AGE65;
+        r.NOVEH = v.NOVEH == null ? null : v.NOVEH;
+        r.DISABL = v.DISABL == null ? null : v.DISABL;
+        r.POV150 = v.POV150 == null ? null : v.POV150;
+        if (r.SVI != null) n++;
+      });
       return n;
     });
   }
@@ -548,31 +1035,227 @@ var EMO = (function () {
     return Promise.all(pool).then(function () { return { done: done, failed: failed }; });
   }
 
-  function loadLanguages(rows, key) {
+  // Language mix of limited-English speakers per tract (ACS C16001 via Esri Living Atlas; no key).
+  // The page applies each tract's mix to its limited-English households, so the split is an estimate.
+  function loadLanguages(rows) {
     var vars = LANGS.map(function (l) { return 'C16001_' + l[0] + 'E'; });
-    var url = CENSUS_URL + '?get=' + vars.join(',') + '&for=tract:*&in=state:25%20county:*&key=' + encodeURIComponent(key);
-    return getJSON(url, { tries: 1 }).then(function (j) {
-      var head = j[0], shares = {};
-      var iS = head.indexOf('state'), iC = head.indexOf('county'), iT = head.indexOf('tract');
-      j.slice(1).forEach(function (row) {
-        var vals = vars.map(function (v) { return Math.max(0, Number(row[head.indexOf(v)]) || 0); });
-        var sum = vals.reduce(function (a, b) { return a + b; }, 0);
-        if (!sum) return;
-        var s = {};
-        vals.forEach(function (v, i) { if (v) s[LANGS[i][1]] = v / sum; });
-        shares[row[iS] + row[iC] + row[iT]] = s;
-      });
+    var ids = {}, list, chunks = [], shares = {};
+    rows.forEach(function (r) { ids[r.geoid.slice(0, 11)] = 1; });
+    list = Object.keys(ids);
+    for (var i = 0; i < list.length; i += 50) chunks.push(list.slice(i, i + 50));   // the service returns 50 rows per call
+    var idx = 0;
+    function worker() {
+      if (idx >= chunks.length) return Promise.resolve();
+      var c = chunks[idx++];
+      var body = qs({ where: "GEOID IN ('" + c.join("','") + "')", outFields: 'GEOID,' + vars.join(','), returnGeometry: 'false', f: 'json' });
+      return getJSON(LANG_URL, { body: body }).then(function (j) {
+        (j.features || []).forEach(function (f) {
+          var a = f.attributes;
+          var vals = vars.map(function (v) { return Math.max(0, Number(a[v]) || 0); });
+          var sum = vals.reduce(function (x, y) { return x + y; }, 0);
+          if (!sum) return;
+          var s = {};
+          vals.forEach(function (v, k) { if (v) s[LANGS[k][1]] = v / sum; });
+          shares[a.GEOID] = s;
+        });
+      }).then(worker);
+    }
+    var pool = [];
+    for (var k = 0; k < 4; k++) pool.push(worker());
+    return Promise.all(pool).then(function () {
       var n = 0;
       rows.forEach(function (r) { r.langs = shares[r.geoid.slice(0, 11)] || null; if (r.langs) n++; });
       return n;
     });
   }
 
-  return { TOWNS_ALL: TOWNS_ALL, TOWNS_DEFAULT: TOWNS_DEFAULT, TIERS: TIERS, TIER_TEXT: TIER_TEXT, RULES: RULES,
+  // Active NWS alerts for one state, kept only when they cover land in that state.
+  function loadAlerts(stateFips) {
+    var st = stateInfo(stateFips) || stateInfo('25');
+    var same = new RegExp('^0' + st.fips + '\\d{3}$');
+    return getJSON('https://api.weather.gov/alerts/active?area=' + st.abbr).then(function (j) {
+      var out = [];
+      (j.features || []).forEach(function (f) {
+        var p = f.properties || {};
+        if (p.status && p.status !== 'Actual') return;
+        var hz = classify(p.event);
+        if (!hz) return;
+        var counties = ((p.geocode && p.geocode.SAME) || []).filter(function (c) { return same.test(c); })
+          .map(function (c) { return c.slice(1); });                    // SAME "025025" -> county FIPS "25025"
+        var g = f.geometry, polys = [];
+        if (g && g.type === 'Polygon') polys = [g.coordinates];
+        else if (g && g.type === 'MultiPolygon') polys = g.coordinates.slice();
+        if (!counties.length && !polys.length) return;
+        out.push({ id: String(p.id || f.id), event: p.event, hazard: hz, severity: p.severity || '',
+                   headline: p.headline || '', areaDesc: p.areaDesc || '', onset: p.onset || null,
+                   ends: p.ends || p.expires || null, counties: counties, polys: polys,
+                   stageName: hz === 'coastal' ? coastalStage(p.event) : null });
+      });
+      return out;
+    });
+  }
+
+  // ---------- live conditions for each emergency type ----------
+  // These thresholds are planner rules (shown on the page), not official NWS warnings.
+  var LIVE_RULES = {
+    heat:   'heat index 90°F or more (NWS "extreme caution" and up)',
+    winter: 'snow 6 in or more, ice 0.25 in or more, or wind chill −10°F or colder',
+    wind:   'wind gusts 46 mph or more (NWS wind-advisory strength)',
+    air:    'US AQI 101 or more (unhealthy for sensitive groups and up)',
+    flood:  'a NOAA river gauge at or forecast to reach minor flood stage; FEMA flood zones within 5 km of it',
+    power:  'towns with 1% or more of customers out (MEMA)'
+  };
+  var GAUGE_KM = 5, OUTAGE_PCT = 0.01;
+
+  function heatLevel(f) {
+    if (f == null) return null;
+    return f >= 125 ? 'Extreme danger' : f >= 103 ? 'Danger' : f >= 90 ? 'Extreme caution' : f >= 80 ? 'Caution' : null;
+  }
+  function aqiLevel(a) {
+    if (a == null) return null;
+    return a >= 301 ? 'Hazardous' : a >= 201 ? 'Very unhealthy' : a >= 151 ? 'Unhealthy' :
+           a >= 101 ? 'Unhealthy for sensitive groups' : a >= 51 ? 'Moderate' : 'Good';
+  }
+  function windLevel(m) { return m == null ? null : m >= 58 ? 'High wind' : m >= 46 ? 'Wind advisory strength' : null; }
+
+  function km(a, b) {
+    var k = Math.cos((a[1] + b[1]) / 2 * Math.PI / 180);
+    var dx = (a[0] - b[0]) * 111.32 * k, dy = (a[1] - b[1]) * 110.57;
+    return Math.sqrt(dx * dx + dy * dy);
+  }
+
+  // NWS ISO interval "2026-10-24T04:00:00+00:00/PT3H" -> [startMs, endMs].
+  function interval(s) {
+    var p = String(s || '').split('/'), t = Date.parse(p[0]);
+    var m = /P(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?)?/.exec(p[1] || '');
+    var d = m ? ((+m[1] || 0) * 24 + (+m[2] || 0)) * 3600000 + (+m[3] || 0) * 60000 : 3600000;
+    return [t, t + d];
+  }
+  function toF(v, uom) { return /degC/.test(uom || '') ? v * 9 / 5 + 32 : v; }
+  function toMph(v, uom) { return /km_h/.test(uom || '') ? v / 1.609344 : /m_s/.test(uom || '') ? v * 2.236936 : v; }
+  function toIn(v, uom) { return /mm/.test(uom || '') ? v / 25.4 : /:m$/.test(uom || '') ? v * 39.3701 : v; }
+
+  // Values of one gridpoint layer that start within [from, to).
+  function series(layer, from, to) {
+    return ((layer && layer.values) || []).map(function (x) { var iv = interval(x.validTime); return { t: iv[0], v: x.value }; })
+      .filter(function (x) { return x.v != null && x.t >= from && x.t < to; });
+  }
+  function maxOf(s) { return s.reduce(function (m, x) { return !m || x.v > m.v ? x : m; }, null); }
+  function minOf(s) { return s.reduce(function (m, x) { return !m || x.v < m.v ? x : m; }, null); }
+  function sumOf(s) { return s.reduce(function (n, x) { return n + x.v; }, 0); }
+
+  // NWS gridpoint forecast for the middle of the loaded towns, next 48 hours.
+  // NWS point lookup: the area's time zone and its forecast grid. Sets the page's time zone.
+  function loadPoint(pt) {
+    return getJSON('https://api.weather.gov/points/' + pt[1].toFixed(4) + ',' + pt[0].toFixed(4)).then(function (j) {
+      var p = j.properties || {};
+      if (p.timeZone) setTimeZone(p.timeZone);
+      return { timeZone: p.timeZone || TZ, grid: p.forecastGridData || null,
+               place: p.relativeLocation && p.relativeLocation.properties ? p.relativeLocation.properties.city + ', ' + p.relativeLocation.properties.state : '' };
+    });
+  }
+
+  function loadForecast(pt, point) {
+    var pp = point ? Promise.resolve(point) : loadPoint(pt);
+    return pp.then(function (info) {
+      var url = info && info.grid;
+      if (!url) throw new Error('no forecast grid');
+      return getJSON(url);
+    }).then(function (g) {
+      var p = g.properties || {}, now = Date.now(), to = now + 48 * 3600000, from = now - 3600000;
+      var hi = maxOf(series(p.heatIndex, from, to)) || null, hiSrc = 'heat index';
+      if (!hi) { hi = maxOf(series(p.apparentTemperature, from, to)); hiSrc = 'feels-like temperature'; }
+      var chill = minOf(series(p.windChill, from, to));
+      var gust = maxOf(series(p.windGust, from, to));
+      var snow = sumOf(series(p.snowfallAmount, from, to)), ice = sumOf(series(p.iceAccumulation, from, to));
+      var u = function (k) { return p[k] && p[k].uom; };
+      var heatF = hi ? Math.round(toF(hi.v, u(hiSrc === 'heat index' ? 'heatIndex' : 'apparentTemperature'))) : null;
+      var chillF = chill ? Math.round(toF(chill.v, u('windChill'))) : null;
+      var gustMph = gust ? Math.round(toMph(gust.v, u('windGust'))) : null;
+      return {
+        updated: p.updateTime || null, office: g.properties && g.properties.gridId,
+        heat: { f: heatF, at: hi ? hi.t : null, what: hiSrc, level: heatLevel(heatF), active: heatF != null && heatF >= 90 },
+        winter: { snowIn: Math.round(toIn(snow, u('snowfallAmount')) * 10) / 10, iceIn: Math.round(toIn(ice, u('iceAccumulation')) * 100) / 100,
+                  chillF: chillF, chillAt: chill ? chill.t : null },
+        wind: { mph: gustMph, at: gust ? gust.t : null, level: windLevel(gustMph), active: gustMph != null && gustMph >= 46 }
+      };
+    }).then(function (f) {
+      var w = f.winter;
+      w.active = w.snowIn >= 6 || w.iceIn >= 0.25 || (w.chillF != null && w.chillF <= -10);
+      return f;
+    });
+  }
+
+  // NOAA river gauges (NWPS) inside a box around the towns. Tidal gauges are left out.
+  function loadGauges(box) {
+    var url = 'https://api.water.noaa.gov/nwps/v1/gauges?' + qs({ 'bbox.xmin': box[0], 'bbox.ymin': box[1],
+      'bbox.xmax': box[2], 'bbox.ymax': box[3], srid: 'EPSG_4326' });
+    var FLOOD = ['minor', 'moderate', 'major'];
+    return getJSON(url).then(function (j) {
+      return (j.gauges || []).filter(function (g) { return !/harbor|bay|ocean|sound|mllw/i.test(g.name || ''); }).map(function (g) {
+        var o = (g.status && g.status.observed) || {}, fc = (g.status && g.status.forecast) || {};
+        var oc = String(o.floodCategory || ''), fcat = String(fc.floodCategory || '');
+        return { lid: g.lid, name: g.name, pt: [g.longitude, g.latitude],
+                 obs: o.primary != null && o.primary > -900 ? o.primary : null, unit: o.primaryUnit || '', obsCat: oc, fcCat: fcat,
+                 flooding: FLOOD.indexOf(oc) >= 0 || FLOOD.indexOf(fcat) >= 0 };
+      });
+    });
+  }
+
+  // US AQI forecast (CAMS model via Open-Meteo; no key). Not the official AirNow monitors.
+  function loadAir(pt) {
+    var url = 'https://air-quality-api.open-meteo.com/v1/air-quality?' + qs({ latitude: pt[1].toFixed(3), longitude: pt[0].toFixed(3),
+      hourly: 'us_aqi', forecast_days: '2', timezone: 'GMT' });
+    return getJSON(url).then(function (j) {
+      var h = j.hourly || {}, best = null, now = Date.now() - 3600000;
+      (h.time || []).forEach(function (t, i) {
+        var ms = Date.parse(t + 'Z'), v = h.us_aqi ? h.us_aqi[i] : null;
+        if (v != null && ms >= now && (!best || v > best.v)) best = { t: ms, v: v };
+      });
+      var a = best ? Math.round(best.v) : null;
+      return { aqi: a, at: best ? best.t : null, level: aqiLevel(a), active: a != null && a >= 101 };
+    });
+  }
+
+  // MEMA town-level power outages (Massachusetts only — there is no free nationwide live feed).
+  // MEMA's feed is http-only and sends no CORS header, so a page can
+  // read it only through the local helper (demo/serve.js), which passes this one fixed URL through.
+  function loadOutages(viaHelper, stateFips) {
+    if (stateFips && stateFips !== '25') return Promise.reject(new Error('live outage data is only available for Massachusetts (MEMA)'));
+    var urls = viaHelper ? ['/mema/outages.geojson'] : [];
+    urls.push('http://mema.mapsonline.net/power_outage_public.geojson');
+    function tryAt(i) {
+      if (i >= urls.length) return Promise.reject(new Error(viaHelper ? 'MEMA feed unreachable'
+        : 'MEMA blocks direct browser access; run demo/serve.js and open the page from it'));
+      return getJSON(urls[i], { tries: 1, timeout: 20000 }).catch(function () { return tryAt(i + 1); });
+    }
+    return tryAt(0).then(function (j) {
+      var towns = {};
+      (j.features || []).forEach(function (f) {
+        var p = f.properties || {}, t = String(p.town || '').toUpperCase();
+        if (!t) return;
+        var x = towns[t] || (towns[t] = { town: t, out: 0, total: 0, updated: p.last_update || '' });
+        x.out += Number(p.no_power) || 0;
+        x.total += Number(p.total_cust_utility || p.total_cust) || 0;   // a town can have two utilities
+      });
+      return Object.keys(towns).map(function (k) { var x = towns[k]; x.pct = x.total ? x.out / x.total : 0; return x; });
+    });
+  }
+
+  return { STATES: STATES, AREA_DEFAULT: AREA_DEFAULT, stateInfo: stateInfo, TIERS: TIERS, TIER_TEXT: TIER_TEXT, RULES: RULES,
+           REPORT_TYPES: REPORT_TYPES, SEV_TEXT: SEV_TEXT, reportType: reportType, areaAt: areaAt, assignReports: assignReports,
+           incidentQueue: incidentQueue, reportsFromCSV: reportsFromCSV, reportsToCSV: reportsToCSV, sampleReports: sampleReports,
+           HAZARDS: HAZARDS, classify: classify, coastalStage: coastalStage, inArea: inArea, exposure: exposure,
+           LIVE_RULES: LIVE_RULES, GAUGE_KM: GAUGE_KM, OUTAGE_PCT: OUTAGE_PCT, heatLevel: heatLevel, aqiLevel: aqiLevel,
+           windLevel: windLevel, km: km, center: center, interval: interval,
+           loadForecast: loadForecast, loadGauges: loadGauges, loadAir: loadAir, loadOutages: loadOutages,
+           loadPoint: loadPoint, setTimeZone: setTimeZone, timeZone: timeZone, findStation: findStation,
+           loadCounties: loadCounties, loadCountyShapes: loadCountyShapes, mercX: mercX, mercY: mercY, unMercX: unMercX, unMercY: unMercY,
+           loadArea: loadArea, loadTracts: loadTracts, loadTownNames: loadTownNames,
            UNKNOWN_LANG: UNKNOWN_LANG, plan: plan, stageFor: stageFor, floodsAt: floodsAt, zoneCodes: zoneCodes,
            severity: severity, SEVERITY_TEXT: SEVERITY_TEXT,
            toCSV: toCSV, money: money, loadTide: loadTide, loadEvents: loadEvents, eventPeak: eventPeak,
-           loadEJ: loadEJ, loadSVI: loadSVI, loadZones: loadZones, loadLanguages: loadLanguages,
+           loadEJ: loadEJ, loadSVI: loadSVI, loadZones: loadZones, loadLanguages: loadLanguages, loadAlerts: loadAlerts,
            bostonStr: bostonStr, gmtMs: gmtMs };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
@@ -587,10 +1270,17 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   var fmt = function (n) { return Math.round(n).toLocaleString('en-US'); };
   var STATUS = { full: '✓ Reached', partial: '◐ Partly', missed: '✕ Missed' };
   var COLOR = { full: 'var(--ok)', partial: 'var(--part)', missed: 'var(--miss)' };
-  var LS = { zones: 'emo.zones.v1', snap: 'emo.snapshot.v1', key: 'emo.censusKey', towns: 'emo.towns' };
+  var LS = { zones: 'emo.zones.v1', snap: 'emo.snapshot.v2', area: 'emo.area.v1' };
 
-  var DATA = null;        // { loadedAt, towns, tide, events, rows, notes }
+  var DATA = null;        // { loadedAt, area, point, station, tide, events, alerts, rows, live, notes }
   var VIEW = { paths: {}, labels: null };
+  // Stand-in flood tiers when there is no tide station: only the order matters (no feet shown).
+  var NOMINAL = [{ name: 'Major', ft: 3, nominal: true }, { name: 'Moderate', ft: 2, nominal: true }, { name: 'Minor', ft: 1, nominal: true }];
+  function stages() { return DATA && DATA.tide ? DATA.tide.stages : NOMINAL; }
+  function unitWord(n) {
+    var u = DATA && DATA.rows[0] && DATA.rows[0].unit === 'tract' ? 'tract' : 'block group';
+    return u + (n === 1 ? '' : 's');
+  }
 
   function store(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); return true; } catch (e) { return false; } }
   function recall(k) { try { var v = localStorage.getItem(k); return v ? JSON.parse(v) : null; } catch (e) { return null; } }
@@ -608,18 +1298,161 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     return n;
   }
 
-  // ---------- setup ----------
-  var savedTowns = recall(LS.towns) || EMO.TOWNS_DEFAULT;
-  EMO.TOWNS_ALL.forEach(function (t) {
-    var l = el('label'), c = el('input', { type: 'checkbox', value: t });
-    c.checked = savedTowns.indexOf(t) >= 0;
-    l.appendChild(c); l.appendChild(document.createTextNode(t));
-    $('towns').appendChild(l);
-  });
-  $('censusKey').value = recall(LS.key) || '';
+  // ---------- setup: state and counties ----------
+  var savedArea = recall(LS.area) || EMO.AREA_DEFAULT;
+  EMO.STATES.forEach(function (s) { $('state').appendChild(el('option', { value: s[0] }, s[2])); });
+  $('state').value = savedArea.state;
 
-  function selectedTowns() {
-    return Array.prototype.slice.call($('towns').querySelectorAll('input:checked')).map(function (c) { return c.value; });
+  var countySeq = 0;
+  function showCounties(stateFips, checked) {
+    var box = $('counties'), mine = ++countySeq;
+    box.textContent = '';
+    box.appendChild(el('span', { 'class': 'muted' }, 'Loading counties…'));
+    $('areaNote').textContent = stateFips === '25'
+      ? 'Massachusetts uses block groups (MassGIS EJ 2020), the finest level.'
+      : 'Uses census tracts (CDC SVI). Massachusetts uses smaller block groups.';
+    return EMO.loadCounties(stateFips).then(function (list) {
+      if (mine !== countySeq) return;
+      box.textContent = '';
+      list.forEach(function (c) {
+        var l = el('label'), cb = el('input', { type: 'checkbox', value: c.geoid });
+        cb.checked = (checked || []).indexOf(c.geoid) >= 0;
+        cb.addEventListener('change', countCounties);
+        l.appendChild(cb); l.appendChild(document.createTextNode(c.name));
+        l.setAttribute('data-name', c.name.toLowerCase());
+        box.appendChild(l);
+      });
+      filterCounties();
+      countCounties();
+    }, function (e) {
+      if (mine !== countySeq) return;
+      box.textContent = '';
+      box.appendChild(el('span', { 'class': 'muted' }, 'Could not load counties: ' + e.message));
+    });
+  }
+  function countyBoxes() { return Array.prototype.slice.call($('counties').querySelectorAll('input')); }
+  function selectedCounties() { return countyBoxes().filter(function (c) { return c.checked; }).map(function (c) { return c.value; }); }
+  function countCounties() { var n = selectedCounties().length; $('countyCount').textContent = n ? '(' + n + ' picked)' : '(pick one or more)'; }
+  function filterCounties() {
+    var q = $('countyFilter').value.trim().toLowerCase();
+    Array.prototype.slice.call($('counties').childNodes).forEach(function (l) {
+      if (l.getAttribute) l.hidden = !!q && (l.getAttribute('data-name') || '').indexOf(q) < 0;
+    });
+  }
+  $('countyFilter').addEventListener('input', filterCounties);
+  $('state').addEventListener('change', function () { $('countyFilter').value = ''; showCounties(this.value, []); });
+  var countiesReady = showCounties(savedArea.state, savedArea.counties);
+
+  // ---------- resident reports (kept in this browser, per area) ----------
+  var REPORTS = [], REPORT_COUNTS = null;
+  LS.reports = 'emo.reports.v1';
+  EMO.REPORT_TYPES.forEach(function (t) { $('repType').appendChild(el('option', { value: t[0] }, t[1])); });
+  $('repType').addEventListener('change', function () { $('repSev').value = String(EMO.reportType(this.value)[2]); });
+  $('repSev').value = String(EMO.REPORT_TYPES[0][2]);
+
+  function areaKey() { return DATA && DATA.area ? DATA.area.state + ':' + DATA.area.counties.slice().sort().join(',') : ''; }
+  function loadReports(fromSnap) {
+    var all = recall(LS.reports) || {};
+    REPORTS = Array.isArray(fromSnap) ? fromSnap : (all[areaKey()] || []);
+    reportsChanged(false);
+  }
+  function saveReports() {
+    var all = recall(LS.reports) || {};
+    all[areaKey()] = REPORTS;
+    store(LS.reports, all);
+  }
+  // Re-match reports to areas, redraw markers and queue, and re-plan.
+  function reportsChanged(save) {
+    if (!DATA) return;
+    REPORT_COUNTS = REPORTS.length ? EMO.assignReports(REPORTS, DATA.rows) : null;
+    if (save !== false) saveReports();
+    var outside = REPORTS.filter(function (r) { return !r.areaId; }).length;
+    $('tabRepCount').hidden = !REPORTS.length;
+    $('tabRepCount').textContent = String(REPORTS.length);
+    $('repNoteLine').textContent = REPORTS.length
+      ? fmt(REPORTS.length) + ' report' + (REPORTS.length === 1 ? '' : 's') + (outside ? ' (' + outside + ' outside the loaded area)' : '') +
+        (REPORTS.some(function (r) { return r.source === 'sample'; }) ? ' · includes SAMPLE reports, not real' : '')
+      : 'No reports yet. CSV columns: lat, lon, and optional type, severity, time, note.';
+    drawReports();
+    renderQueue();
+    render();
+  }
+  function addReport(lon, lat) {
+    var t = EMO.reportType($('repType').value);
+    REPORTS.push({ id: 'r' + Date.now().toString(36) + Math.round(Math.random() * 1e4), lat: Math.round(lat * 1e5) / 1e5, lon: Math.round(lon * 1e5) / 1e5,
+                   type: t[0], sev: Number($('repSev').value) || t[2], time: new Date().toISOString(),
+                   note: $('repNote').value.trim().slice(0, 300), source: 'manual' });
+    $('repNote').value = '';
+    reportsChanged();
+  }
+  function setAdding(on) {
+    VIEW.adding = !!on;
+    $('repAdd').setAttribute('aria-pressed', on ? 'true' : 'false');
+    $('repAdd').textContent = on ? 'Click the map to place it (Esc to cancel)' : 'Add a report on the map';
+    if (on) $('map').classList.add('adding'); else $('map').classList.remove('adding');
+  }
+  $('repAdd').addEventListener('click', function () { if (DATA) setAdding(!VIEW.adding); });
+  $('repImport').addEventListener('click', function () { $('repFile').click(); });
+  $('repFile').addEventListener('change', function () {
+    var f = this.files && this.files[0]; if (!f || !DATA) return;
+    var rd = new FileReader();
+    rd.onload = function () {
+      try {
+        var res = EMO.reportsFromCSV(rd.result);
+        REPORTS = REPORTS.concat(res.reports);
+        reportsChanged();
+        setStatus('reports', 'ok', 'Imported ' + res.reports.length + ' reports' + (res.skipped ? ', skipped ' + res.skipped + ' rows without a valid lat/lon' : ''));
+      } catch (e) { setStatus('reports', 'err', 'Could not import reports: ' + e.message); }
+    };
+    rd.readAsText(f);
+    this.value = '';
+  });
+  $('repExport').addEventListener('click', function () {
+    if (!REPORTS.length) return;
+    download('resident-reports-' + new Date().toISOString().slice(0, 10) + '.csv', EMO.reportsToCSV(EMO.incidentQueue(REPORTS)), 'text/csv');
+  });
+  $('repSample').addEventListener('click', function () {
+    if (!DATA) return;
+    REPORTS = REPORTS.filter(function (r) { return r.source !== 'sample'; })
+      .concat(EMO.sampleReports(DATA.rows, HZ, Number(String(Date.now()).slice(-6))));
+    reportsChanged();
+    setStatus('reports', 'ok', 'Loaded SAMPLE reports. They lean toward easy-to-reach areas on purpose, to show the gap.');
+  });
+  $('repClear').addEventListener('click', function () {
+    if (!REPORTS.length) return;
+    if (typeof confirm === 'function' && !confirm('Delete all ' + REPORTS.length + ' reports for this area? You can export them first.')) return;
+    REPORTS = [];
+    reportsChanged();
+  });
+  $('quietFirst').addEventListener('change', render);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && VIEW.adding) setAdding(false); });
+
+  function ago(iso) {
+    var m = Math.max(0, Math.round((Date.now() - Date.parse(iso)) / 60000));
+    return m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' d ago';
+  }
+  function renderQueue() {
+    var box = $('queue'), q = EMO.incidentQueue(REPORTS), byId = {};
+    (DATA ? DATA.rows : []).forEach(function (r) { byId[r.id] = r; });
+    box.textContent = '';
+    $('queueCount').textContent = REPORTS.length ? '(' + fmt(REPORTS.length) + ')' : '';
+    if (!q.length) { box.appendChild(el('li', { 'class': 'muted', style: 'cursor:default' }, 'No resident reports yet.')); return; }
+    q.slice(0, 200).forEach(function (rep) {
+      var t = EMO.reportType(rep.type), area = byId[rep.areaId];
+      var li = el('li', { tabindex: '0', 'data-rep': rep.id, title: 'Show on map' });
+      li.appendChild(el('span', { 'class': 'sev sev' + rep.sev, title: EMO.SEV_TEXT[rep.sev] }, String(rep.sev)));
+      var mid = el('span');
+      mid.appendChild(el('strong', null, t[1]));
+      mid.appendChild(document.createTextNode(' · ' + (area ? area.town + ' — ' + area.name : 'outside the loaded area')));
+      if (rep.note) { mid.appendChild(el('br')); mid.appendChild(el('span', { 'class': 'muted' }, rep.note)); }
+      if (rep.sev === 1 && (rep.type === 'medical' || rep.type === 'help')) { mid.appendChild(el('br')); mid.appendChild(el('span', { 'class': 'st-missed' }, 'Call 911 if not already done.')); }
+      li.appendChild(mid);
+      li.appendChild(el('span', { 'class': 'muted' }, ago(rep.time) + (rep.source === 'sample' ? ' · sample' : '')));
+      function go() { zoomToPoint(rep.lon, rep.lat); }
+      li.addEventListener('click', go);
+      li.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+      box.appendChild(li);
+    });
   }
 
   // ---------- status list ----------
@@ -634,59 +1467,71 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   function clearStatus() { $('status').textContent = ''; statusRows = {}; }
 
   // ---------- loading ----------
+  var zoneRun = 0;
   function loadLive() {
-    var towns = selectedTowns();
-    if (!towns.length) { setStatus('ej', 'err', 'Pick at least one town.'); return Promise.resolve(); }
-    store(LS.towns, towns);
-    var key = $('censusKey').value.trim();
-    if (key) store(LS.key, key); else { try { localStorage.removeItem(LS.key); } catch (e) {} }
+    var stF = $('state').value, counties = selectedCounties(), info = EMO.stateInfo(stF);
+    if (!counties.length) { clearStatus(); setStatus('area', 'err', 'Pick at least one county.'); return Promise.resolve(); }
+    store(LS.area, { state: stF, counties: counties });
 
     $('load').disabled = true;
     clearStatus();
     $('alert').className = 'alert wait';
     $('alert').textContent = 'Loading live data…';
-    var data = { loadedAt: new Date().toISOString(), towns: towns, tide: null, events: [], rows: [], notes: {} };
-    var zoneCache = recall(LS.zones) || {};
+    var names = countyBoxes().filter(function (c) { return c.checked; }).map(function (c) { return c.parentNode ? c.parentNode.textContent : c.value; });
+    var data = { loadedAt: new Date().toISOString(), area: { state: stF, counties: counties, names: names },
+                 point: null, station: null, tide: null, events: [], alerts: [], rows: [], live: null, notes: {} };
 
-    setStatus('tide', 'run', 'NOAA tide gauge…');
+    setStatus('area', 'run', stF === '25' ? 'MassGIS EJ 2020 block groups…' : 'CDC census tracts…');
+    setStatus('nws', 'run', 'NWS alerts…');
     setStatus('ev', 'run', 'OpenFEMA past disasters…');
-    setStatus('ej', 'run', 'MassGIS EJ 2020 block groups…');
 
-    var tideP = EMO.loadTide().then(function (t) {
-      data.tide = t;
-      setStatus('tide', 'ok', 'NOAA tide: ' + t.latest.v.toFixed(2) + ' ft at ' + t.latest.t + ' (' + t.source + ' flood stages)');
-    }, function (e) { setStatus('tide', 'err', 'NOAA tide failed: ' + e.message); throw e; });
+    var nwsP = EMO.loadAlerts(stF).then(function (al) {
+      data.alerts = al;
+      setStatus('nws', 'ok', 'NWS: ' + al.length + ' active alert' + (al.length === 1 ? '' : 's') + ' for ' + info.name);
+    }, function (e) { setStatus('nws', 'err', 'NWS alerts failed: ' + e.message); });
 
-    var evP = EMO.loadEvents().then(function (ev) {
+    var evP = EMO.loadEvents(info.abbr).then(function (ev) {
       data.events = ev;
-      setStatus('ev', 'ok', 'OpenFEMA: ' + ev.length + ' past MA storm declarations');
+      setStatus('ev', 'ok', 'OpenFEMA: ' + ev.length + ' past ' + info.abbr + ' storm declarations');
     }, function (e) { setStatus('ev', 'err', 'OpenFEMA failed: ' + e.message); });
 
-    var rowsP = EMO.loadEJ(towns).then(function (rows) {
+    var rowsP = EMO.loadArea(stF, counties).then(function (rows) {
+      if (!rows.length) throw new Error('no census data for these counties');
       data.rows = rows;
-      setStatus('ej', 'ok', 'EJ 2020: ' + rows.length + ' block groups in ' + towns.length + ' town' + (towns.length > 1 ? 's' : ''));
-      setStatus('svi', 'run', 'CDC SVI…');
-      setStatus('zones', 'run', 'FEMA flood zones…');
-      if (key) setStatus('lang', 'run', 'Census languages…');
-      else setStatus('lang', 'err', 'Languages: add a Census key to load');
+      setStatus('area', 'ok', (stF === '25' ? 'MassGIS EJ 2020: ' : 'CDC SVI: ') + fmt(rows.length) + ' ' +
+        (rows[0].unit === 'tract' ? 'tracts' : 'block groups') + ' in ' + counties.length + ' count' + (counties.length > 1 ? 'ies' : 'y') +
+        (rows.length > 2500 ? ' — a big area; flood zones will take several minutes' : ''));
+      var pt = rowsCenter(rows);
+      setStatus('tide', 'run', 'NOAA tide station…');
+      // The NWS point lookup sets the area's time zone, so it runs before anything prints a time.
+      var pointP = EMO.loadPoint(pt).then(function (p) { data.point = p; return p; }, function () { return null; });
+      var tideP = pointP.then(function () { return EMO.findStation(pt); }).then(function (st) {
+        data.station = st;
+        return EMO.loadTide(st);
+      }).then(function (t) {
+        data.tide = t;
+        setStatus('tide', 'ok', 'NOAA tide (' + t.station.name + ', ' + t.station.km.toFixed(0) + ' km away): ' + t.latest.v.toFixed(2) + ' ft at ' + t.latest.t.slice(11));
+      }, function (e) { data.tide = null; setStatus('tide', 'err', 'Coastal tide: ' + e.message + '. Coastal floods use NWS alerts and what-ifs.'); });
+      var sviP = rows[0].unit === 'bg'
+        ? EMO.loadSVI(rows).then(function (n) { setStatus('svi', 'ok', 'CDC SVI: ' + n + ' of ' + rows.length + ' matched'); },
+            function (e) { setStatus('svi', 'err', 'CDC SVI failed: ' + e.message); })
+        : Promise.resolve();
+      var townP = EMO.loadTownNames(rows, counties).then(null, function () { return 0; });
+      setStatus('lang', 'run', 'Languages…');
+      var langP = EMO.loadLanguages(rows).then(function (n) { setStatus('lang', 'ok', 'Languages (ACS C16001): ' + fmt(n) + ' of ' + fmt(rows.length) + ' matched'); },
+        function (e) { setStatus('lang', 'err', 'Languages failed: ' + e.message); });
+      var liveP = pointP.then(function (p) { return loadLiveSources(rows, null, p, stF); }).then(function (live) { data.live = live; });
+      var shapeP = EMO.loadCountyShapes(counties).then(function (s) { data.countyShapes = s; }, function () { data.countyShapes = []; });
+      return Promise.all([tideP, sviP, townP, langP, liveP, shapeP]);
+    }, function (e) { setStatus('area', 'err', 'Area data failed: ' + e.message); throw e; });
 
-      var sviP = EMO.loadSVI(rows).then(function (n) { setStatus('svi', 'ok', 'CDC SVI: ' + n + ' of ' + rows.length + ' matched'); },
-        function (e) { setStatus('svi', 'err', 'CDC SVI failed: ' + e.message); });
-      var zoneP = EMO.loadZones(rows, zoneCache, function (d, total, failed) {
-        setStatus('zones', d < total ? 'run' : (failed ? 'err' : 'ok'),
-          'FEMA flood zones: ' + d + ' / ' + total + (failed ? ' (' + failed + ' failed)' : ''));
-      }).then(function (r) { store(LS.zones, zoneCache); data.notes.zoneFailed = r.failed; });
-      var langP = key ? EMO.loadLanguages(rows, key).then(function (n) { setStatus('lang', 'ok', 'Census languages: ' + n + ' block groups'); },
-        function (e) { setStatus('lang', 'err', 'Census failed: ' + e.message); }) : Promise.resolve();
-      return Promise.all([sviP, zoneP, langP]);
-    }, function (e) { setStatus('ej', 'err', 'EJ 2020 failed: ' + e.message); throw e; });
-
-    return Promise.all([tideP, evP, rowsP]).then(function () {
+    return Promise.all([rowsP, nwsP, evP]).then(function () {
       useData(data, false);
+      startZones();
       if (!store(LS.snap, data)) setStatus('save', 'err', 'Too big to auto-save. Use "Save snapshot".');
     }, function () {
       var snap = recall(LS.snap);
-      if (snap && snap.rows && snap.tide) {
+      if (snap && snap.rows && snap.rows.length) {
         useData(snap, true);
       } else {
         $('alert').className = 'alert wait';
@@ -695,37 +1540,322 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     }).then(function () { $('load').disabled = false; });
   }
 
+  // FEMA flood zones load in the background (one query per area, cached in this browser), so the
+  // page is usable at once; flood scenarios fill in as zones arrive.
+  function startZones() {
+    var mine = ++zoneRun, rows = DATA.rows, cache = recall(LS.zones) || {}, lastDraw = 0;
+    setStatus('zones', 'run', 'FEMA flood zones…');
+    EMO.loadZones(rows, cache, function (d, total, failed) {
+      if (mine !== zoneRun) return;
+      setStatus('zones', d < total ? 'run' : (failed ? 'err' : 'ok'),
+        'FEMA flood zones: ' + fmt(d) + ' / ' + fmt(total) + (failed ? ' (' + failed + ' failed)' : '') + (d < total ? ' — loading in the background' : ''));
+      var now = Date.now();
+      if ((EMO.HAZARDS[HZ] || {}).flood && (d === total || now - lastDraw > 1500)) { lastDraw = now; render(); }
+    }).then(function (r) {
+      if (mine !== zoneRun) return;
+      if (!store(LS.zones, cache)) { try { localStorage.removeItem(LS.zones); } catch (e) {} }
+      DATA.notes.zoneFailed = r.failed;
+      store(LS.snap, DATA);
+      refreshHazards();
+      render();
+    });
+  }
+
   function useData(data, fromSnapshot) {
     DATA = data;
-    VIEW = { paths: {}, labels: null };
+    VIEW = { paths: {}, labels: null, hl: null };
     var b = $('banner');
     if (fromSnapshot) {
       b.hidden = false;
       b.textContent = 'Showing saved data from ' + new Date(data.loadedAt).toLocaleString() + '. Live loading failed or a snapshot was opened.';
     } else b.hidden = true;
-    buildEvents();
+    if (data.point && data.point.timeZone) EMO.setTimeZone(data.point.timeZone);
+    // Median income exists only for Massachusetts block groups.
+    var hasIncome = data.rows.some(function (r) { return r.BG_MHHI != null; });
+    Array.prototype.slice.call($('rule').childNodes).forEach(function (o) { if (o.value === 'income') o.disabled = !hasIncome; });
+    if (!hasIncome && $('rule').value === 'income') $('rule').value = 'poverty';
+    $('tideLabel').textContent = data.tide ? data.tide.station.name + ' tide' : 'Tide';
     buildMap();
-    $('event').value = 'now';
+    setAdding(false);
+    loadReports(fromSnapshot ? data.reports : null);
+    // Start on the type of the first live NWS alert for these towns; else the first type whose live
+    // conditions meet the rule; otherwise coastal flood.
+    var live = relevantAlerts();
+    HZ = live.length ? live[0].hazard
+       : (HZ_ORDER.filter(function (h) { return liveCount(h) > 0; })[0] || 'coastal');
+    buildHazards();
+    buildEvents();
+    $('event').value = defaultSource(HZ);
     applyEvent();
-    lastMs = (data.tide.latest && data.tide.latest.ms) || 0;
+    lastMs = (data.tide && data.tide.latest && data.tide.latest.ms) || 0;
     misses = 0;
     planNext();
   }
 
   // ---------- scenario ----------
-  function buildEvents() {
-    var s = $('event'), t = DATA.tide;
-    s.textContent = '';
-    s.appendChild(el('option', { value: 'now' }, 'Now — latest reading (' + t.latest.v.toFixed(1) + ' ft)'));
-    if (t.nextHigh) s.appendChild(el('option', { value: 'next' }, 'Highest predicted tide, next 2 days (' + t.nextHigh.v.toFixed(1) + ' ft)'));
-    var g = el('optgroup', { label: 'Replay a past MA disaster (OpenFEMA)' });
-    DATA.events.forEach(function (ev) {
-      g.appendChild(el('option', { value: 'ev:' + ev.id }, ev.begin.slice(0, 4) + ' · ' + titleCase(ev.title) + ' (DR-' + ev.id + ')'));
+  function findAlert(id) { return (DATA.alerts || []).filter(function (a) { return a.id === id; })[0] || null; }
+  function alertArea(a) { return { counties: a.counties, polys: a.polys }; }
+
+  // NWS alerts that cover at least one loaded block group, with that count.
+  function relevantAlerts() {
+    return (DATA.alerts || []).map(function (a) {
+      var area = alertArea(a), n = 0;
+      DATA.rows.forEach(function (r) { if (EMO.inArea(r, area)) n++; });
+      a.groups = n;
+      return a;
+    }).filter(function (a) { return a.groups > 0; });
+  }
+
+  function whenText(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    return isNaN(d) ? '' : d.toLocaleString('en-US', { timeZone: EMO.timeZone(), weekday: 'short', hour: 'numeric', minute: '2-digit' });
+  }
+  function short(s, n) { s = String(s || ''); return s.length > n ? s.slice(0, n - 1) + '…' : s; }
+
+  // ---------- live conditions per emergency type ----------
+  function rowsCenter(rows) {
+    var x = 0, y = 0, n = 0;
+    rows.forEach(function (r) { var c = EMO.center(r); if (c) { x += c[0]; y += c[1]; n++; } });
+    return n ? [x / n, y / n] : [-71.06, 42.36];
+  }
+  function rowsBox(rows, pad) {
+    var b = [Infinity, Infinity, -Infinity, -Infinity];
+    rows.forEach(function (r) { (r.rings || []).forEach(function (ring) { ring.forEach(function (p) {
+      b[0] = Math.min(b[0], p[0]); b[1] = Math.min(b[1], p[1]); b[2] = Math.max(b[2], p[0]); b[3] = Math.max(b[3], p[1]);
+    }); }); });
+    if (!isFinite(b[0])) b = [-71.2, 42.2, -70.9, 42.5];
+    return [b[0] - pad, b[1] - pad, b[2] + pad, b[3] + pad].map(function (v) { return Math.round(v * 1000) / 1000; });
+  }
+
+  // Forecast, river gauges, air quality and power outages. A failed source keeps its last good value.
+  function loadLiveSources(rows, prev, point, stateFips) {
+    prev = prev || {};
+    var c = rowsCenter(rows), box = rowsBox(rows, 0.05);
+    var viaHelper = typeof location !== 'undefined' && /^https?:$/.test(location.protocol);
+    var live = { at: Date.now(), forecast: prev.forecast || null, gauges: prev.gauges || null, air: prev.air || null,
+                 outages: prev.outages || null, errors: {} };
+    function src(id, label, p, key, ok) {
+      setStatus(id, 'run', label + '…');
+      return p.then(function (v) { live[key] = v; setStatus(id, 'ok', ok(v)); },
+        function (e) { live.errors[key] = e.message; setStatus(id, 'err', label + ': ' + e.message + (live[key] ? ' (showing the last good data)' : '')); });
+    }
+    return Promise.all([
+      src('fc', 'NWS forecast', EMO.loadForecast(c, point), 'forecast', function (f) {
+        return 'NWS forecast (' + f.office + '): ' + f.heat.what + ' up to ' + f.heat.f + '°F · gusts ' + f.wind.mph + ' mph · snow ' + f.winter.snowIn + ' in';
+      }),
+      src('gauges', 'NOAA river gauges', EMO.loadGauges(box), 'gauges', function (g) {
+        return 'NOAA river gauges: ' + g.filter(function (x) { return x.flooding; }).length + ' of ' + g.length + ' at flood stage';
+      }),
+      src('air', 'Air quality forecast', EMO.loadAir(c), 'air', function (a) { return 'Air quality (CAMS model): AQI up to ' + a.aqi + ' · ' + a.level; }),
+      src('power', 'Power outages', EMO.loadOutages(viaHelper, stateFips), 'outages', function (o) {
+        var mine = outagesHere(o, rows);
+        return 'MEMA outages: ' + fmt(mine.reduce(function (n, x) { return n + x.out; }, 0)) + ' customers out in this area';
+      })
+    ]).then(function () { return live; });
+  }
+
+  function outagesHere(list, rows) {
+    var towns = {};
+    rows.forEach(function (r) { towns[String(r.town).toUpperCase()] = 1; });
+    return (list || []).filter(function (x) { return towns[x.town]; });
+  }
+
+  function capFirst(s) { s = String(s || ''); return s.charAt(0).toUpperCase() + s.slice(1); }
+
+  // What the live data says for one emergency type: { ok, active, label, note, sc }.
+  function liveSource(h) {
+    var L = (DATA && DATA.live) || {}, err = L.errors || {};
+    var f = L.forecast, rule = EMO.LIVE_RULES[h];
+    function none(key, what) { return { ok: false, label: what + ' not available' + (err[key] ? ' (' + err[key] + ')' : '') }; }
+    if (h === 'heat') {
+      if (!f) return none('forecast', 'NWS forecast');
+      var x = f.heat;
+      return { ok: true, active: x.active, label: 'NWS forecast: ' + x.what + ' up to ' + x.f + '°F' + (x.level ? ' · ' + x.level : ''),
+        note: 'NWS gridpoint forecast (' + f.office + ') for the middle of this area, next 2 days. Peak ' + whenText(x.at) + '. Rule: ' + rule + '.',
+        sc: { kind: 'live', hazard: 'heat', active: x.active, why: capFirst(x.what) + ' up to ' + x.f + '°F (forecast)' } };
+    }
+    if (h === 'winter') {
+      if (!f) return none('forecast', 'NWS forecast');
+      var w = f.winter, txt = 'snow ' + w.snowIn + ' in · ice ' + w.iceIn + ' in · wind chill low ' + w.chillF + '°F';
+      return { ok: true, active: w.active, label: 'NWS forecast: ' + txt,
+        note: 'NWS gridpoint forecast (' + f.office + '), next 2 days. Rule: ' + rule + '.',
+        sc: { kind: 'live', hazard: 'winter', active: w.active, why: capFirst(txt) + ' (forecast)' } };
+    }
+    if (h === 'wind') {
+      if (!f) return none('forecast', 'NWS forecast');
+      var g = f.wind;
+      return { ok: true, active: g.active, label: 'NWS forecast: gusts up to ' + g.mph + ' mph' + (g.level ? ' · ' + g.level : ''),
+        note: 'NWS gridpoint forecast (' + f.office + '), next 2 days. Peak ' + whenText(g.at) + '. Rule: ' + rule + '.',
+        sc: { kind: 'live', hazard: 'wind', active: g.active, why: 'Gusts up to ' + g.mph + ' mph (forecast)' } };
+    }
+    if (h === 'air') {
+      var a = L.air;
+      if (!a) return none('air', 'Air quality forecast');
+      return { ok: true, active: a.active, label: 'Air quality forecast: AQI up to ' + a.aqi + ' · ' + a.level,
+        note: 'CAMS model via Open-Meteo, next 2 days (not the official AirNow monitors). Peak ' + whenText(a.at) + '. Rule: ' + rule + '.',
+        sc: { kind: 'live', hazard: 'air', active: a.active, why: 'AQI up to ' + a.aqi + ' (forecast)' } };
+    }
+    if (h === 'flood') {
+      var gs = L.gauges;
+      if (!gs) return none('gauges', 'NOAA river gauges');
+      var hot = gs.filter(function (x) { return x.flooding; });
+      var list = gs.map(function (x) { return x.name + ': ' + (x.obs == null ? '—' : x.obs + ' ' + x.unit) + ' (' + x.obsCat.replace(/_/g, ' ') + ')'; });
+      return { ok: true, active: hot.length > 0,
+        label: 'NOAA river gauges: ' + hot.length + ' of ' + gs.length + ' at or forecast to flood stage',
+        note: 'Rule: ' + rule + '. Gauges: ' + list.join(' · ') + '.',
+        sc: { kind: 'live', hazard: 'flood', active: hot.length > 0, near: hot.map(function (x) { return x.pt; }), radiusKm: EMO.GAUGE_KM,
+              why: 'Within ' + EMO.GAUGE_KM + ' km of ' + hot.map(function (x) { return x.lid; }).join(', ') } };
+    }
+    if (h === 'power') {
+      if (DATA.area && DATA.area.state !== '25') return { ok: false, label: 'Live outage data: Massachusetts only (MEMA)' };
+      if (!L.outages) return none('outages', 'MEMA outages');
+      var here = outagesHere(L.outages, DATA.rows), hit = here.filter(function (x) { return x.pct >= EMO.OUTAGE_PCT; });
+      var out = here.reduce(function (n, x) { return n + x.out; }, 0);
+      var top = here.slice().sort(function (p, q) { return q.out - p.out; }).slice(0, 5)
+        .map(function (x) { return capFirst(x.town.toLowerCase()) + ' ' + fmt(x.out) + ' (' + (x.pct * 100).toFixed(1) + '%)'; });
+      return { ok: true, active: hit.length > 0, label: 'MEMA outages: ' + fmt(out) + ' customers out in this area',
+        note: 'MEMA town-level data, updated ' + ((here[0] && here[0].updated) || '?') + '. ' + top.join(' · ') + '. Rule: ' + rule + '.',
+        sc: { kind: 'live', hazard: 'power', active: hit.length > 0, towns: hit.map(function (x) { return x.town; }),
+              why: 'Town has ' + Math.round(EMO.OUTAGE_PCT * 100) + '%+ of customers out' } };
+    }
+    return { ok: false, label: 'No live source for this type' };
+  }
+
+  // ---------- emergency type (section 1) and source (section 2) ----------
+  var HZ_ORDER = ['coastal', 'flood', 'heat', 'winter', 'wind', 'power', 'air', 'other'];
+  var HZ = 'coastal';
+
+  function liveFor(h) { return relevantAlerts().filter(function (a) { return a.hazard === h; }); }
+  var LIVE_TYPES = ['heat', 'winter', 'wind', 'air', 'flood', 'power'];
+  // Live count for the badge: NWS alerts plus an active live condition.
+  function liveCount(h) {
+    var n = liveFor(h).length;
+    if (LIVE_TYPES.indexOf(h) >= 0) { var s = liveSource(h); if (s.ok && s.active) n++; }
+    return n;
+  }
+
+  // Best starting source for a type: its first live alert, else its live data, else the tide now (coastal) or a what-if.
+  function defaultSource(h) {
+    var live = liveFor(h);
+    if (live.length) return 'al:' + live[0].id;
+    if (LIVE_TYPES.indexOf(h) >= 0 && liveSource(h).ok) return 'lv:' + h;
+    return h === 'coastal' && DATA.tide ? 'now' : 'hz:' + h;
+  }
+
+  // Coastal flood is offered only near the coast: a NOAA tide station within 60 km, or a live coastal alert.
+  function hazardsShown() {
+    return HZ_ORDER.filter(function (h) { return h !== 'coastal' || !!DATA.tide || liveFor('coastal').length > 0; });
+  }
+
+  // One radio button per emergency type, with a count of live NWS alerts for these towns.
+  var hzLabels = [], hzCounts = '';
+  function buildHazards() {
+    var box = $('hazards');
+    box.textContent = '';
+    hzLabels = [];
+    var counts = [];
+    if (hazardsShown().indexOf(HZ) < 0) HZ = hazardsShown()[0];
+    hazardsShown().forEach(function (h) {
+      var n = liveCount(h);
+      counts.push(h + n);
+      var l = el('label', { 'class': h === HZ ? 'on' : '' });
+      var r = el('input', { type: 'radio', name: 'hazard', value: h });
+      r.checked = h === HZ;
+      r.addEventListener('change', function () { if (this.checked) chooseHazard(h); });
+      l.appendChild(r);
+      l.appendChild(el('span', null, EMO.HAZARDS[h].label));
+      if (n) l.appendChild(el('b', { 'class': 'badge', title: n + ' live NWS alert' + (n > 1 ? 's' : '') }, n + ' live'));
+      box.appendChild(l);
+      hzLabels.push({ h: h, label: l, input: r });
     });
-    if (DATA.events.length) s.appendChild(g);
-    s.appendChild(el('option', { value: 'custom' }, 'What-if (use the slider)'));
-    var st = t.stages, txt = st.slice().reverse().map(function (x) { return x.name.toLowerCase() + ' ' + x.ft.toFixed(1); }).join(' · ');
-    $('stageNote').textContent = 'Flood stages (' + t.source + ', Boston): ' + txt + ' ft.';
+    hzCounts = counts.join(',');
+  }
+  // Rebuild only when the live counts change, so a focused radio button keeps focus.
+  function refreshHazards() {
+    var now = hazardsShown().map(function (h) { return h + liveCount(h); }).join(',');
+    if (now !== hzCounts) buildHazards();
+  }
+
+  function chooseHazard(h) {
+    HZ = h;
+    hzLabels.forEach(function (x) { x.label.className = x.h === h ? 'on' : ''; x.input.checked = x.h === h; });
+    buildEvents();
+    $('event').value = defaultSource(h);
+    applyEvent();
+  }
+
+  // Sources for the chosen type only.
+  function buildEvents() {
+    var s = $('event'), t = DATA.tide, name = EMO.HAZARDS[HZ].label.toLowerCase();
+    s.textContent = '';
+    // NWS never issues power-outage alerts, so that type skips the alerts group entirely.
+    if (HZ !== 'power') {
+      var ga = el('optgroup', { label: 'Live NWS alerts' });
+      var live = liveFor(HZ);
+      if (live.length) live.forEach(function (a) {
+        ga.appendChild(el('option', { value: 'al:' + a.id },
+          a.event + ' · ' + short(a.areaDesc, 40) + (a.ends ? ' · until ' + whenText(a.ends) : '')));
+      });
+      else ga.appendChild(el('option', { value: 'none', disabled: '' }, 'No live ' + name + ' alerts for this area'));
+      s.appendChild(ga);
+    }
+
+    if (HZ === 'coastal' && t) {
+      var gt = el('optgroup', { label: t.station.name + ' tide (NOAA ' + t.station.id + ')' });
+      gt.appendChild(el('option', { value: 'now' }, 'Now — latest reading (' + t.latest.v.toFixed(1) + ' ft)'));
+      if (t.nextHigh) gt.appendChild(el('option', { value: 'next' }, 'Highest predicted tide, next 2 days (' + t.nextHigh.v.toFixed(1) + ' ft)'));
+      gt.appendChild(el('option', { value: 'custom' }, 'What-if tide (use the slider)'));
+      s.appendChild(gt);
+      if (DATA.events.length) {
+        var st0 = EMO.stateInfo(DATA.area.state);
+        var g = el('optgroup', { label: 'Past ' + (st0 ? st0.abbr : '') + ' disasters — tide replay (OpenFEMA)' });
+        DATA.events.forEach(function (ev) {
+          g.appendChild(el('option', { value: 'ev:' + ev.id }, ev.begin.slice(0, 4) + ' · ' + titleCase(ev.title) + ' (DR-' + ev.id + ')'));
+        });
+        s.appendChild(g);
+      }
+    } else {
+      if (LIVE_TYPES.indexOf(HZ) >= 0) {
+        var ls = liveSource(HZ), gl = el('optgroup', { label: 'Live conditions' });
+        gl.appendChild(ls.ok ? el('option', { value: 'lv:' + HZ }, ls.label + (ls.active ? ' — meets the rule' : ' — below the rule'))
+                             : el('option', { value: 'none2', disabled: '' }, ls.label));
+        s.appendChild(gl);
+      }
+      var gw = el('optgroup', { label: 'What-if' });
+      gw.appendChild(el('option', { value: 'hz:' + HZ }, EMO.HAZARDS[HZ].label + (EMO.HAZARDS[HZ].flood ? ' in every FEMA flood zone' : ' across the selected area')));
+      s.appendChild(gw);
+    }
+
+    if (t) {
+      var st = t.stages, txt = st.slice().reverse().map(function (x) { return x.name.toLowerCase() + ' ' + x.ft.toFixed(1); }).join(' · ');
+      $('stageNote').textContent = 'Flood stages (' + t.source + ', ' + t.station.name + '): ' + txt + ' ft.';
+    }
+  }
+
+  function isTideChoice(v) { return !!(DATA && DATA.tide) && (v === 'now' || v === 'next' || v === 'custom' || v.indexOf('ev:') === 0); }
+
+  // The scenario the planner picked: hazard type, area, and (for coastal floods) water level.
+  function scenario() {
+    var v = $('event').value || 'now';
+    if (v.indexOf('al:') === 0) {
+      var a = findAlert(v.slice(3));
+      if (a) {
+        var lvl = null;
+        if (a.hazard === 'coastal') {
+          var st = stages().filter(function (x) { return x.name === a.stageName; })[0];
+          lvl = st ? st.ft : null;
+        }
+        return { kind: 'alert', hazard: a.hazard, level: lvl, area: alertArea(a), alert: a };
+      }
+    }
+    if (v.indexOf('hz:') === 0) return { kind: 'whatif', hazard: v.slice(3), level: 99, area: null };
+    if (v.indexOf('lv:') === 0) {
+      var ls = liveSource(v.slice(3));
+      if (ls.ok) { var o = ls.sc; o.live = ls; return o; }
+    }
+    if (!DATA.tide) return { kind: 'whatif', hazard: 'coastal', level: 99, area: null };
+    return { kind: 'tide', hazard: 'coastal', level: Number($('tide').value), area: null };
   }
 
   function titleCase(s) { return String(s || '').toLowerCase().replace(/\b[a-z]/g, function (c) { return c.toUpperCase(); }); }
@@ -733,7 +1863,20 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   var peakSeq = 0;
   function applyEvent() {
     var v = $('event').value, t = DATA.tide, note = $('eventNote');
-    if (v === 'now') { $('tide').value = t.latest.v; note.textContent = 'Observed ' + t.latest.t + ' (Boston time), NOAA gauge 8443970. New reading every 6 min.'; }
+    var sc = scenario(), flood = !!(EMO.HAZARDS[sc.hazard] || {}).flood;
+    $('tideBox').hidden = !isTideChoice(v);
+    $('coastBox').hidden = !flood;
+    $('zoneLegend').hidden = !flood;
+    if (sc.kind === 'alert') {
+      var a = sc.alert;
+      note.textContent = (a.headline || a.event) + ' (official NWS text) · Area: ' + a.areaDesc +
+        (a.polys.length ? ' · uses the storm polygon' : ' · uses whole counties') + '.';
+    }
+    else if (sc.kind === 'live') note.textContent = sc.live.note;
+    else if (sc.kind === 'whatif') note.textContent = 'What-if: everyone in the selected area is affected' +
+      (flood ? ', in FEMA flood zones.' : '.') + ' No live alert is used.' +
+      (sc.hazard === 'coastal' && !t ? ' No NOAA tide station with flood levels is near this area.' : '');
+    else if (v === 'now') { $('tide').value = t.latest.v; note.textContent = 'Observed ' + t.latest.t + ' (local time), NOAA ' + t.station.id + ' ' + t.station.name + '. New reading every 6 min.'; }
     else if (v === 'next') { $('tide').value = t.nextHigh.v; note.textContent = 'Predicted for ' + t.nextHigh.t + '. Astronomical tide only — storm surge not included.'; }
     else if (v.indexOf('ev:') === 0) {
       var ev = DATA.events.filter(function (e) { return 'ev:' + e.id === v; })[0];
@@ -742,7 +1885,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
       else {
         var mine = ++peakSeq;
         note.textContent = 'Looking up the peak tide for ' + ev.begin + '…';
-        EMO.eventPeak(ev).then(function (p) {
+        EMO.eventPeak(ev, t.station.id).then(function (p) {
           if (mine !== peakSeq) return;
           if (!p) { note.textContent = 'No gauge data for this event.'; return; }
           ev.peak = p; $('tide').value = p.v; note.textContent = peakText(ev); render();
@@ -756,30 +1899,75 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   }
 
   function opts() {
-    return { tide: $('tide').value, rule: $('rule').value, stages: DATA ? DATA.tide.stages : [],
-             coastFirst: $('coastFirst').checked,
+    return { tide: $('tide').value, rule: $('rule').value, stages: stages(),
+             scenario: DATA ? scenario() : null, coastFirst: $('coastFirst').checked,
+             reportCounts: REPORT_COUNTS, quietFirst: $('quietFirst').checked,
              teams: $('teams').value, hours: $('hours').value, rate: $('rate').value };
   }
 
   // ---------- render ----------
+  var LAST = null;   // the last plan drawn, so the map can redraw a highlight without re-planning
   function render() {
     if (!DATA) return null;
     var p = EMO.plan(DATA.rows, opts());
-    $('tideOut').textContent = p.tide.toFixed(1);
-    renderAlert(p); renderStats(p); renderTable(p); renderMap(p); renderLangs(p); renderFair(p);
+    LAST = p;
+    $('tideOut').textContent = isFinite(p.tide) ? p.tide.toFixed(1) : '—';
+    renderAlert(p); renderStats(p); renderTable(p); renderMap(p); renderLangs(p); renderFair(p); renderQuiet(p);
     return p;
   }
 
+  // Reports tab: the quiet at-risk areas from the current planning scenario.
+  function renderQuiet(p) {
+    var box = $('quietList'), st = DATA.area ? EMO.stateInfo(DATA.area.state) : null;
+    $('repArea').textContent = 'Area: ' + ((DATA.area && DATA.area.names && DATA.area.names.join(', ')) || '') +
+      (st ? ' (' + st.name + ')' : '') + '. Scenario: ' + $('alert').textContent.split('.')[0] + '. Change the area below; change the scenario in the Planning aid tab.';
+    box.textContent = '';
+    if (!p.hasReports) { $('quietCount').textContent = ''; box.appendChild(el('li', { 'class': 'muted', style: 'cursor:default' }, 'Add or import reports to find quiet areas.')); return; }
+    var q = p.items.filter(function (i) { return i.quiet; });
+    $('quietCount').textContent = '(' + q.length + ')';
+    if (!q.length) { box.appendChild(el('li', { 'class': 'muted', style: 'cursor:default' }, 'None: every high-priority exposed area has at least one report.')); return; }
+    q.slice(0, 100).forEach(function (it) {
+      var r = it.row, li = el('li', { tabindex: '0', title: 'Show on map' });
+      li.appendChild(el('span', { 'class': 'quiet' }, '#' + it.rank));
+      var mid = el('span');
+      mid.appendChild(el('strong', null, r.town + ' — ' + r.name));
+      mid.appendChild(el('br'));
+      mid.appendChild(el('span', { 'class': 'muted' }, fmt(r.hh) + ' homes · limited-English ' + (r.LIMENGHHPCT == null ? '?' : r.LIMENGHHPCT.toFixed(0) + '%') +
+        (r.AGE65 != null ? ' · 65+ ' + Math.round(r.AGE65) + '%' : '')));
+      li.appendChild(mid);
+      li.appendChild(el('span', { 'class': 'st-' + it.status }, STATUS[it.status]));
+      function go() { zoomToRow(r.id); }
+      li.addEventListener('click', go);
+      li.addEventListener('keydown', function (e) { if (e.key === 'Enter') go(); });
+      box.appendChild(li);
+    });
+  }
+
   function renderAlert(p) {
-    var a = $('alert');
-    if (p.stage) {
+    var a = $('alert'), sc = p.scenario, n = fmt(p.items.length), g = ' ' + unitWord(p.items.length);
+    var hzName = EMO.HAZARDS[p.hazard].label;
+    if (sc.kind === 'alert') {
       a.className = 'alert on';
-      a.textContent = 'Coastal flood: ' + p.stage.toUpperCase() + ' stage — tide ' + p.tide.toFixed(1) + ' ft. ' +
-        fmt(p.items.length) + ' block group' + (p.items.length === 1 ? '' : 's') + ' exposed.';
+      a.textContent = 'NWS ' + sc.alert.event + ' (live)' + (sc.alert.ends ? ' until ' + whenText(sc.alert.ends) : '') + '. ' +
+        n + g + (p.floodType ? ' in flood zones' : '') + ' in the alert area.';
+    } else if (sc.kind === 'live') {
+      if (sc.active) {
+        a.className = 'alert on';
+        a.textContent = 'Live: ' + sc.live.label + '. ' + n + g + ' exposed.';
+      } else {
+        a.className = 'alert off';
+        a.textContent = 'Below the planner rule right now — ' + sc.live.label + '. No one is listed.';
+      }
+    } else if (sc.kind === 'whatif') {
+      a.className = 'alert wait';
+      a.textContent = 'What-if: ' + hzName.toLowerCase() + '. ' + n + g + (p.floodType ? ' in flood zones.' : ' in the selected area.');
+    } else if (p.stage) {
+      a.className = 'alert on';
+      a.textContent = 'Coastal flood: ' + p.stage.toUpperCase() + ' stage — tide ' + p.tide.toFixed(1) + ' ft. ' + n + g + ' exposed.';
     } else {
-      var minor = DATA.tide.stages[DATA.tide.stages.length - 1];
+      var st = stages(), minor = st[st.length - 1];
       a.className = 'alert off';
-      a.textContent = 'No flooding expected — tide ' + p.tide.toFixed(1) + ' ft is below minor flood stage' +
+      a.textContent = 'No coastal flooding expected — tide ' + p.tide.toFixed(1) + ' ft is below minor flood stage' +
         (minor ? ' (' + minor.ft.toFixed(1) + ' ft).' : '.');
     }
   }
@@ -788,7 +1976,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     var t = p.totals, box = $('stats');
     box.textContent = '';
     [[fmt(t.hh), 'households to reach', false], [fmt(t.reached), 'reached in time', false],
-     [fmt(t.missed), 'households missed', t.missed > 0], [fmt(t.lepMissed), 'limited-English missed', t.lepMissed > 0]
+     [fmt(t.missed), 'households missed', t.missed > 0], [fmt(t.lepMissed), 'limited-English missed', t.lepMissed > 0],
+     [p.hasReports ? fmt(t.quiet) : '—', p.hasReports ? 'quiet at-risk ' + unitWord(t.quiet) + ' (no reports)' : 'quiet areas: add reports', p.hasReports && t.quiet > 0]
     ].forEach(function (s) {
       var d = el('div', { 'class': 'stat' + (s[2] ? ' bad' : '') });
       d.appendChild(el('b', null, s[0])); d.appendChild(el('span', null, s[1]));
@@ -801,10 +1990,15 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     tb.textContent = '';
     var keyCol = EMO.RULES[p.rule].col, cutDone = false;
     if (!p.items.length) {
-      var tr0 = el('tr'); tr0.appendChild(el('td', { colspan: '9' }, 'No block group is exposed at this tide.')); tb.appendChild(tr0);
+      var tr0 = el('tr'); tr0.appendChild(el('td', { colspan: '11' }, 'No ' + unitWord(1) + ' is exposed in this scenario.')); tb.appendChild(tr0);
     }
+    function pc(v) { return v == null ? '—' : Math.round(v) + '%'; }
+    // When every row is exposed for the same reason (heat, power, what-ifs…), drop the column
+    // and say the reason once under the table instead.
+    var sameWhy = p.items.length > 0 && p.items.every(function (it) { return it.why === p.items[0].why; });
+    $('whyCol').hidden = sameWhy;
     p.items.forEach(function (it) {
-      var r = it.row, tr = el('tr');
+      var r = it.row, tr = el('tr', { 'data-id': r.id, tabindex: '0', title: 'Show on map' });
       if (!cutDone && it.status !== 'full' && it.rank > 1) tr.className = 'cut';
       if (it.status !== 'full') cutDone = true;
       var name = el('td');
@@ -814,22 +2008,39 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
       var cells = [
         el('td', { 'class': 'num' }, String(it.rank)), name,
         el('td', { 'class': 'num' }, fmt(r.hh)),
-        el('td', { 'class': 'num' }, r.LIMENGHHPCT == null ? '—' : r.LIMENGHHPCT.toFixed(1) + '% (' + fmt(r.lepHH) + ')'),
-        el('td', { 'class': 'num' }, EMO.money(r.BG_MHHI)),
+        el('td', { 'class': 'num' }, r.LIMENGHHPCT == null ? '—' : r.LIMENGHHPCT.toFixed(1) + '% (' + (r.unit === 'tract' ? '≈' : '') + fmt(r.lepHH) + ')'),
+        el('td', { 'class': 'num' }, (r.BG_MHHI != null ? EMO.money(r.BG_MHHI) + ' · ' : '') + pc(r.POV150)),
         el('td', { 'class': 'num' }, r.SVI == null ? '—' : r.SVI.toFixed(2)),
-        el('td', null, it.floodsAt.name + ' (' + it.floodsAt.ft.toFixed(1) + ' ft) · ' + r.zones.join(', ')),
+        el('td', { 'class': 'num' }, pc(r.AGE65) + ' · ' + pc(r.NOVEH) + ' · ' + pc(r.DISABL)),
+        el('td', null, it.why),
+        (function () {
+          var c = el('td', { 'class': 'num' }, p.hasReports ? String(it.reports) : '');
+          if (it.quiet) c.appendChild(el('span', { 'class': 'quiet', title: 'Exposed, high in the order, and nobody has reported anything' }, 'Quiet'));
+          return c;
+        })(),
         el('td', { 'class': 'num' }, fmt(it.doors)),
         el('td', { 'class': 'st-' + it.status }, STATUS[it.status] + (it.status === 'partial' ? ' ' + Math.round(it.frac * 100) + '%' : ''))
       ];
       cells[keyCol].className += ' key';
+      if (!p.hasReports) cells.splice(8, 1);   // no reports loaded: no Reports column
+      if (sameWhy) cells.splice(7, 1);
       cells.forEach(function (c) { tr.appendChild(c); });
       tb.appendChild(tr);
     });
-    var o = opts(), t = p.totals;
-    $('trace').textContent = 'Order = ' + (p.coastFirst ? 'worst flood zone first (VE coast → A → 0.2%), then ' : '') +
+    $('repCol').hidden = !p.hasReports;
+    var o = opts(), t = p.totals, sc = p.scenario;
+    var rule = sc.kind === 'live' ? 'Live rule: ' + EMO.LIVE_RULES[p.hazard] + '.' +
+        (p.hazard === 'heat' || p.hazard === 'winter' || p.hazard === 'wind' || p.hazard === 'air' ? ' The forecast is for one point, so it covers the whole selected area.' : '')
+      : p.hazard === 'coastal' ? 'Exposure rule: ' + EMO.TIER_TEXT + '. An area counts if it touches the zone; A zones can include river flood areas.'
+      : p.hazard === 'flood' ? 'Exposure rule: areas touching any FEMA flood zone (A, VE, 0.2%)' + (sc.area ? ' inside the alert area.' : '.')
+      : 'Exposure rule: every ' + unitWord(1) + ' ' + (sc.area ? 'inside the NWS alert area (' + (sc.area.polys.length ? 'center inside the storm polygon' : 'whole counties') + ').' : 'in the selected area.');
+    $('trace').textContent = (sameWhy ? 'All listed: ' + p.items[0].why + '. ' : '') +
+      'Order = ' + (p.quietFirst ? 'quiet at-risk areas first, then ' : '') + (p.coastFirst ? 'worst flood zone first (VE coast → A → 0.2%), then ' : '') +
       'sort by ' + EMO.RULES[p.rule].label + '; missing values last; ties by GEOID. No combined score. ' +
-      'Exposure rule: ' + EMO.TIER_TEXT + '. A block group counts if it touches the zone; A zones can include river flood areas. Dashed line = capacity runs out. ' +
-      fmt(t.dry) + ' groups not exposed' + (t.unknown ? ', ' + fmt(t.unknown) + ' with unknown flood zone' : '') + '.';
+      rule + ' Dashed line = capacity runs out. ' +
+      (p.hasReports ? 'Quiet = exposed, in the top third of the order, and no resident reports. ' : '') +
+      fmt(t.dry) + ' ' + unitWord(t.dry) + ' not exposed' + (t.unknown ? ', ' + fmt(t.unknown) + ' with flood zones still loading or unknown' : '') + '.' +
+      (DATA.rows[0] && DATA.rows[0].unit === 'tract' ? ' Limited-English homes (≈) are estimated from the share of people who speak English less than well.' : '');
     $('capNote').textContent = (Number(o.teams) || 0) + ' teams × ' + (Number(o.hours) || 0) + ' h × ' +
       (Number(o.rate) || 0) + ' doors = ' + fmt(t.capacity) + ' doors.';
   }
@@ -840,19 +2051,40 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     Array.prototype.slice.call(m.childNodes).forEach(function (n) { if (n !== desc) m.removeChild(n); });
     var rows = DATA.rows.filter(function (r) { return r.rings && r.rings.length; });
     if (!rows.length) return;
-    var minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-    rows.forEach(function (r) { r.rings.forEach(function (ring) { ring.forEach(function (pt) {
-      if (pt[0] < minX) minX = pt[0]; if (pt[0] > maxX) maxX = pt[0];
-      if (pt[1] < minY) minY = pt[1]; if (pt[1] > maxY) maxY = pt[1];
-    }); }); });
-    var kx = Math.cos((minY + maxY) / 2 * Math.PI / 180), W = 600;
-    var s = W / ((maxX - minX) * kx || 1), H = Math.max(200, Math.round((maxY - minY) * s));
-    function px(pt) { return ((pt[0] - minX) * kx * s).toFixed(1) + ',' + ((maxY - pt[1]) * s).toFixed(1); }
+    var shapes = DATA.countyShapes || [];
+    // Frame the map on the land areas. Official county lines can run far out to sea (Suffolk's goes
+    // 25 km into the bay), so they are drawn but not used for framing.
+    var mx0 = Infinity, mx1 = -Infinity, my0 = Infinity, my1 = -Infinity;
+    function grow(pt) {
+      var x = EMO.mercX(pt[0]), y = EMO.mercY(pt[1]);
+      if (x < mx0) mx0 = x; if (x > mx1) mx1 = x; if (y < my0) my0 = y; if (y > my1) my1 = y;
+    }
+    rows.forEach(function (r) { r.rings.forEach(function (ring) { ring.forEach(grow); }); });
+    var padX = (mx1 - mx0) * 0.03, padY = (my1 - my0) * 0.03;
+    mx0 -= padX; mx1 += padX; my0 -= padY; my1 += padY;
+    var W = 600, S = W / ((mx1 - mx0) || 1e-9), H = Math.round((my1 - my0) * S);
+    if (H < 300) { my0 -= (300 / S - (my1 - my0)) / 2; H = 300; }                 // keep a usable height for wide areas
+    if (H > 900) { var needW = (my1 - my0) * W / 900; mx0 -= (needW - (mx1 - mx0)) / 2; S = W / needW; H = 900; }   // very tall areas: widen instead
+    function px(pt) { return ((EMO.mercX(pt[0]) - mx0) * S).toFixed(1) + ',' + ((EMO.mercY(pt[1]) - my0) * S).toFixed(1); }
     m.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+    VIEW.W = W; VIEW.H = H; VIEW.vb = [0, 0, W, H]; VIEW.boxes = {};
+    VIEW.proj = { mx0: mx0, my0: my0, S: S };
+    m.style.setProperty('--lblk', '1');
     m.appendChild(svg('rect', { x: 0, y: 0, width: W, height: H, style: 'fill:var(--water)' }));
+    VIEW.tiles = svg('g', { 'class': 'tiles' });
+    VIEW.tileEls = {};
+    m.appendChild(VIEW.tiles);
     rows.forEach(function (r) {
-      var d = r.rings.map(function (ring) { return 'M' + ring.map(px).join('L') + 'Z'; }).join('');
-      var path = svg('path', { d: d, style: 'fill:var(--land);stroke:var(--bg);stroke-width:0.4' });
+      var b = [Infinity, Infinity, -Infinity, -Infinity];
+      var d = r.rings.map(function (ring) {
+        return 'M' + ring.map(function (pt) {
+          var q = px(pt), xy = q.split(',');
+          b[0] = Math.min(b[0], +xy[0]); b[1] = Math.min(b[1], +xy[1]); b[2] = Math.max(b[2], +xy[0]); b[3] = Math.max(b[3], +xy[1]);
+          return q;
+        }).join('L') + 'Z';
+      }).join('');
+      VIEW.boxes[r.id] = b;
+      var path = svg('path', { d: d, style: 'fill:var(--land);stroke:var(--bg);stroke-width:0.5' });
       var title = svg('title', {}, r.town + ' — ' + r.name);
       path.appendChild(title);
       var ring = r.rings[0], cx = 0, cy = 0;
@@ -860,31 +2092,312 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
       VIEW.paths[r.id] = { path: path, title: title, c: px([cx / ring.length, cy / ring.length]).split(',') };
       m.appendChild(path);
     });
+    // Town names at the middle of each town's block groups. Bigger towns go first; a name that
+    // would overlap one already placed is skipped so the map stays readable.
+    var towns = {};
+    rows.forEach(function (r) {
+      var c = VIEW.paths[r.id].c, t = towns[r.town] || (towns[r.town] = { name: r.town, x: 0, y: 0, n: 0 });
+      t.x += Number(c[0]); t.y += Number(c[1]); t.n++;
+    });
+    var placed = [];
+    VIEW.towns = svg('g', { 'class': 'townlbls', 'aria-hidden': 'true' });
+    Object.keys(towns).map(function (k) { return towns[k]; }).sort(function (a, b) { return b.n - a.n; }).forEach(function (t) {
+      var w = t.name.length * 7 + 6, h = 14;
+      // Keep the whole label inside the map.
+      var x = Math.min(Math.max(t.x / t.n, w / 2 + 2), W - w / 2 - 2), y = Math.min(Math.max(t.y / t.n, h), H - 4);
+      var box = [x - w / 2, y - h / 2, x + w / 2, y + h / 2];
+      if (placed.some(function (b) { return box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1]; })) return;
+      placed.push(box);
+      VIEW.towns.appendChild(svg('text', { x: x.toFixed(1), y: y.toFixed(1), 'text-anchor': 'middle', dy: '4', 'class': 'townlbl',
+        style: 'fill:var(--fg);stroke:var(--card)' }, t.name.toUpperCase()));
+    });
+    VIEW.reps = svg('g', { 'class': 'reports' });   // resident report markers, above the areas
+    // Official county borders on top of the areas: a wide light halo under a strong colored line,
+    // so the outline stands out on the street map and on the colored areas.
+    var borders = svg('g', { 'class': 'borders', 'aria-hidden': 'true' });
+    // One color per county. Neighbors (touching boxes) never share a color while colors remain.
+    var NCOL = 6, cbox = shapes.map(function (c) {
+      var b = [Infinity, Infinity, -Infinity, -Infinity];
+      c.rings.forEach(function (ring) { ring.forEach(function (pt) {
+        b[0] = Math.min(b[0], pt[0]); b[1] = Math.min(b[1], pt[1]); b[2] = Math.max(b[2], pt[0]); b[3] = Math.max(b[3], pt[1]); }); });
+      return b;
+    });
+    var order = shapes.map(function (c, i) { c.color = null; return i; }).sort(function (a, b) { return shapes[a].geoid < shapes[b].geoid ? -1 : 1; });
+    order.forEach(function (i) {
+      var used = {};
+      order.forEach(function (j) {
+        var p = cbox[i], q = cbox[j], e = 0.002;
+        if (j !== i && shapes[j].color != null && p[0] <= q[2] + e && p[2] >= q[0] - e && p[1] <= q[3] + e && p[3] >= q[1] - e) used[shapes[j].color] = 1;
+      });
+      var k = 0; while (k < NCOL && used[k]) k++;
+      shapes[i].color = k < NCOL ? k : order.indexOf(i) % NCOL;
+    });
+    shapes.forEach(function (c) {
+      var d = c.rings.map(function (ring) { return 'M' + ring.map(px).join('L') + 'Z'; }).join('');
+      borders.appendChild(svg('path', { d: d,
+        style: 'fill:none;stroke:var(--card);stroke-opacity:.9;stroke-width:7;vector-effect:non-scaling-stroke;stroke-linejoin:round' }));
+      borders.appendChild(svg('path', { d: d,
+        style: 'fill:none;stroke:var(--cty' + c.color + ');stroke-width:3;vector-effect:non-scaling-stroke;stroke-linejoin:round' }));
+    });
+    // County names, on land inside each county: try the middle of its areas, then each of its
+    // areas nearest that middle, and take the first spot that clears the town names.
+    VIEW.counties = svg('g', { 'class': 'countylbls', 'aria-hidden': 'true' });
+    shapes.forEach(function (c) {
+      var mine = rows.filter(function (r) { return String(r.geoid || '').indexOf(c.geoid) === 0; })
+        .map(function (r) { return VIEW.paths[r.id].c.map(Number); });
+      if (!mine.length) return;
+      var mx = 0, my = 0;
+      mine.forEach(function (p) { mx += p[0]; my += p[1]; });
+      mx /= mine.length; my /= mine.length;
+      var cand = [[mx, my]].concat(mine.sort(function (a, b) {
+        return Math.hypot(a[0] - mx, a[1] - my) - Math.hypot(b[0] - mx, b[1] - my); }).slice(0, 80));
+      var text = c.label.toUpperCase(), w = text.length * 10 + 10, h = 18;
+      for (var i = 0; i < cand.length; i++) {
+        var x = Math.min(Math.max(cand[i][0], w / 2 + 2), W - w / 2 - 2), y = Math.min(Math.max(cand[i][1], h), H - 4);
+        var box = [x - w / 2, y - h / 2, x + w / 2, y + h / 2];
+        if (i < cand.length - 1 && placed.some(function (b) { return box[0] < b[2] && box[2] > b[0] && box[1] < b[3] && box[3] > b[1]; })) continue;
+        placed.push(box);
+        VIEW.counties.appendChild(svg('text', { x: x.toFixed(1), y: y.toFixed(1), 'text-anchor': 'middle', dy: '5', 'class': 'countylbl',
+          style: 'fill:var(--cty' + c.color + ')' }, text));
+        break;
+      }
+    });
+    m.appendChild(borders);
+    m.appendChild(VIEW.reps);
+    m.appendChild(VIEW.towns);
+    m.appendChild(VIEW.counties);
+    VIEW.towns.style.display = $('townNames').checked ? '' : 'none';
+    VIEW.counties.style.display = $('countyNames').checked ? '' : 'none';
     VIEW.labels = svg('g', {});
     m.appendChild(VIEW.labels);
+    // Clip everything to the current view, so nothing spills into the empty side margins.
+    var defs = svg('defs', {}), cp = svg('clipPath', { id: 'mapClip' });
+    VIEW.clip = svg('rect', { x: 0, y: 0, width: W, height: H });
+    cp.appendChild(VIEW.clip); defs.appendChild(cp);
+    var wrap = svg('g', { 'clip-path': 'url(#mapClip)' });
+    Array.prototype.slice.call(m.childNodes).forEach(function (n) { if (n !== desc) wrap.appendChild(n); });
+    m.appendChild(defs); m.appendChild(wrap);
+    drawTiles();
   }
+
+  // ---------- map zoom and pan (changes the SVG viewBox; labels and outlines keep their size) ----------
+  function setView(x, y, w) {
+    if (!VIEW.W) return;
+    var W = VIEW.W, H = VIEW.H;
+    w = Math.max(W / 60, Math.min(W, w));
+    var h = w * H / W;
+    x = Math.max(0, Math.min(W - w, x)); y = Math.max(0, Math.min(H - h, y));
+    VIEW.vb = [x, y, w, h];
+    var m = $('map');
+    m.setAttribute('viewBox', x.toFixed(2) + ' ' + y.toFixed(2) + ' ' + w.toFixed(2) + ' ' + h.toFixed(2));
+    m.style.setProperty('--lblk', (w / W).toFixed(4));
+    if (VIEW.clip) { VIEW.clip.setAttribute('x', x.toFixed(2)); VIEW.clip.setAttribute('y', y.toFixed(2)); VIEW.clip.setAttribute('width', w.toFixed(2)); VIEW.clip.setAttribute('height', h.toFixed(2)); }
+    (VIEW.marks || []).forEach(function (c) { c.setAttribute('r', (c._r * w / W).toFixed(2)); });   // markers keep their screen size
+    queueTiles();
+  }
+
+  // Map units <-> lon/lat, in Web Mercator — the same projection as the street map, so they line up.
+  function lonLatTo(lon, lat) { var p = VIEW.proj; return [(EMO.mercX(lon) - p.mx0) * p.S, (EMO.mercY(lat) - p.my0) * p.S]; }
+  function toLonLat(x, y) { var p = VIEW.proj; return [EMO.unMercX(x / p.S + p.mx0), EMO.unMercY(y / p.S + p.my0)]; }
+
+  // ---------- street-map tiles (CARTO basemap, OpenStreetMap data) ----------
+  // Tiles are picked for the current zoom so they stay sharp, and reused when the view moves.
+  var tileTimer = null;
+  function queueTiles() {
+    if (tileTimer) return;
+    var go = function () { tileTimer = null; drawTiles(); };
+    tileTimer = typeof requestAnimationFrame === 'function' ? requestAnimationFrame(go) : setTimeout(go, 16);
+  }
+  function darkMode() { return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches; }
+  function drawTiles() {
+    var g = VIEW.tiles;
+    if (!g || !VIEW.vb || !VIEW.proj) return;
+    var on = $('baseMap').checked;
+    g.style.display = on ? '' : 'none';
+    if (!on) return;
+    var p = VIEW.proj, v = VIEW.vb;
+    var screenW = ($('map').getBoundingClientRect().width || 600);
+    var worldPx = p.S * screenW / v[2];                               // screen pixels across the whole world
+    var z = Math.max(0, Math.min(19, Math.round(Math.log(worldPx / 256) / Math.LN2)));
+    var n = Math.pow(2, z), size = p.S / n;                            // one tile, in map units
+    var x0 = Math.floor((v[0] / p.S + p.mx0) * n), x1 = Math.floor(((v[0] + v[2]) / p.S + p.mx0) * n);
+    var y0 = Math.floor((v[1] / p.S + p.my0) * n), y1 = Math.floor(((v[1] + v[3]) / p.S + p.my0) * n);
+    if ((x1 - x0 + 1) * (y1 - y0 + 1) > 120) return;                   // safety cap
+    // USGS The National Map: public domain, no key. URL order is z/y/x. Cached to zoom 16.
+    var style = $('baseStyle').value === 'imagery' ? 'USGSImageryTopo' : 'USGSTopo', want = {};
+    if (z > 16) { z = 16; n = Math.pow(2, z); size = p.S / n;
+      x0 = Math.floor((v[0] / p.S + p.mx0) * n); x1 = Math.floor(((v[0] + v[2]) / p.S + p.mx0) * n);
+      y0 = Math.floor((v[1] / p.S + p.my0) * n); y1 = Math.floor(((v[1] + v[3]) / p.S + p.my0) * n); }
+    for (var tx = x0; tx <= x1; tx++) for (var ty = y0; ty <= y1; ty++) {
+      if (ty < 0 || ty >= n) continue;
+      var wx = ((tx % n) + n) % n, key = style + '/' + z + '/' + wx + '/' + ty;
+      want[key] = 1;
+      if (VIEW.tileEls[key]) continue;
+      var img = svg('image', { x: ((tx / n - p.mx0) * p.S).toFixed(3), y: ((ty / n - p.my0) * p.S).toFixed(3),
+        width: (size + 0.02).toFixed(3), height: (size + 0.02).toFixed(3), preserveAspectRatio: 'none',
+        href: 'https://basemap.nationalmap.gov/arcgis/rest/services/' + style + '/MapServer/tile/' + z + '/' + ty + '/' + wx });
+      img.setAttribute('aria-hidden', 'true');
+      VIEW.tileEls[key] = img;
+      g.appendChild(img);
+    }
+    // Drop tiles from other zoom levels or styles once the new ones are placed.
+    Object.keys(VIEW.tileEls).forEach(function (k) {
+      var part = k.split('/');
+      if (!want[k] && (part[1] !== String(z) || part[0] !== style)) { var el0 = VIEW.tileEls[k]; if (el0.parentNode) el0.parentNode.removeChild(el0); delete VIEW.tileEls[k]; }
+    });
+    g.style.opacity = darkMode() ? '0.75' : '1';
+  }
+
+  var SEV_COLOR = { 1: 'var(--miss)', 2: 'var(--part)', 3: 'var(--muted)' };
+  function drawReports() {
+    if (!VIEW.reps) return;
+    VIEW.reps.textContent = '';
+    VIEW.marks = [];
+    var k = VIEW.vb ? VIEW.vb[2] / VIEW.W : 1;
+    EMO.incidentQueue(REPORTS).slice().reverse().forEach(function (rep) {   // most severe drawn last, on top
+      var xy = lonLatTo(rep.lon, rep.lat);
+      if (xy[0] < -5 || xy[1] < -5 || xy[0] > VIEW.W + 5 || xy[1] > VIEW.H + 5) return;
+      var base = rep.sev === 1 ? 6 : rep.sev === 2 ? 5 : 4;
+      var c = svg('circle', { cx: xy[0].toFixed(1), cy: xy[1].toFixed(1), r: (base * k).toFixed(2),
+        style: 'fill:' + SEV_COLOR[rep.sev] + ';stroke:var(--card);stroke-width:1.5;vector-effect:non-scaling-stroke' });
+      c._r = base;
+      c.appendChild(svg('title', {}, EMO.reportType(rep.type)[1] + ' · ' + EMO.SEV_TEXT[rep.sev] + (rep.note ? ' · ' + rep.note : '') + ' · ' + ago(rep.time)));
+      VIEW.reps.appendChild(c);
+      VIEW.marks.push(c);
+    });
+    $('repLegend').hidden = !REPORTS.length;
+  }
+  function zoomToPoint(lon, lat) {
+    if (!VIEW.W) return;
+    var xy = lonLatTo(lon, lat), w = VIEW.W / 10;
+    setView(xy[0] - w / 2, xy[1] - w * VIEW.H / VIEW.W / 2, w);
+    if ($('map').scrollIntoView) $('map').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+  function zoomBy(f, ux, uy) {
+    var v = VIEW.vb;
+    if (!v) return;
+    if (ux == null) { ux = v[0] + v[2] / 2; uy = v[1] + v[3] / 2; }
+    setView(ux - (ux - v[0]) / f, uy - (uy - v[1]) / f, v[2] / f);
+  }
+  function resetView() { if (VIEW.W) setView(0, 0, VIEW.W); }
+  // Screen point -> map units, allowing for the letterboxing of a capped-height SVG.
+  function toMap(cx, cy) {
+    var r = $('map').getBoundingClientRect(), v = VIEW.vb;
+    var k = Math.min(r.width / v[2], r.height / v[3]) || 1;
+    return { x: v[0] + (cx - r.left - (r.width - v[2] * k) / 2) / k, y: v[1] + (cy - r.top - (r.height - v[3] * k) / 2) / k, k: k };
+  }
+  function zoomToRow(id) {
+    var b = VIEW.boxes && VIEW.boxes[id];
+    if (!b) return;
+    var w = Math.max((b[2] - b[0]) * 4, (b[3] - b[1]) * 4 * VIEW.W / VIEW.H, VIEW.W / 12);
+    setView((b[0] + b[2]) / 2 - w / 2, (b[1] + b[3]) / 2 - w * VIEW.H / VIEW.W / 2, w);
+    VIEW.hl = id;
+    if (LAST) renderMap(LAST);
+  }
+
+  (function wireMap() {
+    var m = $('map'), pts = {}, last = null, pinch = null;
+    $('zoomIn').addEventListener('click', function () { zoomBy(1.6); });
+    $('zoomOut').addEventListener('click', function () { zoomBy(1 / 1.6); });
+    $('zoomReset').addEventListener('click', function () { VIEW.hl = null; resetView(); if (LAST) renderMap(LAST); });
+    m.addEventListener('wheel', function (e) {
+      if (!VIEW.vb) return;
+      e.preventDefault();
+      var p = toMap(e.clientX, e.clientY);
+      zoomBy(e.deltaY < 0 ? 1.25 : 1 / 1.25, p.x, p.y);
+    }, { passive: false });
+    m.addEventListener('dblclick', function (e) { if (!VIEW.vb || VIEW.adding) return; var p = toMap(e.clientX, e.clientY); zoomBy(2, p.x, p.y); });
+    var down = null;
+    m.addEventListener('pointerdown', function (e) {
+      if (!VIEW.vb) return;
+      pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+      down = Object.keys(pts).length === 1 ? { x: e.clientX, y: e.clientY } : null;
+      if (m.setPointerCapture) m.setPointerCapture(e.pointerId);
+      var ids = Object.keys(pts);
+      if (ids.length === 2) {
+        var a = pts[ids[0]], b = pts[ids[1]];
+        pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1 };
+      } else { last = { x: e.clientX, y: e.clientY }; m.classList.add('dragging'); }
+    });
+    m.addEventListener('pointermove', function (e) {
+      if (!pts[e.pointerId]) return;
+      pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+      var ids = Object.keys(pts);
+      if (ids.length === 2 && pinch) {             // two fingers: pinch to zoom around their midpoint
+        var a = pts[ids[0]], b = pts[ids[1]], d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+        var mid = toMap((a.x + b.x) / 2, (a.y + b.y) / 2);
+        zoomBy(d / pinch.d, mid.x, mid.y);
+        pinch.d = d;
+      } else if (last) {                             // one pointer: drag to move
+        var k = toMap(e.clientX, e.clientY).k;
+        setView(VIEW.vb[0] - (e.clientX - last.x) / k, VIEW.vb[1] - (e.clientY - last.y) / k, VIEW.vb[2]);
+        last = { x: e.clientX, y: e.clientY };
+      }
+    });
+    function up(e) {
+      // A tap that did not move is a click: in "add a report" mode it places the report there.
+      if (down && VIEW.adding && e.type === 'pointerup' && Math.hypot(e.clientX - down.x, e.clientY - down.y) < 6) {
+        var p = toMap(e.clientX, e.clientY), ll = toLonLat(p.x, p.y);
+        addReport(ll[0], ll[1]);
+        setAdding(false);
+      }
+      down = null;
+      delete pts[e.pointerId];
+      if (Object.keys(pts).length < 2) pinch = null;
+      if (!Object.keys(pts).length) { last = null; m.classList.remove('dragging'); }
+    }
+    m.addEventListener('pointerup', up);
+    m.addEventListener('pointercancel', up);
+    m.addEventListener('keydown', function (e) {
+      if (!VIEW.vb) return;
+      var v = VIEW.vb, step = v[2] * 0.15, done = true;
+      if (e.key === '+' || e.key === '=') zoomBy(1.6);
+      else if (e.key === '-' || e.key === '_') zoomBy(1 / 1.6);
+      else if (e.key === '0') resetView();
+      else if (e.key === 'ArrowLeft') setView(v[0] - step, v[1], v[2]);
+      else if (e.key === 'ArrowRight') setView(v[0] + step, v[1], v[2]);
+      else if (e.key === 'ArrowUp') setView(v[0], v[1] - step, v[2]);
+      else if (e.key === 'ArrowDown') setView(v[0], v[1] + step, v[2]);
+      else done = false;
+      if (done) e.preventDefault();
+    });
+    // Click (or Enter on) a table row to find that area on the map.
+    function pickRow(e) {
+      var tr = e.target && e.target.closest ? e.target.closest('tr[data-id]') : null;
+      if (!tr) return;
+      zoomToRow(tr.getAttribute('data-id'));
+      Array.prototype.slice.call($('tbl').querySelectorAll('tr.hl')).forEach(function (x) { x.classList.remove('hl'); });
+      tr.classList.add('hl');
+      if (m.scrollIntoView) m.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    $('tbl').addEventListener('click', pickRow);
+    $('tbl').addEventListener('keydown', function (e) { if (e.key === 'Enter') pickRow(e); });
+  })();
 
   function renderMap(p) {
     var byId = {};
     p.items.forEach(function (it) { byId[it.row.id] = it; });
     DATA.rows.forEach(function (r) {
       var v = VIEW.paths[r.id]; if (!v) return;
-      var it = byId[r.id];
-      var fill = it ? COLOR[it.status] : (r.zones && r.zones.length ? 'var(--zone)' : 'var(--land)');
-      v.path.setAttribute('style', 'fill:' + fill + ';stroke:var(--bg);stroke-width:0.4');
+      var it = byId[r.id], zoned = p.floodType && r.zones && r.zones.length;
+      var fill = it ? COLOR[it.status] : (zoned ? 'var(--zone)' : 'var(--land)');
+      // With the street map on, areas are see-through so streets and the coastline show underneath.
+      var op = !$('baseMap').checked ? 1 : it ? 0.6 : zoned ? 0.35 : 0.12;
+      v.path.setAttribute('style', 'fill:' + fill + ';fill-opacity:' + op + (r.id === VIEW.hl ? ';stroke:var(--fg);stroke-width:2.5'
+        : it && it.quiet ? ';stroke:var(--miss);stroke-width:2;stroke-dasharray:4 3' : ';stroke:var(--bg);stroke-width:0.5'));
       v.title.textContent = r.town + ' — ' + r.name + ': ' + (it ? 'rank ' + it.rank + ', ' + STATUS[it.status].slice(2).toLowerCase()
-        : (r.zones && r.zones.length ? 'flood zone ' + r.zones.join('/') + ', not exposed at this tide' : 'no FEMA flood zone'));
+        : (zoned ? 'flood zone ' + r.zones.join('/') + ', not exposed in this scenario' : 'not exposed in this scenario'));
     });
     if (VIEW.labels) {
       VIEW.labels.textContent = '';
-      p.items.slice(0, 15).forEach(function (it) {
+      p.items.slice(0, 25).forEach(function (it) {
         var v = VIEW.paths[it.row.id]; if (!v) return;
         VIEW.labels.appendChild(svg('text', { x: v.c[0], y: v.c[1], 'text-anchor': 'middle', dy: '4',
           style: 'fill:var(--fg);stroke:var(--card)' }, String(it.rank)));
       });
     }
     var notFull = p.items.filter(function (i) { return i.status !== 'full'; }).length;
-    $('mapDesc').textContent = 'Map of ' + DATA.rows.length + ' block groups. ' + p.items.length + ' exposed, ' + notFull + ' not fully reached.';
+    $('mapDesc').textContent = 'Map of ' + DATA.rows.length + ' ' + unitWord(DATA.rows.length) + '. ' + p.items.length + ' exposed, ' + notFull + ' not fully reached.';
   }
 
   function renderLangs(p) {
@@ -924,6 +2437,51 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   $('tide').addEventListener('input', function () { $('event').value = 'custom'; $('eventNote').textContent = 'Move the slider to test any tide.'; render(); });
   ['rule', 'teams', 'hours', 'rate'].forEach(function (id) { $(id).addEventListener('input', render); });
   $('coastFirst').addEventListener('change', render);
+  $('baseMap').addEventListener('change', function () {
+    $('attrib').hidden = !this.checked;
+    $('baseStyle').disabled = !this.checked;
+    drawTiles();
+    if (LAST) renderMap(LAST);
+  });
+  $('baseStyle').addEventListener('change', drawTiles);
+
+  // ---------- sections: Planning aid / Resident reports ----------
+  // One map serves both tabs; it moves into whichever tab is showing.
+  function showTab(which) {
+    var rep = which === 'rep';
+    $('tabPlan').setAttribute('aria-selected', rep ? 'false' : 'true');
+    $('tabRep').setAttribute('aria-selected', rep ? 'true' : 'false');
+    $('tabPlan').setAttribute('tabindex', rep ? '-1' : '0');
+    $('tabRep').setAttribute('tabindex', rep ? '0' : '-1');
+    $('panelPlan').hidden = rep;
+    $('panelRep').hidden = !rep;
+    (rep ? $('mapSlotRep') : $('mapSlotPlan')).appendChild($('mapCard'));
+    (rep ? $('areaSlotRep') : $('areaSlotPlan')).appendChild($('areaCard'));   // state/county picker works from both tabs
+    $('mapHelp').textContent = rep
+      ? 'Scroll or pinch to zoom, drag to move. Use "Add a report on the map", then click where it is.'
+      : 'Scroll or pinch to zoom, drag to move. Click a table row to find it on the map.';
+    if (!rep && VIEW.adding) setAdding(false);
+    queueTiles();
+  }
+  $('tabPlan').addEventListener('click', function () { showTab('plan'); });
+  $('tabRep').addEventListener('click', function () { showTab('rep'); });
+  [$('tabPlan'), $('tabRep')].forEach(function (t) {
+    t.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
+        var to = this.id === 'tabPlan' ? 'rep' : 'plan';
+        showTab(to);
+        (to === 'rep' ? $('tabRep') : $('tabPlan')).focus();
+        e.preventDefault();
+      }
+    });
+  });
+
+  $('countyNames').addEventListener('change', function () {
+    if (VIEW.counties) VIEW.counties.style.display = this.checked ? '' : 'none';
+  });
+  $('townNames').addEventListener('change', function () {
+    if (VIEW.towns) VIEW.towns.style.display = this.checked ? '' : 'none';
+  });
 
   function download(name, text, type) {
     var url = URL.createObjectURL(new Blob([text], { type: type }));
@@ -937,6 +2495,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   });
   $('saveSnap').addEventListener('click', function () {
     if (!DATA) return;
+    DATA.reports = REPORTS;
     download('who-gets-missed-snapshot-' + DATA.loadedAt.slice(0, 10) + '.json', JSON.stringify(DATA), 'application/json');
   });
   $('openSnap').addEventListener('click', function () { $('snapFile').click(); });
@@ -946,8 +2505,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     rd.onload = function () {
       try {
         var d = JSON.parse(rd.result);
-        if (!d || !Array.isArray(d.rows) || !d.tide || !Array.isArray(d.tide.stages) || !d.tide.latest) throw new Error('not a snapshot');
+        if (!d || !Array.isArray(d.rows) || !d.rows.length) throw new Error('not a snapshot');
         d.events = Array.isArray(d.events) ? d.events : [];
+        d.alerts = Array.isArray(d.alerts) ? d.alerts : [];
         useData(d, true);
       } catch (e) { setStatus('snap', 'err', 'Could not open snapshot: ' + e.message); }
     };
@@ -967,7 +2527,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   function planNext() {
     clearTimeout(tideTimer);
     if (!DATA) return;
-    var now = Date.now(), ms = DATA.tide.latest && DATA.tide.latest.ms;
+    var now = Date.now(), ms = DATA.tide && DATA.tide.latest && DATA.tide.latest.ms;
     if (!ms) { nextAt = now + STEP; waiting = false; }           // old snapshot without an exact time
     else {
       nextAt = ms + STEP + lagMs;
@@ -983,26 +2543,45 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     tideBusy = true;
     var wasWaiting = waiting;
     updateCountdown();
-    EMO.loadTide().then(function (t) {
-      var fresh = t.latest.ms > lastMs;
-      if (fresh) {
-        if (wasWaiting && lastMs) lagMs = Math.max(MIN_LAG, Date.now() - t.latest.ms); // measured to within a minute
-        else if (lastMs) lagMs = Math.max(MIN_LAG, lagMs - 30000);                     // it was early enough; tighten
-        misses = 0;
-        lastMs = t.latest.ms;
-      } else misses++;
-      DATA.tide = t;
-      var v = $('event').value;
+    // Tide, NWS alerts and live conditions are re-checked together; a failed source keeps its last value.
+    var stF = DATA.area ? DATA.area.state : '25', info = EMO.stateInfo(stF);
+    Promise.all([DATA.station ? EMO.loadTide(DATA.station).then(null, function (e) { return { err: e }; }) : Promise.resolve(null),
+                 EMO.loadAlerts(stF).then(null, function () { return null; }),
+                 loadLiveSources(DATA.rows, DATA.live, DATA.point, stF)]).then(function (res) {
+      var t = res[0], al = res[1];
+      DATA.live = res[2];
+      if (t && !t.err) {
+        var fresh = t.latest.ms > lastMs;
+        if (fresh) {
+          if (wasWaiting && lastMs) lagMs = Math.max(MIN_LAG, Date.now() - t.latest.ms); // measured to within a minute
+          else if (lastMs) lagMs = Math.max(MIN_LAG, lagMs - 30000);                     // it was early enough; tighten
+          misses = 0;
+          lastMs = t.latest.ms;
+        } else misses++;
+        DATA.tide = t;
+      } else if (t && t.err) misses++;
+      if (al) DATA.alerts = al;
+      var v = $('event').value, ended = false;
+      refreshHazards();
       buildEvents();
       $('event').value = v;
-      if ($('event').value !== v) $('event').value = 'now';
-      if ($('event').value === 'now' || $('event').value === 'next') applyEvent(); else render();
-      setStatus('tide', 'ok', 'NOAA tide: ' + t.latest.v.toFixed(2) + ' ft at ' + t.latest.t.slice(11) +
-        ' · checked ' + hhmm(Date.now()) + ' (Boston time)');
+      if ($('event').value !== v) {
+        // The picked alert has ended (or a forecast option went away): fall back to this type's default.
+        $('event').value = defaultSource(HZ);
+        ended = v.indexOf('al:') === 0;
+      }
+      var cur = $('event').value;
+      if (cur === 'now' || cur === 'next' || cur.indexOf('lv:') === 0 || cur !== v) applyEvent(); else render();
+      if (al) setStatus('nws', 'ok', (ended ? 'The selected NWS alert has ended. ' : '') +
+        'NWS: ' + al.length + ' active alert' + (al.length === 1 ? '' : 's') + ' for ' + info.name + ' · checked ' + hhmm(Date.now()));
+      else setStatus('nws', 'err', 'NWS alert check failed. Showing the last list; will retry.');
+      if (t && !t.err) setStatus('tide', 'ok', 'NOAA tide (' + t.station.name + '): ' + t.latest.v.toFixed(2) + ' ft at ' + t.latest.t.slice(11) +
+        ' · checked ' + hhmm(Date.now()) + ' (local time)');
+      else if (t && t.err) setStatus('tide', 'err', 'Tide update failed (' + t.err.message + '). Showing the last reading; will retry.');
       store(LS.snap, DATA);
     }, function (e) {
       misses++;
-      setStatus('tide', 'err', 'Tide update failed (' + e.message + '). Showing the last reading; will retry.');
+      setStatus('tide', 'err', 'Live update failed (' + e.message + '). Showing the last data; will retry.');
     }).then(function () { tideBusy = false; planNext(); });
   }
 
@@ -1010,11 +2589,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   function updateCountdown() {
     var c = $('countdown');
     if (!DATA || !nextAt) { c.textContent = ''; return; }
-    if (tideBusy) { c.textContent = 'Checking NOAA for a new reading…'; return; }
+    if (tideBusy) { c.textContent = 'Checking live sources…'; return; }
     var s = Math.max(0, Math.ceil((nextAt - Date.now()) / 1000));
     var left = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
-    var ms = DATA.tide.latest && DATA.tide.latest.ms;
-    if (!ms) c.textContent = 'Next tide update in ' + left;
+    var ms = DATA.tide && DATA.tide.latest && DATA.tide.latest.ms;
+    // The NOAA reading time only matters for coastal floods; other types just see the next update.
+    if (!ms || HZ !== 'coastal') c.textContent = 'Next live update in ' + left;
     else if (waiting) c.textContent = 'NOAA\'s ' + hhmm(ms + STEP) + ' reading is late · checking again in ' + left;
     else c.textContent = 'Next NOAA reading (' + hhmm(ms + STEP) + ') expected in ' + left;
   }
@@ -1025,7 +2605,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   function loadAndSchedule() { return loadLive(); }
   $('load').addEventListener('click', loadAndSchedule);
 
-  loadAndSchedule();
+  // The first load waits for the county list, so the saved counties are ticked before it reads them.
+  countiesReady.then(loadAndSchedule);
 })();
 </script>
 </body>
