@@ -25,11 +25,11 @@ from app.geo import in_bbox, point_in_polygon, ring_bbox
 _INCOME_SENTINEL = -666666666
 
 
-def _norm_pct(value: Any) -> float | None:
-    """Normalize a limited-English household percentage to a 0-100 scale.
+def _coerce_pct(value: Any) -> float | None:
+    """Coerce a raw limited-English percentage to a float, or ``None``.
 
-    Values that look like a 0-1 fraction (<= 1) are scaled by 100. ``None`` and
-    non-numeric values pass through as ``None``.
+    ``None`` and non-numeric/NaN values pass through as ``None``. No scaling is
+    applied here — scale is decided once per file in :func:`_norm_pct_column`.
     """
     if value is None:
         return None
@@ -39,9 +39,21 @@ def _norm_pct(value: Any) -> float | None:
         return None
     if math.isnan(v):
         return None
-    if 0.0 <= v <= 1.0:
-        v *= 100.0
     return v
+
+
+def _norm_pct_column(values: list[float | None]) -> list[float | None]:
+    """Normalize a whole column of limited-English percentages to 0-100.
+
+    Scale is detected once for the column, not per value: if the maximum of all
+    non-null values is <= 1.0 the column is a 0-1 fraction and every value is
+    scaled by 100; otherwise the column is already on a 0-100 scale and is left
+    unchanged. This avoids inflating genuine small percentages (e.g. 0.549%).
+    """
+    present = [v for v in values if v is not None]
+    if present and max(present) <= 1.0:
+        return [None if v is None else v * 100.0 for v in values]
+    return list(values)
 
 
 def _norm_income(value: Any) -> float | None:
@@ -70,16 +82,21 @@ def load_block_groups(path: str) -> list[dict[str, Any]]:
         raw = json.load(fh)
     bgs_in = raw.get("block_groups", raw if isinstance(raw, list) else [])
 
+    # Keep only block groups with geometry, preserving order.
+    kept = [bg for bg in bgs_in if bg.get("rings")]
+
+    # Normalize the limited-English percentage once per file: scale detection
+    # on the whole column, not per value (see _norm_pct_column).
+    pct_col = _norm_pct_column([_coerce_pct(bg.get("lim_eng_pct")) for bg in kept])
+
     out: list[dict[str, Any]] = []
-    for bg in bgs_in:
-        rings = bg.get("rings") or []
-        if not rings:
-            continue
+    for bg, lim_eng_pct in zip(kept, pct_col):  # noqa: B905
+        rings = bg["rings"]
         out.append(
             {
                 "geoid": bg.get("geoid"),
                 "pct_minority": bg.get("pct_minority"),
-                "lim_eng_pct": _norm_pct(bg.get("lim_eng_pct")),
+                "lim_eng_pct": lim_eng_pct,
                 "income": _norm_income(bg.get("income")),
                 "population": bg.get("population"),
                 "limited_english": bool(bg.get("limited_english")),

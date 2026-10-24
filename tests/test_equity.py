@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import os
 
 from hypothesis import given
@@ -26,14 +27,51 @@ def test_loads_three_block_groups():
         assert "bbox" in bg and len(bg["bbox"]) == 4
 
 
-def test_pct_normalization_0_1_and_0_100():
+def test_pct_normalization_is_per_file_not_per_value():
+    """Scale is detected once per file; mixed values with max > 1 stay as-is.
+
+    The sample fixture has lim_eng_pct of 0.42, 12.5 and 8. Because the column
+    max (12.5) exceeds 1.0 the file is already on a 0-100 scale, so the genuine
+    small value 0.42 must NOT be inflated to 42.0 (the old per-value bug).
+    """
     bgs = {bg["geoid"]: bg for bg in _load()}
-    # BG_A stored as 0.42 (0-1 scale) -> 42.0
-    assert bgs["BG_A"]["lim_eng_pct"] == 42.0
-    # BG_B stored as 12.5 (already 0-100) -> unchanged
+    assert bgs["BG_A"]["lim_eng_pct"] == 0.42   # stays — file is 0-100 scaled
     assert bgs["BG_B"]["lim_eng_pct"] == 12.5
-    # BG_C stored as 8 -> unchanged (> 1)
     assert bgs["BG_C"]["lim_eng_pct"] == 8.0
+
+
+def _write_pct_fixture(tmp_path, values):
+    """Write a minimal EJ cache with the given lim_eng_pct values."""
+    bgs = []
+    for i, v in enumerate(values):
+        bgs.append(
+            {
+                "geoid": f"BG_{i}",
+                "lim_eng_pct": v,
+                "income": 50000,
+                "population": 1000,
+                "limited_english": False,
+                "ej_criteria": "Minority",
+                "rings": [[[0.0, 0.0], [0.0, 1.0], [1.0, 1.0], [1.0, 0.0], [0.0, 0.0]]],
+            }
+        )
+    path = tmp_path / "ej.json"
+    path.write_text(json.dumps({"block_groups": bgs}), encoding="utf-8")
+    return str(path)
+
+
+def test_pct_mixed_scale_file_unchanged(tmp_path):
+    # max (40.0) > 1.0 -> already 0-100, every value left as-is.
+    path = _write_pct_fixture(tmp_path, [0.549, 12.3, 40.0])
+    pcts = [bg["lim_eng_pct"] for bg in load_block_groups(path)]
+    assert pcts == [0.549, 12.3, 40.0]
+
+
+def test_pct_fraction_file_scaled(tmp_path):
+    # max (0.5) <= 1.0 -> 0-1 fraction, every value scaled by 100.
+    path = _write_pct_fixture(tmp_path, [0.1, 0.5])
+    pcts = [bg["lim_eng_pct"] for bg in load_block_groups(path)]
+    assert pcts == [10.0, 50.0]
 
 
 def test_income_sentinel_to_none():
