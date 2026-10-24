@@ -11,6 +11,8 @@ The tool shows **who to reach first, in which languages, and who gets missed** w
 ## Run it
 Open `index.html` in a browser (Chrome, Edge, Firefox). One file, no install.
 It loads live data on open. The first load takes about 20 seconds (flood zones); later loads are faster.
+The tide updates by itself every 6 minutes (NOAA's posting rate). Other data changes yearly; press
+**Load live data** to refresh it.
 
 ## Live sources
 | Source | Used for |
@@ -28,8 +30,9 @@ No keys are needed except the optional Census key, which stays in your browser.
 - **Flooding:** a planner-owned rule. Minor stage → FEMA VE wave zones; moderate → + A zones (1%/yr);
   major → + 0.2%/yr zones. A block group counts if it touches the zone. This is not an inundation model,
   and A zones can include river flood areas.
-- **Order:** one plain sort on one real column (limited-English %, income, SVI, or size). Missing values last,
-  ties by GEOID. No combined score.
+- **Order:** with **Coast first** on (default), worst flood zone first (VE coast → A → 0.2%). Then one plain
+  sort on one real column (limited-English %, income, SVI, or size). Missing values last, ties by GEOID.
+  No combined score.
 - **Capacity:** teams × hours × doors per hour, given out in rank order. The dashed line is where it runs out.
 - **Fairness check:** compares your rule with the biggest-first baseline.
 - **Languages:** household counts are real; the split by language uses each tract's ACS mix.

@@ -87,6 +87,7 @@ button:disabled{opacity:.6;cursor:wait}
       <label for="event">Event</label>
       <select id="event"></select>
       <p class="muted" id="eventNote"></p>
+      <p class="muted" id="countdown" role="timer" aria-live="off" style="font-variant-numeric:tabular-nums"></p>
 
       <label for="tide">Boston tide (ft MLLW): <output id="tideOut" for="tide">—</output></label>
       <input id="tide" type="range" min="8" max="18" step="0.1" value="12.5">
@@ -99,6 +100,10 @@ button:disabled{opacity:.6;cursor:wait}
         <option value="svi">Highest CDC SVI</option>
         <option value="size">Biggest group first (baseline)</option>
       </select>
+      <label style="font-weight:400;display:flex;gap:6px;align-items:flex-start">
+        <input id="coastFirst" type="checkbox" checked style="margin-top:4px">
+        <span><strong>Coast first</strong> — worst flood zone first (VE coast → A → 0.2%), then the rule above</span>
+      </label>
 
       <h2 style="margin-top:18px">Door-knock capacity</h2>
       <div class="row3">
@@ -263,6 +268,13 @@ var EMO = (function () {
     };
   }
 
+  // Worst flood zone a block group touches: 0 = VE (coastal wave zone), 1 = A (1%/yr), 2 = 0.2%/yr.
+  function severity(r) {
+    var z = r.zones || [];
+    return z.indexOf('VE') >= 0 ? 0 : (z.indexOf('A') >= 0 ? 1 : 2);
+  }
+  var SEVERITY_TEXT = ['VE coast', 'A zone', '0.2% zone'];
+
   function plan(rows, o) {
     var ruleId = RULES[o.rule] ? o.rule : 'lep';
     var rule = RULES[ruleId];
@@ -277,7 +289,10 @@ var EMO = (function () {
       if (st && st.ft <= tide) flooded.push({ row: r, at: st });
       else dry++;
     });
-    flooded.sort(function (a, b) { return comparator(rule)(a.row, b.row); });
+    flooded.sort(function (a, b) {
+      if (o.coastFirst) { var d = severity(a.row) - severity(b.row); if (d) return d; }
+      return comparator(rule)(a.row, b.row);
+    });
 
     var left = capacity;
     var items = flooded.map(function (f, i) {
@@ -315,7 +330,8 @@ var EMO = (function () {
       return (b.reached + b.missed) - (a.reached + a.missed);
     });
 
-    return { tide: tide, stage: stageFor(tide, stages), rule: ruleId, items: items, totals: t, langs: langs };
+    return { tide: tide, stage: stageFor(tide, stages), rule: ruleId, coastFirst: !!o.coastFirst,
+             items: items, totals: t, langs: langs };
   }
 
   function toCSV(p) {
@@ -373,19 +389,38 @@ var EMO = (function () {
     return d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0');
   }
 
+  // "YYYY-MM-DD HH:MM" in Boston time, the format NOAA uses with time_zone=lst_ldt.
+  function bostonStr(ms) {
+    var p = {};
+    new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms))
+      .forEach(function (x) { p[x.type] = x.value; });
+    return p.year + '-' + p.month + '-' + p.day + ' ' + p.hour + ':' + p.minute;
+  }
+
+  // NOAA GMT stamp "YYYY-MM-DD HH:MM" -> epoch ms.
+  function gmtMs(s) {
+    var m = /^(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2})/.exec(s || '');
+    return m ? Date.UTC(+m[1], m[2] - 1, +m[3], +m[4], +m[5]) : null;
+  }
+
   function loadTide() {
     var base = NOAA + '/api/prod/datagetter?';
     var common = { station: STATION, datum: 'MLLW', units: 'english', time_zone: 'lst_ldt', format: 'json', application: APP };
     var now = new Date(), later = new Date(now.getTime() + 2 * 86400000);
     function x(extra) { var o = {}, k; for (k in common) o[k] = common[k]; for (k in extra) o[k] = extra[k]; return base + qs(o); }
     return Promise.all([
-      getJSON(x({ product: 'water_level', date: 'latest' })),
+      // Latest reading in GMT so its exact time is known in any browser time zone.
+      getJSON(x({ product: 'water_level', date: 'latest', time_zone: 'gmt' })),
       getJSON(x({ product: 'predictions', interval: 'hilo', begin_date: ymd(now), end_date: ymd(later) })),
       getJSON(NOAA + '/mdapi/prod/webapi/stations/' + STATION + '/floodlevels.json?units=english'),
       getJSON(NOAA + '/mdapi/prod/webapi/stations/' + STATION + '/datums.json?units=english')
     ]).then(function (res) {
       var latest = res[0].data && res[0].data[0];
       if (!latest) throw new Error('no latest reading');
+      var latestMs = gmtMs(latest.t);
+      if (latestMs == null) throw new Error('bad reading time');
+      latest = { t: bostonStr(latestMs), v: Number(latest.v), ms: latestMs };
       var mllw = (res[3].datums || []).filter(function (d) { return d.name === 'MLLW'; })[0];
       if (!mllw) throw new Error('no MLLW datum');
       var fl = res[2];
@@ -396,7 +431,7 @@ var EMO = (function () {
       var highs = (res[1].predictions || []).filter(function (p) { return p.type === 'H' && p.t > latest.t; })
         .map(function (p) { return { t: p.t, v: Number(p.v) }; });
       var nextHigh = highs.reduce(function (m, h) { return !m || h.v > m.v ? h : m; }, null);
-      return { latest: { t: latest.t, v: Number(latest.v) }, nextHigh: nextHigh, stages: stages,
+      return { latest: latest, nextHigh: nextHigh, stages: stages,
                source: fl.nws_minor != null ? 'NWS' : 'NOS' };
     });
   }
@@ -535,8 +570,10 @@ var EMO = (function () {
 
   return { TOWNS_ALL: TOWNS_ALL, TOWNS_DEFAULT: TOWNS_DEFAULT, TIERS: TIERS, TIER_TEXT: TIER_TEXT, RULES: RULES,
            UNKNOWN_LANG: UNKNOWN_LANG, plan: plan, stageFor: stageFor, floodsAt: floodsAt, zoneCodes: zoneCodes,
+           severity: severity, SEVERITY_TEXT: SEVERITY_TEXT,
            toCSV: toCSV, money: money, loadTide: loadTide, loadEvents: loadEvents, eventPeak: eventPeak,
-           loadEJ: loadEJ, loadSVI: loadSVI, loadZones: loadZones, loadLanguages: loadLanguages };
+           loadEJ: loadEJ, loadSVI: loadSVI, loadZones: loadZones, loadLanguages: loadLanguages,
+           bostonStr: bostonStr, gmtMs: gmtMs };
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
 </script>
@@ -670,6 +707,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     buildMap();
     $('event').value = 'now';
     applyEvent();
+    lastMs = (data.tide.latest && data.tide.latest.ms) || 0;
+    misses = 0;
+    planNext();
   }
 
   // ---------- scenario ----------
@@ -693,7 +733,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   var peakSeq = 0;
   function applyEvent() {
     var v = $('event').value, t = DATA.tide, note = $('eventNote');
-    if (v === 'now') { $('tide').value = t.latest.v; note.textContent = 'Observed ' + t.latest.t + ' (local), NOAA gauge 8443970.'; }
+    if (v === 'now') { $('tide').value = t.latest.v; note.textContent = 'Observed ' + t.latest.t + ' (Boston time), NOAA gauge 8443970. New reading every 6 min.'; }
     else if (v === 'next') { $('tide').value = t.nextHigh.v; note.textContent = 'Predicted for ' + t.nextHigh.t + '. Astronomical tide only — storm surge not included.'; }
     else if (v.indexOf('ev:') === 0) {
       var ev = DATA.events.filter(function (e) { return 'ev:' + e.id === v; })[0];
@@ -717,6 +757,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
 
   function opts() {
     return { tide: $('tide').value, rule: $('rule').value, stages: DATA ? DATA.tide.stages : [],
+             coastFirst: $('coastFirst').checked,
              teams: $('teams').value, hours: $('hours').value, rate: $('rate').value };
   }
 
@@ -785,7 +826,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
       tb.appendChild(tr);
     });
     var o = opts(), t = p.totals;
-    $('trace').textContent = 'Order = sort by ' + EMO.RULES[p.rule].label + '; missing values last; ties by GEOID. No combined score. ' +
+    $('trace').textContent = 'Order = ' + (p.coastFirst ? 'worst flood zone first (VE coast → A → 0.2%), then ' : '') +
+      'sort by ' + EMO.RULES[p.rule].label + '; missing values last; ties by GEOID. No combined score. ' +
       'Exposure rule: ' + EMO.TIER_TEXT + '. A block group counts if it touches the zone; A zones can include river flood areas. Dashed line = capacity runs out. ' +
       fmt(t.dry) + ' groups not exposed' + (t.unknown ? ', ' + fmt(t.unknown) + ' with unknown flood zone' : '') + '.';
     $('capNote').textContent = (Number(o.teams) || 0) + ' teams × ' + (Number(o.hours) || 0) + ' h × ' +
@@ -881,7 +923,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   $('event').addEventListener('change', applyEvent);
   $('tide').addEventListener('input', function () { $('event').value = 'custom'; $('eventNote').textContent = 'Move the slider to test any tide.'; render(); });
   ['rule', 'teams', 'hours', 'rate'].forEach(function (id) { $(id).addEventListener('input', render); });
-  $('load').addEventListener('click', loadLive);
+  $('coastFirst').addEventListener('change', render);
 
   function download(name, text, type) {
     var url = URL.createObjectURL(new Blob([text], { type: type }));
@@ -913,7 +955,77 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     this.value = '';
   });
 
-  loadLive();
+  // ---------- live tide refresh, synced to NOAA's clock ----------
+  // NOAA records a reading every 6 minutes and posts it a few minutes later. We aim the next check at
+  // (latest reading + 6 min + posting delay) and learn the delay: when the reading is late we check
+  // every minute until it shows up, and when it is already there we try a little earlier next time.
+  var STEP = 6 * 60000, MIN_LAG = 60000;
+  var lagMs = 3 * 60000, misses = 0, lastMs = 0, nextAt = 0, waiting = false, tideBusy = false, tideTimer = null;
+
+  function hhmm(ms) { return EMO.bostonStr(ms).slice(11); }
+
+  function planNext() {
+    clearTimeout(tideTimer);
+    if (!DATA) return;
+    var now = Date.now(), ms = DATA.tide.latest && DATA.tide.latest.ms;
+    if (!ms) { nextAt = now + STEP; waiting = false; }           // old snapshot without an exact time
+    else {
+      nextAt = ms + STEP + lagMs;
+      waiting = nextAt <= now + 5000;
+      if (waiting) nextAt = now + (misses >= 10 ? 5 : 1) * 60000; // late: check each minute (5 min if the gauge seems down)
+    }
+    tideTimer = setTimeout(refreshTide, Math.max(1000, nextAt - now));
+    updateCountdown();
+  }
+
+  function refreshTide() {
+    if (!DATA || tideBusy) return;
+    tideBusy = true;
+    var wasWaiting = waiting;
+    updateCountdown();
+    EMO.loadTide().then(function (t) {
+      var fresh = t.latest.ms > lastMs;
+      if (fresh) {
+        if (wasWaiting && lastMs) lagMs = Math.max(MIN_LAG, Date.now() - t.latest.ms); // measured to within a minute
+        else if (lastMs) lagMs = Math.max(MIN_LAG, lagMs - 30000);                     // it was early enough; tighten
+        misses = 0;
+        lastMs = t.latest.ms;
+      } else misses++;
+      DATA.tide = t;
+      var v = $('event').value;
+      buildEvents();
+      $('event').value = v;
+      if ($('event').value !== v) $('event').value = 'now';
+      if ($('event').value === 'now' || $('event').value === 'next') applyEvent(); else render();
+      setStatus('tide', 'ok', 'NOAA tide: ' + t.latest.v.toFixed(2) + ' ft at ' + t.latest.t.slice(11) +
+        ' · checked ' + hhmm(Date.now()) + ' (Boston time)');
+      store(LS.snap, DATA);
+    }, function (e) {
+      misses++;
+      setStatus('tide', 'err', 'Tide update failed (' + e.message + '). Showing the last reading; will retry.');
+    }).then(function () { tideBusy = false; planNext(); });
+  }
+
+  // Ticks once a second. role=timer keeps screen readers quiet.
+  function updateCountdown() {
+    var c = $('countdown');
+    if (!DATA || !nextAt) { c.textContent = ''; return; }
+    if (tideBusy) { c.textContent = 'Checking NOAA for a new reading…'; return; }
+    var s = Math.max(0, Math.ceil((nextAt - Date.now()) / 1000));
+    var left = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+    var ms = DATA.tide.latest && DATA.tide.latest.ms;
+    if (!ms) c.textContent = 'Next tide update in ' + left;
+    else if (waiting) c.textContent = 'NOAA\'s ' + hhmm(ms + STEP) + ' reading is late · checking again in ' + left;
+    else c.textContent = 'Next NOAA reading (' + hhmm(ms + STEP) + ') expected in ' + left;
+  }
+  setInterval(updateCountdown, 1000);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'visible' && nextAt && Date.now() >= nextAt) refreshTide();
+  });
+  function loadAndSchedule() { return loadLive(); }
+  $('load').addEventListener('click', loadAndSchedule);
+
+  loadAndSchedule();
 })();
 </script>
 </body>
