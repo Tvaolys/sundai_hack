@@ -1,8 +1,35 @@
+# Environment / secrets
+.env
+.env.*
+*.pem
+*.key
+
+# Dependencies
+node_modules/
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# Build output
+dist/
+build/
+out/
+target/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Logs
+*.log
+
 # LaTeX build artifacts (regenerate from the .tex source)
 report/*.aux
 report/*.fdb_latexmk
 report/*.fls
-report/*.log
 report/*.out
 report/*.synctex.gz
 report/*.toc
