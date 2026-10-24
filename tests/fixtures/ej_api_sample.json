@@ -1,0 +1,30 @@
+{
+  "source": "fixture for API tests (tests/test_api.py); polygons cover fixture 311 coords",
+  "fetched_at": "2026-10-24T00:00:00+00:00",
+  "block_groups": [
+    {
+      "geoid": "LE_ALLSTON",
+      "pct_minority": 60,
+      "lim_eng_pct": 40.0,
+      "income": 45000,
+      "population": 1500,
+      "limited_english": true,
+      "ej_criteria": "Minority; Limited English",
+      "rings": [
+        [[-71.1330, 42.3525], [-71.1330, 42.3535], [-71.1310, 42.3535], [-71.1310, 42.3525], [-71.1330, 42.3525]]
+      ]
+    },
+    {
+      "geoid": "OTH_DOWNTOWN",
+      "pct_minority": 20,
+      "lim_eng_pct": 3.0,
+      "income": 90000,
+      "population": 1100,
+      "limited_english": false,
+      "ej_criteria": "Minority",
+      "rings": [
+        [[-71.065, 42.354], [-71.065, 42.362], [-71.055, 42.362], [-71.055, 42.354], [-71.065, 42.354]]
+      ]
+    }
+  ]
+}
