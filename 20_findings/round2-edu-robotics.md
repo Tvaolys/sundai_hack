@@ -111,4 +111,41 @@ Multiple mature purpose-built incumbents (zFairs with MA presence, Scilympiad fr
 
 ---
 
-*(R8 section below — pending)*
+## R8 [Education] Substitute-teacher coordination in small districts
+
+### Crowding check (mandatory — heavily saturated)
+- **URL:** https://www.powerschool.com/solutions/substitute-management-software/ | **Date:** fetched 2026-10-24
+  Shows: PowerSchool SmartFind Express — automated callout, mobile app, absence analytics; copyright 2005-2026. **Confidence: verified**
+- **URL:** https://www.tylertech.com/products/absence-substitute | **Date:** fetched 2026-10-24
+  Shows: Tyler Technologies "Absence & Substitute" (ReadySub) — "more notification options than any platform on the market," payroll integration, matchmaking. **Confidence: verified**
+- **URL:** https://simplyslate.com/ | **Date:** fetched 2026-10-24
+  Shows: Slate — newer entrant explicitly selling "fill sub vacancies, fast" with availability notifications to districts. **Confidence: verified**
+- **URL:** https://worldmetrics.org/best/automated-substitute-management-software/ | **Date:** updated 2026-09-05
+  Shows: Roundup lists at least 10 automated substitute-management vendors incl. Tyler, Red Rover, Frontline Absence & Time — the category is a standard K-12 procurement line item. **Confidence: verified**
+- **URL:** https://tcpsoftware.com/articles/best-substitute-teacher-software/ | **Date:** 2026
+  Shows: "Most districts already have some form of absence and substitute management software." Direct confirmation of incumbency. **Confidence: verified**
+
+### Traces
+1. **URL:** https://www.nber.org/system/files/working_papers/w30714/w30714.pdf | **Date:** NBER working paper (2021+), cited by TCPSoftware 2026
+   Shows: "1 in 5 substitute requests go unfilled" — the headline pain stat; market-level, not first-person. **Confidence: verified** (stat as quoted by secondary source)
+2. **URL:** https://www.reddit.com/r/SubstituteTeachers/comments/16y04vq/does_anyone_else_use_smartfind_express_is_it_the/ | **Date:** Reddit post ID 16y04vq (circa Oct 2023, inferred from ID — unverified)
+   Shows: Thread title "Does anyone else use SmartFind Express? Is it the..." — complaint-shaped post about the dominant incumbent; content body blocked from access, so substance unverified. **Confidence: unverified** (title seen; body not readable)
+3. **URL:** https://schoolites.com/school-problems/teacher-substitution | **Date:** undated (fetched 2026-10-24)
+   Shows: Vivid "morning crisis" narrative — secretary matching 50 printed timetables, 200+ hours/year on manual sub coordination — but it is a vendor's marketing page, not an authentic practitioner post. **Confidence: unverified** (vendor content)
+4. **URL:** https://www.teachngo.com/blog/how_to_handle_substitute_teacher_scheduling_without_a_fuss | **Date:** undated
+   Shows: Another vendor restating the same pain (spreadsheets, phone-call floods) — further evidence the pain is real AND the vendor space is full. **Confidence: plausible** (vendor source)
+5. **Underserved-angle check ("volunteer substitutes," tiny districts, phone-tree workarounds):** after 3 phrasings (incl. "tiny school district no sub finder secretary calls substitutes each morning workarounds"), no dated first-person trace found. **[EMPTY: phrasings tried — "small rural school district substitute shortage phone tree software"; "reddit teachers hate Frontline sub finder 5am calls"; "tiny school district secretary calls substitutes workarounds"]**
+
+### Verdict: **CROWDED**
+Frontline (ex-Aesop), PowerSchool SmartFind Express, Tyler ReadySub, Red Rover, Slate and a long tail of SMB vendors cover everything from mega-districts down; marketing copy itself admits "most districts already have" such software. No authentic underserved angle surfaced (volunteer substitutes: empty). Kill.
+
+---
+
+# Final verdicts
+
+| Hypothesis | Verdict |
+|---|---|
+| R1 FRC/FTC volunteer-mentor logistics | **TRACE FOUND** — recurring dated mentor complaints (2019→2026), but free/diy/generic-tool incumbency (TeamSnap, Google Forms, DIY portals) plus new indie entrant PitCrew |
+| R2 FRC/FTC inspection/judging paperwork | **TRACE FOUND** — PDF checklists + named-inspector complaints confirmed; but FIRST is the incumbent and is actively modernizing (sell-to-FIRST dependency) |
+| R7 Science-fair judge/volunteer coordination | **CROWDED** — zFairs (MA fair, Society-for-Science-recommended), Scilympiad (free, 350-410 tournaments/yr), StemWizard; no authentic grassroots complaint found |
+| R8 Substitute coordination | **CROWDED** — Frontline, PowerSchool, Tyler ReadySub, Red Rover, Slate et al.; underserved-angle searches empty |
