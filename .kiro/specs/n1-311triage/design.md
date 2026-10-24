@@ -25,30 +25,86 @@ Module names deliberately differ from emready (`app/ej.py` etc.) so the branches
 ## Data
 | File | Source | Key fields | Owner |
 |---|---|---|---|
-| `data/raw/311.csv` (gitignored) | data.boston.gov "311 Service Requests", downloaded in a browser (Cloudflare blocks curl) | full export | human |
-| `data/311_slice.json` | `scripts/slim_311.py` | case_id, open_date, close_date, service_name, case_status, on_time, neighborhood, ward, full_address, latitude, longitude | script |
+| `data/raw/311.csv` (gitignored) | data.boston.gov 311, NEW system export (case ids `BCS-…`), browser download | see schema A | human |
+| `data/raw/311_legacy_2026.csv` (gitignored) | data.boston.gov 311, LEGACY system export 2026, browser download | see schema B | human |
+| `data/neighborhood_map.json` | curated (below) | raw name → canonical | human |
+| `data/category_map.json` | curated (below) | raw category → canonical | human |
+| `data/311_slice.json` | `scripts/slim_311.py` (both files merged) | case_id, system, source, open_date, close_date, category, raw_category, case_status, on_time, neighborhood, ward, address, latitude, longitude | script |
 | `data/ej2020_boston.json` | MassGIS EJ2020 ArcGIS (LIVE), `MUNICIPALITY='Boston'`, `outSR=4326`, with geometry | GEOID, LIMENGHHPCT, PCT_MINORITY, BG_MHHI, EJ criteria flags, rings | script |
 | `data/params.json` | human-tuned thresholds (below) | | human |
 
-Schema is UNVERIFIED for the export the human downloads (the new 311 system and the legacy
-2011–2024 export differ: e.g. `on_time` "ONTIME"/"OVERDUE" vs other spellings; `latitude`/`longitude`
-vs `lat`/`long`). The slim script maps known aliases to the canonical names above and fails loudly
-on anything it cannot map. `cases.py` normalizes `on_time` to `True` (on time), `False` (late), `None` (unknown).
+### Raw schemas (CONFIRMED 2026-10-24 from the downloaded files)
+Boston is mid-migration between two 311 systems. Neither file alone covers 2026; together they
+give a steady ~25k cases/month. Only 21 of 39,880 legacy rows from Jul 2026 on match a new-system
+row (same open minute + location) → treat as disjoint, no cross-file dedup.
+
+| Canonical | A: new system (`311.csv`, 75,851 rows, 2025-08-01…2026-10-24) | B: legacy (`311_legacy_2026.csv`, 190,668 rows, 2026-01…2026-10) |
+|---|---|---|
+| case_id | `case_id` (`BCS-00253943`) | `case_enquiry_id` (`101006630450`) |
+| open_date | `open_date` (`2026-07-14 10:56:30.994145+00`, UTC) | `open_dt` (`2026-05-02 09:14:00`, no tz) |
+| close_date | `close_date` | `closed_dt` |
+| raw_category | `service_name` (77 values) | `type` (150 values) |
+| case_status | `case_status` (Closed / In progress / …) | `case_status` (Closed / Open) |
+| on_time | `on_time` ONTIME / OVERDUE | `on_time` ONTIME / OVERDUE |
+| source | `report_source` (BOS311 / Call / Email) | `source` (Citizens Connect App / Constituent Call / Employee Generated / City Worker App / Self Service) |
+| neighborhood | `neighborhood` | `neighborhood` |
+| ward | `ward` | `ward` |
+| address | `full_address` | `location` (HTML-escaped, e.g. `&amp;` → unescape) |
+| latitude / longitude | `latitude`, `longitude` | `latitude`, `longitude` |
+
+Both files have 0 blank `on_time`; ~0.1–0.2% lack coordinates. `cases.py` still normalizes
+`on_time` to `True` / `False` / `None` defensively. The slim script fails loudly if a required
+column is missing from either file. Dates: legacy timestamps are naive local time — parse both
+to timezone-aware America/New_York before windowing; tests cover both formats.
+Status: "Closed" → closed; everything else → open.
+
+### Resident filter (PLACEHOLDER, in params.json)
+Exclude legacy `source` ∈ {"Employee Generated", "City Worker App"} — 53% of legacy rows, mostly
+parking enforcement written by staff, not resident reports. Leaves ~155k rows total. The meta
+endpoint shows how many were excluded and why.
+
+### Neighborhood map (canonical = the coarser name both systems can produce)
+- "Allston", "Brighton", "Allston / Brighton" → "Allston / Brighton"
+- "South Boston", "South Boston Waterfront", "South Boston / South Boston Waterfront" → "South Boston"
+- "Fenway", "Longwood", "Fenway / Kenmore / Audubon Circle / Longwood" → "Fenway / Longwood"
+- "Mattapan", "Greater Mattapan" → "Mattapan"
+- "Downtown", "Downtown / Financial District", "Chinatown", "Leather District", "Bay Village",
+  "West End", "North End" → "Downtown"  (legacy has no separate entries for these)
+- "", "Boston", "Chestnut Hill" → "UNKNOWN" (kept in city totals, not selectable)
+- every other name maps to itself.
+
+### Category map
+Clustering and chronic ranking use `category`, not `raw_category`, so the same problem filed in
+either system counts once. Seed pairs (executor completes the list for every raw value with
+≥ 200 resident rows; anything unmapped keeps its raw name):
+- "Request for Pothole Repair", "BWSC Pothole", "Pothole" → "Pothole"
+- "Sidewalk Repair (Make Safe)", "Sidewalk Repair" → "Sidewalk Repair"
+- "Improper Storage of Trash (Barrels)", "Improper Trash Storage" → "Improper Trash Storage"
+- "Missed Trash/Recycling/Yard Waste/Bulk Item", "Missed Waste Pick-up" → "Missed Waste Pick-up"
+- "Illegal Dumping", "Illegal Dumping or Disposal" → "Illegal Dumping"
+- "Graffiti Removal", "PWD Graffiti", "Illegal Graffiti" → "Graffiti"
+- "Pick up Dead Animal", "Dead Animal General" → "Dead Animal"
+- "Request for Snow Plowing", "Snow Plowing" → "Snow Plowing"
+- "Parking Enforcement", "Illegal Parking" → "Illegal Parking"
+- "Sign Repair", "Damaged/Faded Sign", "Missing Sign", "Missing / Knocked Down Sign", "Knocked Down Sign" → "Sign Repair"
+- "Tree Maintenance Requests", "Pruning Request" → "Tree Pruning"
+- "Code Enforcement Collection", "CE Collection" → "Code Enforcement Collection"
+Every entry carries `"placeholder": true` until a human confirms.
 
 ## Rules (PLACEHOLDER defaults in `data/params.json` until a human confirms)
-- Duplicate rule: same `service_name`, within **50 m** of the cluster seed, opened within **14 days**
+- Duplicate rule: same `category`, within **50 m** of the cluster seed, opened within **14 days**
   after the seed. Seed order: by open_date, then case_id (deterministic). Greedy single pass.
 - Minimum count for a category to be ranked / a group to be compared: **20** reports with known SLA.
 - "Limited-English EJ block group": EJ2020 language-isolation criterion flag if present in the
   schema; otherwise `LIMENGHHPCT ≥ 25`. Executor must check the real field names and report.
 - Late rate = late / (on-time + late). Unknown excluded (req 2).
-- Chronic ranking: late rate desc, then late count desc, then service_name asc.
+- Chronic ranking: late rate desc, then late count desc, then category asc.
 
 ## API
 - `GET /api/meta` → data window, source, row counts, params in use
 - `GET /api/neighborhoods` → list with total counts
 - `GET /api/neighborhood?name=X` → stats (req 5), chronic top 3 + too-few list, equity comparison
-- `GET /api/clusters?name=X` → clusters (id, service_name, size, late count, centroid) largest first
+- `GET /api/clusters?name=X` → clusters (id, category, size, late count, centroid) largest first
 - `GET /api/cluster/{id}` → raw rows of that cluster
 - `GET /api/map?name=X` → block-group rings + cluster markers for that neighborhood (lon/lat; JS projects)
 Unknown neighborhood / cluster → 404 with message.
@@ -75,7 +131,11 @@ Pick the neighborhood the human chose → stats line → "top chronic category i
 - The headline might not exist in real data. H2 checks before the UI is polished; if no
   neighborhood shows an equity gap, the demo leads with clusters + chronic categories and
   reports the equity result honestly ("no gap found" is still a valid finding).
-- Raw export may be 100+ MB → slim to needed columns and a 12-month window; target < 15 MB committed.
+- Raw exports are 27 MB + 107 MB → slim to needed columns, window 2026-01-01 … end of data,
+  resident filter, coords rounded to 5 dp; target < 15 MB committed (split by neighborhood if over).
+- Two systems may measure `on_time` differently (different SLA targets) → overlay and chronic
+  tables can show the per-system split on request; never mix silently in the headline without
+  checking (H2).
 - EJ2020 paging (maxRecordCount) → `resultOffset` loop. Geometry size → round coords to 5 decimals.
 - Point-in-polygon on ~100k points × ~600 polygons → bbox prefilter per polygon; precompute at load.
 - The server has no auth. Fine for a local demo; do not deploy publicly without it.

@@ -21,11 +21,11 @@ Track: Civic Action — More Responsive Neighborhood Services (311).
 
 ### Neighborhood view
 5. WHEN the user selects a neighborhood THE SYSTEM SHALL show total cases, open cases, cases with a known SLA result, late cases, and the late rate.
-6. WHEN the user selects a neighborhood THE SYSTEM SHALL list the top 3 "chronic" categories (service_name) ranked by late rate, only among categories with at least the minimum case count in design.md; smaller categories are shown as "TOO FEW CASES", not ranked.
+6. WHEN the user selects a neighborhood THE SYSTEM SHALL list the top 3 "chronic" categories (canonical category, see design.md) ranked by late rate, only among categories with at least the minimum case count in design.md; smaller categories are shown as "TOO FEW CASES", not ranked.
 7. EVERY rate SHALL be shown with its numerator and denominator (e.g. "41% (82 of 200)"). No composite score.
 
 ### Repeat-report clusters
-8. WHEN the user selects a neighborhood THE SYSTEM SHALL group reports into clusters using the duplicate rule in design.md (same service_name, within the distance and time window) and list clusters with ≥2 reports, largest first.
+8. WHEN the user selects a neighborhood THE SYSTEM SHALL group reports into clusters using the duplicate rule in design.md (same category, within the distance and time window) and list clusters with ≥2 reports, largest first.
 9. WHEN the user opens a cluster THE SYSTEM SHALL show the raw rows behind it (case id, open date, status, on_time, address).
 10. Every report SHALL belong to exactly one cluster (singletons included), so cluster sizes sum to the number of mapped reports.
 
@@ -46,7 +46,7 @@ Track: Civic Action — More Responsive Neighborhood Services (311).
 
 ## Properties (property-based tests)
 - Clustering is a partition: every input report appears in exactly one cluster.
-- Every cluster contains a single service_name, and every member is within the distance threshold of the cluster seed and within the time window.
+- Every cluster contains a single category, and every member is within the distance threshold of the cluster seed and within the time window.
 - Clustering is deterministic: same input (any order) → same clusters.
 - Late rate is in [0, 1] and late ≤ known ≤ total for every group.
 - Chronic-category ranking is non-increasing in late rate and never includes a category below the minimum count.

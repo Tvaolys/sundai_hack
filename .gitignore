@@ -23,6 +23,9 @@ target/
 .DS_Store
 *.swp
 
+# Data
+data/raw/
+
 # Logs
 *.log
 
