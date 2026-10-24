@@ -225,3 +225,20 @@ def test_percentile_endpoints_and_interpolation():
     assert server._percentile(data, 0.0) == 0.0
     assert server._percentile(data, 1.0) == 4.0
     assert server._percentile(data, 0.5) == 2.0
+
+
+# --- startup warm-up ------------------------------------------------------
+
+def test_startup_warms_state_from_fixture_env(monkeypatch):
+    # No request issued: entering the TestClient context triggers the lifespan
+    # startup, which should warm the cache using the fixture env vars.
+    monkeypatch.setenv("N1_SLICE", _SLICE)
+    monkeypatch.setenv("N1_EJ", _EJ)
+    monkeypatch.setenv("N1_PARAMS", _PARAMS)
+    server.reset_state()
+    assert server._STATE is None
+    with TestClient(server.app):
+        assert server._STATE is not None
+        # Warmed from the fixtures (44 rows), not the real data slice.
+        assert server._STATE.meta.get("counts", {}).get("total") == 44
+    server.reset_state()

@@ -14,6 +14,7 @@ lazily and cached per neighborhood; a ``case_id -> neighborhood`` index lets
 from __future__ import annotations
 
 import os
+from contextlib import asynccontextmanager
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, Query
@@ -25,7 +26,25 @@ from app.equity import assign, load_block_groups
 from app.overlay import baseline, compare
 from app.sla import chronic, group_stats, load_params
 
-app = FastAPI(title="n1-311triage")
+@asynccontextmanager
+async def _lifespan(app: FastAPI):
+    """Warm the data cache at startup so the first demo click isn't slow.
+
+    Building ``AppState`` reads the slice/EJ/params files (~3 s on the real
+    slice); doing it here means the first ``/api`` request is already warm. Env
+    vars are read at this point, so tests that set ``N1_SLICE`` / ``N1_EJ`` /
+    ``N1_PARAMS`` and call ``reset_state()`` before entering the TestClient
+    context still load their fixtures. A load failure is swallowed so the app
+    still starts and the first request can surface the real error.
+    """
+    try:
+        get_state()
+    except Exception:  # noqa: BLE001 - don't block startup on a data error.
+        pass
+    yield
+
+
+app = FastAPI(title="n1-311triage", lifespan=_lifespan)
 
 _REPO = Path(__file__).resolve().parent.parent
 _DEFAULT_SLICE = _REPO / "data" / "311_slice.json.gz"
