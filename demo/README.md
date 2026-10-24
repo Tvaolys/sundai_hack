@@ -26,7 +26,7 @@ on 127.0.0.1 only. Everything else works either way.
 ## Area
 | Where | Unit | Source |
 |---|---|---|
-| Massachusetts | Census block groups | MassGIS EJ 2020 (real limited-English households, median income, EJ status) |
+| Massachusetts | Census block groups | MassGIS EJ 2020 (real limited-English households, median income, EJ status). This layer holds only the block groups that meet an Environmental Justice criterion (548 of Suffolk's 681), so the others are not shown; the page says so. |
 | Every other state, DC, Puerto Rico | Census tracts | CDC/ATSDR SVI 2022 (limited-English homes estimated from the share of people) |
 
 Town names on the map come from Census county subdivisions. Big counties (thousands of tracts) take a few

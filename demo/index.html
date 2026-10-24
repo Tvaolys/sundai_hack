@@ -5,132 +5,215 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Who Gets Missed — Emergency Outreach Planner</title>
 <style>
-:root{color-scheme:light dark;--bg:#f6f8fa;--card:#ffffff;--fg:#1f2328;--muted:#59636e;--line:#d1d9e0;--accent:#0969da;--ok:#1a7f37;--part:#9a6700;--miss:#cf222e;--water:#dbeafe;--land:#eef1f4;--zone:#c8d1da;--county:#6639ba;--cty0:#6639ba;--cty1:#0550ae;--cty2:#bf3989;--cty3:#1b7c83;--cty4:#7d4e2d;--cty5:#424a53}
-@media (prefers-color-scheme:dark){:root{--bg:#0d1117;--card:#161b22;--fg:#e6edf3;--muted:#9198a1;--line:#30363d;--accent:#4493f8;--ok:#3fb950;--part:#d29922;--miss:#f85149;--water:#102a43;--land:#21262d;--zone:#3d444d;--county:#d2a8ff;--cty0:#d2a8ff;--cty1:#79c0ff;--cty2:#ff9bce;--cty3:#56d4dd;--cty4:#c9a27e;--cty5:#b1bac4}}
+/* ---------- theme ---------- */
+:root{color-scheme:light dark;
+  --bg:#f2f5f9;--card:#ffffff;--fg:#1f2328;--muted:#59636e;--line:#dbe1e8;--accent:#0969da;--accent-ink:#0550ae;--accent-soft:#e7f1fd;
+  --row-hl:#f3f8ff;--zebra:#f8fafc;--ok:#1a7f37;--ok-soft:#e9f6ec;--part:#9a6700;--part-soft:#fdf5e1;--miss:#cf222e;--miss-soft:#fdeeee;
+  --water:#dbeafe;--land:#eef1f4;--zone:#c8d1da;--county:#6639ba;--cty0:#6639ba;--cty1:#0550ae;--cty2:#bf3989;--cty3:#1b7c83;--cty4:#7d4e2d;--cty5:#424a53;
+  --hero1:#0b3d91;--hero2:#0969da;--hero3:#16707a;--radius:12px;
+  --shadow:0 1px 2px rgba(15,23,42,.05),0 6px 18px rgba(15,23,42,.06);--shadow-lift:0 2px 4px rgba(15,23,42,.06),0 10px 24px rgba(15,23,42,.10)}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#0d1117;--card:#161b22;--fg:#e6edf3;--muted:#9198a1;--line:#30363d;--accent:#4493f8;--accent-ink:#6cb0ff;--accent-soft:#10243f;
+  --row-hl:#182433;--zebra:#1a2029;--ok:#3fb950;--ok-soft:#0f2a1a;--part:#d29922;--part-soft:#2b220c;--miss:#f85149;--miss-soft:#2d1416;
+  --water:#102a43;--land:#21262d;--zone:#3d444d;--county:#d2a8ff;--cty0:#d2a8ff;--cty1:#79c0ff;--cty2:#ff9bce;--cty3:#56d4dd;--cty4:#c9a27e;--cty5:#b1bac4;
+  --hero1:#0d2547;--hero2:#12407a;--hero3:#0f4f57;--shadow:0 1px 2px rgba(0,0,0,.4);--shadow-lift:0 4px 16px rgba(0,0,0,.5)}}
 *{box-sizing:border-box}
 [hidden]{display:none !important}
-body{margin:0;font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--fg)}
+body{margin:0;font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--fg);-webkit-font-smoothing:antialiased}
 a{color:var(--accent)}
-header{padding:16px 20px;border-bottom:1px solid var(--line);background:var(--card);color:var(--fg)}
-h1{margin:0;font-size:21px}
-h2{font-size:15px;margin:0 0 10px}
-.sub{color:var(--muted);margin:4px 0 0}
-.safety{margin:12px 20px 0;padding:10px 12px;border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--card);color:var(--fg);border-radius:6px;font-size:13px}
-.layout{display:grid;grid-template-columns:340px 1fr;gap:16px;padding:16px 20px;align-items:start}
+h1{margin:0;font-size:24px;font-weight:750;letter-spacing:-.015em}
+h2{font-size:16px;font-weight:650;margin:0 0 12px;letter-spacing:-.005em}
+.muted{color:var(--muted);font-size:12px}
+.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ---------- header and tabs ---------- */
+header.hero{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:18px 24px;color:#fff;
+  background:linear-gradient(120deg,var(--hero1),var(--hero2) 55%,var(--hero3))}
+.brand{display:flex;align-items:center;gap:14px}
+.logo{width:44px;height:44px;flex:none;border-radius:12px;background:rgba(0,0,0,.18);padding:8px;color:#fff}
+header.hero .sub{color:#fff;margin:2px 0 0;font-size:14px}
+.hero-chip{margin:0;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:600;color:#fff;background:rgba(0,0,0,.22);border:1px solid rgba(255,255,255,.35);white-space:nowrap}
+.tabs{display:flex;gap:4px;padding:0 20px;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(15,23,42,.02)}
+.tabs button{width:auto;display:inline-flex;align-items:center;gap:8px;background:transparent;color:var(--muted);border:0;border-bottom:3px solid transparent;
+  border-radius:0;padding:13px 14px 10px;margin:0;font-weight:650;box-shadow:none}
+.tabs button:hover{color:var(--fg);background:transparent}
+.tabs button[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent);background:transparent}
+.tabs button svg{width:17px;height:17px;flex:none}
+.tabs .badge{margin-left:2px}
+.banner{margin:14px 20px 0;padding:10px 14px;border-radius:10px;border:1px solid var(--line);border-left:4px solid var(--part);background:var(--part-soft);color:var(--fg);font-size:13px}
+
+/* ---------- layout ---------- */
+.layout{display:grid;grid-template-columns:350px 1fr;gap:20px;padding:20px;align-items:start}
+/* Grid items may shrink below their content (wide table, long option text) instead of widening the page. */
+.layout>*{min-width:0}
 /* Left panel scrolls on its own and stays in view while the results scroll. */
-.layout>aside{position:sticky;top:8px;max-height:calc(100vh - 16px);overflow-y:auto;overscroll-behavior:contain;padding-right:6px;scrollbar-gutter:stable;scrollbar-width:thin}
-@media (max-width:900px){.layout{grid-template-columns:1fr}.layout>aside{position:static;max-height:none;overflow:visible;padding-right:0}}
-.tabs{display:flex;gap:4px;padding:8px 20px 0;background:var(--card);border-bottom:1px solid var(--line)}
-.tabs button{width:auto;background:transparent;color:var(--fg);border:1px solid transparent;border-bottom:0;border-radius:6px 6px 0 0;padding:8px 16px;margin-bottom:-1px;font-weight:600}
-.tabs button[aria-selected="true"]{background:var(--bg);border-color:var(--line);color:var(--accent)}
-.tabs .badge{margin-left:6px}
-.card{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:14px}
-aside .card+.card{margin-top:12px}
-/* Collapsible left-panel cards: click the title to open or close. */
-details.fold>summary{display:flex;align-items:baseline;gap:8px;cursor:pointer;list-style:none;margin:-4px 0;padding:4px 0;border-radius:4px}
+.layout>aside{position:sticky;top:10px;max-height:calc(100vh - 20px);overflow-y:auto;overscroll-behavior:contain;padding:2px 8px 2px 2px;scrollbar-gutter:stable;scrollbar-width:thin}
+@media (max-width:900px){.layout{grid-template-columns:1fr;padding:14px}.layout>aside{position:static;max-height:none;overflow:visible;padding:0}}
+.card{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow)}
+aside .card+.card{margin-top:14px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:20px}
+@media (max-width:1100px){.grid2{grid-template-columns:1fr}}
+.safety,.sos{margin:0 0 6px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);border-left:4px solid var(--accent);background:var(--accent-soft);color:var(--fg);font-size:13px}
+.sos{border-left-color:var(--miss);background:var(--miss-soft)}
+footer.sources{margin:4px 20px 28px;padding:14px 16px;border-top:1px solid var(--line);color:var(--muted);font-size:12px;line-height:1.6}
+footer.sources strong{color:var(--fg)}
+
+/* ---------- collapsible left-panel cards ---------- */
+details.fold>summary{display:flex;align-items:center;gap:10px;cursor:pointer;list-style:none;margin:-8px -10px;padding:8px 10px;border-radius:10px;transition:background-color .15s}
+details.fold>summary:hover{background:var(--row-hl)}
 details.fold>summary::-webkit-details-marker{display:none}
-details.fold>summary::before{content:'▾';color:var(--muted);font-size:12px;width:12px;flex:none;transition:transform .15s}
+details.fold>summary::before{content:'▾';display:grid;place-items:center;width:22px;height:22px;flex:none;border-radius:50%;background:var(--bg);border:1px solid var(--line);
+  color:var(--muted);font-size:11px;transition:transform .15s}
 details.fold:not([open])>summary::before{transform:rotate(-90deg)}
 details.fold>summary h2{margin:0}
-details.fold>summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-details.fold[open]>summary{margin-bottom:10px}
-.sumval{margin-left:auto;color:var(--muted);font-size:12px;font-weight:400;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}
+details.fold>summary:focus-visible{outline:2px solid var(--accent);outline-offset:0}
+details.fold[open]>summary{margin-bottom:6px}
+.sumval{margin-left:auto;color:var(--muted);font-size:12px;font-weight:500;text-align:right;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:55%}
 details.fold[open]>summary .sumval:not(#quietCount){display:none}
-@media (prefers-reduced-motion:reduce){details.fold>summary::before{transition:none}}
-label{display:block;font-weight:600;margin:10px 0 4px}
-select,input[type=number],input[type=text]{width:100%;padding:6px 8px;border:1px solid var(--muted);border-radius:6px;background:var(--bg);color:var(--fg);font:inherit}
-input[type=range]{width:100%;accent-color:var(--accent)}
-.tidehead{display:flex;align-items:baseline;gap:6px;margin:10px 0 4px}
+#quietCount{padding:1px 8px;border-radius:999px;background:var(--bg);border:1px solid var(--line)}
+#quietCount:empty{display:none}
+
+/* ---------- form controls ---------- */
+label{display:block;font-weight:600;margin:12px 0 5px;font-size:14px}
+select,input[type=number],input[type=text]{width:100%;padding:8px 10px;border:1px solid var(--muted);border-radius:8px;background:var(--card);color:var(--fg);font:inherit;
+  transition:border-color .15s,box-shadow .15s}
+select:hover,input[type=number]:hover,input[type=text]:hover{border-color:var(--fg)}
+select:focus-visible,input[type=number]:focus-visible,input[type=text]:focus-visible{outline:2px solid transparent;outline-offset:1px;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft),0 0 0 4px var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent);margin:4px 0}
+input[type=checkbox],input[type=radio]{accent-color:var(--accent)}
+.tidehead{display:flex;align-items:baseline;gap:6px;margin:12px 0 5px}
 .tidehead label{margin:0}
-.tidehead output{font-weight:600}
-:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-fieldset{border:1px solid var(--line);border-radius:6px;margin:10px 0 0;padding:6px 10px}
-legend{font-weight:600;padding:0 4px}
-.towns{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:13px}
-.towns label{font-weight:400;margin:0;display:flex;gap:6px;align-items:center}
-.counties{max-height:190px;overflow:auto;padding:2px 4px}
-.hzset{margin-top:0}
-.hzgrid{display:grid;grid-template-columns:1fr 1fr;gap:6px}
-.hzgrid label{display:flex;gap:6px;align-items:center;margin:0;padding:6px 8px;border:1px solid var(--line);border-radius:6px;font-weight:500;font-size:13px;cursor:pointer;background:var(--card);color:var(--fg)}
-.hzgrid label.on{border-color:var(--accent);box-shadow:inset 3px 0 0 var(--accent);font-weight:700}
+.tidehead output{font-weight:700;font-variant-numeric:tabular-nums;padding:0 8px;border-radius:999px;background:var(--accent-soft);color:var(--fg)}
+fieldset{border:1px solid var(--line);border-radius:10px;margin:12px 0 0;padding:8px 12px 12px}
+legend{font-weight:650;padding:0 6px;font-size:14px}
+.hzset{margin-top:2px}
+.hzgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hzgrid label{display:flex;gap:8px;align-items:center;margin:0;padding:8px 10px;border:1px solid var(--line);border-radius:10px;font-weight:550;font-size:13px;cursor:pointer;
+  background:var(--card);color:var(--fg);transition:border-color .15s,background-color .15s,box-shadow .15s}
+.hzgrid label:hover{border-color:var(--accent);box-shadow:var(--shadow)}
+.hzgrid label.on{border-color:var(--accent);background:var(--accent-soft);box-shadow:inset 3px 0 0 var(--accent);font-weight:700}
 .hzgrid label:focus-within{outline:2px solid var(--accent);outline-offset:1px}
-.hzgrid input{accent-color:var(--accent);margin:0}
-.badge{margin-left:auto;font-size:11px;padding:1px 6px;border-radius:9px;background:var(--miss);color:var(--card);white-space:nowrap}
-.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hzgrid input{margin:0}
+.towns{display:grid;grid-template-columns:1fr 1fr;gap:2px 8px;font-size:13px}
+.towns label{font-weight:400;margin:0;display:flex;gap:6px;align-items:center;padding:2px 4px;border-radius:6px;font-size:13px}
+.towns label:hover{background:var(--row-hl)}
+.counties{max-height:190px;overflow:auto;padding:2px 4px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.row3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
 .row3 label{font-size:12px}
-.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px}
+
+/* ---------- buttons ---------- */
+button{padding:9px 14px;border-radius:8px;border:1px solid var(--accent);background:var(--accent);color:var(--card);font:inherit;font-weight:650;cursor:pointer;width:100%;
+  box-shadow:0 1px 2px rgba(15,23,42,.12);transition:background-color .15s,border-color .15s,box-shadow .15s,transform .05s}
+button:hover{background:var(--accent-ink);border-color:var(--accent-ink)}
+button:active{transform:translateY(1px)}
+button.ghost{background:var(--card);color:var(--accent);border-color:var(--line);box-shadow:none}
+button.ghost:hover{background:var(--accent-soft);border-color:var(--accent)}
+button:disabled{opacity:.6;cursor:wait}
+button[aria-pressed="true"],button[aria-pressed="true"]:hover{background:var(--miss);border-color:var(--miss);color:var(--card)}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+
+/* ---------- status, alert, stats ---------- */
+.status{list-style:none;margin:0;padding:0;font-size:12px}
+.status li{display:grid;grid-template-columns:18px 1fr;gap:4px;padding:3px 0;border-bottom:1px dashed var(--line)}
+.status li:last-child{border-bottom:0}
+.status .ok{color:var(--ok)} .status .err{color:var(--miss)} .status .run{color:var(--part)}
+.alert{display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--radius);font-weight:650;margin-bottom:16px;border:1px solid var(--line);border-left-width:5px;
+  background:var(--card);color:var(--fg);box-shadow:var(--shadow)}
+.alert::before{content:'';width:10px;height:10px;flex:none;border-radius:50%;background:var(--muted)}
+.alert.on{border-left-color:var(--miss);background:var(--miss-soft)}
+.alert.on::before{background:var(--miss);box-shadow:0 0 0 0 var(--miss);animation:pulse 1.8s ease-out infinite}
+.alert.off{border-left-color:var(--ok);background:var(--ok-soft)}
+.alert.off::before{background:var(--ok)}
+.alert.wait{border-left-color:var(--part);background:var(--part-soft)}
+.alert.wait::before{background:var(--part)}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(207,34,46,.45)}100%{box-shadow:0 0 0 10px rgba(207,34,46,0)}}
+.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:16px}
 @media (max-width:1100px){.stats{grid-template-columns:repeat(3,1fr)}}
-.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.sos{margin:0 0 6px;padding:8px 10px;border-radius:6px;border:1px solid var(--line);border-left:4px solid var(--miss);background:var(--card);color:var(--fg);font-size:13px}
-button[aria-pressed="true"]{background:var(--miss);border-color:var(--miss);color:var(--card)}
-#map.adding{cursor:crosshair}
-.quiet{display:inline-block;margin-left:4px;font-size:11px;padding:0 6px;border-radius:9px;border:1px dashed var(--miss);color:var(--miss);font-weight:700;white-space:nowrap}
-.sev{display:inline-block;min-width:22px;text-align:center;font-size:11px;font-weight:700;padding:1px 6px;border-radius:9px;color:var(--card)}
-.sev1{background:var(--miss)} .sev2{background:var(--part)} .sev3{background:var(--muted)}
-.queue{list-style:none;margin:0;padding:0;max-height:360px;overflow:auto;font-size:13px}
-.queue li{display:grid;grid-template-columns:auto 1fr auto;gap:8px;align-items:start;padding:6px 4px;border-bottom:1px solid var(--line);cursor:pointer}
-.queue li:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
 @media (max-width:640px){.stats{grid-template-columns:repeat(2,1fr)}}
-.stat{background:var(--card);color:var(--fg);border:1px solid var(--line);border-radius:8px;padding:10px}
-.stat b{display:block;font-size:22px;font-variant-numeric:tabular-nums}
+.stat{background:var(--card);color:var(--fg);border:1px solid var(--line);border-top:3px solid var(--accent);border-radius:var(--radius);padding:12px 14px;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:26px;font-weight:750;letter-spacing:-.02em;line-height:1.15;font-variant-numeric:tabular-nums}
 .stat span{color:var(--muted);font-size:12px}
+.stat.bad{border-top-color:var(--miss);background:var(--miss-soft)}
 .stat.bad b{color:var(--miss)}
-.alert{padding:10px 12px;border-radius:6px;font-weight:600;margin-bottom:12px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
-.alert.on{border-left:4px solid var(--miss)}
-.alert.off{border-left:4px solid var(--ok)}
-.alert.wait{border-left:4px solid var(--part)}
-.tablewrap{overflow:auto;max-height:560px}
+
+/* ---------- table ---------- */
+.tablewrap{overflow:auto;max-height:560px;border:1px solid var(--line);border-radius:10px}
 table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
-thead th{position:sticky;top:0;background:var(--card);color:var(--muted);font-weight:600}
+th,td{padding:8px 10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+thead th{position:sticky;top:0;z-index:1;background:var(--card);color:var(--muted);font-weight:650;font-size:11px;text-transform:uppercase;letter-spacing:.05em;border-bottom:2px solid var(--line)}
+tbody tr:nth-child(even) td{background:var(--zebra)}
+tbody tr:hover td{background:var(--row-hl)}
+tbody tr:last-child td{border-bottom:0}
 td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
 td.key{font-weight:700}
 .geo{color:var(--muted);font-size:11px}
-.st-full{color:var(--ok);font-weight:600}
-.st-partial{color:var(--part);font-weight:600}
-.st-missed{color:var(--miss);font-weight:600}
+.st-full{color:var(--ok);font-weight:650}
+.st-partial{color:var(--part);font-weight:650}
+.st-missed{color:var(--miss);font-weight:650}
 tr.cut td{border-top:2px dashed var(--miss)}
-.bars{display:grid;grid-template-columns:minmax(0,150px) 1fr minmax(0,100px);gap:6px 8px;align-items:center;font-size:13px}
-.bar{height:12px;border-radius:6px;background:var(--line);overflow:hidden;display:flex}
+tbody tr.hl td,tbody tr.hl:hover td{background:var(--row-hl);box-shadow:inset 0 1px 0 var(--accent),inset 0 -1px 0 var(--accent)}
+tbody tr.hl td:first-child{box-shadow:inset 3px 0 0 var(--accent),inset 0 1px 0 var(--accent),inset 0 -1px 0 var(--accent)}
+#tbl tbody tr{cursor:pointer}
+
+/* ---------- languages ---------- */
+.bars{display:grid;grid-template-columns:minmax(0,150px) 1fr minmax(0,100px);gap:8px 10px;align-items:center;font-size:13px}
+.bars>.muted:only-child{grid-column:1/-1}
+.bar{height:14px;border-radius:7px;background:var(--line);overflow:hidden;display:flex}
 .bar i{display:block;height:100%}
 .bar .r{background:var(--ok)}
 .bar .m{background:var(--miss)}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
-@media (max-width:1100px){.grid2{grid-template-columns:1fr}}
-svg{width:100%;height:auto;display:block;border-radius:6px}
-#map{max-height:640px;touch-action:none;cursor:grab}
+
+/* ---------- reports ---------- */
+.badge{margin-left:auto;font-size:11px;font-weight:700;padding:1px 7px;border-radius:999px;background:var(--miss);color:var(--card);white-space:nowrap}
+.quiet{display:inline-block;margin-left:4px;font-size:11px;padding:0 7px;border-radius:999px;border:1px dashed var(--miss);color:var(--miss);font-weight:700;white-space:nowrap}
+.sev{display:inline-block;min-width:24px;text-align:center;font-size:11px;font-weight:750;padding:2px 7px;border-radius:999px;color:var(--card)}
+.sev1{background:var(--miss)} .sev2{background:var(--part)} .sev3{background:var(--muted)}
+.queue{list-style:none;margin:0;padding:0;max-height:380px;overflow:auto;font-size:13px}
+.queue li{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:start;padding:9px 8px;border-bottom:1px solid var(--line);border-radius:8px;cursor:pointer;
+  transition:background-color .15s}
+.queue li:last-child{border-bottom:0}
+.queue li:hover{background:var(--row-hl)}
+.queue li:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+
+/* ---------- map ---------- */
+svg{width:100%;height:auto;display:block}
+#map{max-height:640px;touch-action:none;cursor:grab;border:1px solid var(--line);border-radius:10px;background:var(--water)}
 #map.dragging{cursor:grabbing}
+#map.adding{cursor:crosshair;outline:2px dashed var(--miss);outline-offset:2px}
 #map path{vector-effect:non-scaling-stroke}
 .maphead{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.zoombtns{display:flex;gap:4px}
-.zoombtns button{width:auto;min-width:34px;padding:4px 10px}
-tr.hl td{background:var(--bg)}
-#tbl tbody tr{cursor:pointer}
+.zoombtns{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;box-shadow:var(--shadow)}
+.zoombtns button{width:auto;min-width:36px;padding:5px 11px;border:0;border-radius:0;box-shadow:none}
+.zoombtns button+button{border-left:1px solid var(--line)}
 svg text{font-size:calc(11px * var(--lblk, 1));font-family:inherit;font-weight:700;paint-order:stroke;stroke-width:calc(3px * var(--lblk, 1))}
 svg text.countylbl{font-size:calc(13px * var(--lblk, 1));font-weight:800;font-style:italic;letter-spacing:.1em;fill:var(--county);stroke:var(--card);stroke-width:calc(4px * var(--lblk, 1));stroke-linejoin:round}
 svg text.townlbl{font-size:calc(10px * var(--lblk, 1));font-weight:600;letter-spacing:.06em;opacity:.85;stroke-width:calc(3.5px * var(--lblk, 1))}
-button{padding:8px 12px;border-radius:6px;border:1px solid var(--accent);background:var(--accent);color:var(--card);font:inherit;font-weight:600;cursor:pointer;width:100%}
-button.ghost{background:var(--card);color:var(--accent)}
-button:disabled{opacity:.6;cursor:wait}
-.btns{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.muted{color:var(--muted);font-size:12px}
-.status{list-style:none;margin:0;padding:0;font-size:12px}
-.status li{display:grid;grid-template-columns:18px 1fr;gap:4px;padding:2px 0}
-.status .ok{color:var(--ok)} .status .err{color:var(--miss)} .status .run{color:var(--part)}
-.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--muted);margin-top:8px}
-.dot{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:4px;vertical-align:-1px}
-.banner{margin:12px 20px 0;padding:8px 12px;border-radius:6px;border:1px solid var(--line);border-left:4px solid var(--part);background:var(--card);color:var(--fg);font-size:13px}
-.visually-hidden{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.legend{display:flex;gap:6px 14px;flex-wrap:wrap;align-items:center;font-size:12px;color:var(--muted);margin-top:10px}
+.legend>span{display:inline-flex;align-items:center}
+.dot{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:4px;vertical-align:-1px}
+
+@media (prefers-reduced-motion:reduce){*,*::before{transition:none !important;animation:none !important}}
 </style>
 </head>
 <body>
-<header>
-  <h1>Who Gets Missed</h1>
-  <p class="sub">Emergency outreach planner for any US county · live public data</p>
+<header class="hero">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M5 15 16 6l11 9"/><path d="M8 13v12h16V13"/><path d="M13 25v-6h6v6"/>
+      <path d="M22.5 4.5a6 6 0 0 1 4 4"/><path d="M23.5 1.5a10 10 0 0 1 7 7"/>
+    </svg>
+    <div>
+      <h1>Who Gets Missed</h1>
+      <p class="sub">Emergency outreach planner for any US county · live public data</p>
+    </div>
+  </div>
+  <p class="hero-chip">Planning aid · never sends alerts</p>
 </header>
 <div class="tabs" role="tablist" aria-label="Sections">
-  <button type="button" role="tab" id="tabPlan" aria-selected="true" aria-controls="panelPlan">Planning aid</button>
-  <button type="button" role="tab" id="tabRep" aria-selected="false" aria-controls="panelRep" tabindex="-1">Resident reports <span class="badge" id="tabRepCount" hidden></span></button>
+  <button type="button" role="tab" id="tabPlan" aria-selected="true" aria-controls="panelPlan"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 4H6a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-3"/><rect x="9" y="2.5" width="6" height="3.5" rx="1"/><path d="M8 11h8M8 15h5"/></svg>Planning aid</button>
+  <button type="button" role="tab" id="tabRep" aria-selected="false" aria-controls="panelRep" tabindex="-1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 21l1.9-5.2A8 8 0 1 1 21 12Z"/><path d="M12 8v4M12 15.5v.01"/></svg>Resident reports <span class="badge" id="tabRepCount" hidden></span></button>
 </div>
 <p class="banner" id="banner" hidden></p>
 
@@ -197,7 +280,7 @@ button:disabled{opacity:.6;cursor:wait}
         <input id="countyFilter" type="text" placeholder="Type to filter counties" aria-label="Filter counties" autocomplete="off">
         <div class="towns counties" id="counties" style="margin-top:6px"></div>
       </fieldset>
-      <p class="muted" id="areaNote">Massachusetts uses block groups (MassGIS EJ 2020). Other states use census tracts (CDC SVI).</p>
+      <p class="muted" id="areaNote">Massachusetts uses MassGIS EJ 2020 block groups. That layer has only Environmental Justice block groups, so other block groups are not shown. Other states use census tracts (CDC SVI).</p>
       <button id="load" type="button">Load live data</button>
       <div class="btns">
         <button id="saveSnap" type="button" class="ghost">Save snapshot</button>
@@ -341,7 +424,7 @@ button:disabled{opacity:.6;cursor:wait}
   </section>
 </div>
 </main>
-<p class="muted" style="margin:0 20px 20px">Sources: NWS active alerts and gridpoint forecast (api.weather.gov) · NOAA CO-OPS tide stations · NOAA NWPS river gauges · Open-Meteo air quality (CAMS) · MEMA power outages (MA) · MassGIS EJ 2020 block groups (MA) · CDC/ATSDR SVI 2022 (tract) · Census TIGERweb · FEMA National Flood Hazard Layer · OpenFEMA disaster declarations · ACS 2022 C16001 via Esri Living Atlas (tract) · NWS Local Storm Reports via Iowa Environmental Mesonet · SeeClickFix public API · city open data (NYC, Chicago, San Francisco, Austin, Boston 311; Seattle Fire 911) · NIFC WFIGS wildfires · USGS earthquakes · street map: USGS The National Map (public domain).</p>
+<footer class="sources"><strong>Sources:</strong> NWS active alerts and gridpoint forecast (api.weather.gov) · NOAA CO-OPS tide stations · NOAA NWPS river gauges · Open-Meteo air quality (CAMS) · MEMA power outages (MA) · MassGIS EJ 2020 block groups (MA) · CDC/ATSDR SVI 2022 (tract) · Census TIGERweb · FEMA National Flood Hazard Layer · OpenFEMA disaster declarations · ACS 2022 C16001 via Esri Living Atlas (tract) · NWS Local Storm Reports via Iowa Environmental Mesonet · SeeClickFix public API · city open data (NYC, Chicago, San Francisco, Austin, Boston 311; Seattle Fire 911) · NIFC WFIGS wildfires · USGS earthquakes · street map: USGS The National Map (public domain).</footer>
 
 <!-- Core: planning logic + live data adapters. No DOM here, so it runs headless in Node. -->
 <script id="core">
@@ -718,7 +801,7 @@ var EMO = (function () {
     raw = String(raw || '').trim().toLowerCase();
     if (!raw) return reportType('other');
     var t = REPORT_TYPES.filter(function (x) { return raw === x[0] || raw === x[1].toLowerCase(); })[0] ||
-            REPORT_TYPES.filter(function (x) { return raw.indexOf(x[1].toLowerCase()) >= 0; })[0];
+            REPORT_TYPES.filter(function (x) { return x[0] !== 'other' && raw.indexOf(x[1].toLowerCase()) >= 0; })[0];
     if (t) return t;
     for (var i = 0; i < CSV_HINTS.length; i++) if (CSV_HINTS[i][1].test(raw)) return reportType(CSV_HINTS[i][0]);
     return reportType('other');
@@ -735,7 +818,7 @@ var EMO = (function () {
     if (iLat < 0 || iLon < 0) throw new Error('needs lat and lon columns');
     var out = [], bad = 0;
     t.slice(1).forEach(function (r, n) {
-      var lat = Number(r[iLat]), lon = Number(r[iLon]);
+      var lat = String(r[iLat] || '').trim() === '' ? NaN : Number(r[iLat]), lon = String(r[iLon] || '').trim() === '' ? NaN : Number(r[iLon]);
       if (!isFinite(lat) || !isFinite(lon) || Math.abs(lat) > 90 || Math.abs(lon) > 180) { bad++; return; }
       var raw = iType >= 0 ? String(r[iType] || '').toLowerCase() : '';
       var type = csvType(raw);
@@ -807,7 +890,7 @@ var EMO = (function () {
     'STORM SURGE': ['flooding', 2], 'TSTM WND DMG': ['damage', 2], 'NON-TSTM WND DMG': ['damage', 2], 'MARINE TSTM WND DMG': ['damage', 2],
     'DOWNBURST': ['damage', 2], 'TORNADO': ['damage', 1], 'LIGHTNING': ['damage', 2], 'WILDFIRE': ['fire', 1],
     'DEBRIS FLOW': ['road', 2], 'LANDSLIDE': ['road', 2], 'DUST STORM': ['road', 2], 'SNOW SQUALL': ['road', 2], 'AVALANCHE': ['help', 1],
-    'ICE STORM': ['ice', 2], 'FREEZING RAIN': ['ice', 3], 'BLIZZARD': ['ice', 2], 'HEAVY SNOW': ['ice', 3], 'SLEET': ['ice', 3],
+    'SNOW/ICE DMG': ['ice', 2], 'ICE STORM': ['ice', 2], 'FREEZING RAIN': ['ice', 3], 'BLIZZARD': ['ice', 2], 'HEAVY SNOW': ['ice', 3], 'SLEET': ['ice', 3],
     'EXCESSIVE HEAT': ['help', 2], 'EXTREME HEAT': ['help', 2], 'EXTR WIND CHILL': ['help', 2], 'EXTREME COLD': ['help', 2]
   };
   var LIFE = /rescu|trapped|stranded|swept|injur|fatal|killed|died|missing|evacuat/i;
@@ -850,13 +933,13 @@ var EMO = (function () {
   // free-text description is noisy ("fire hydrant", "tree trim"), so it gets its own stricter test.
   // [title test, description test or null, type, severity]
   var SCF_RULES = [
-    [/gas (leak|odor|smell)|smell(s)? (of )?gas|\bfire\b(?! hydrant| alarm| lane| station| dep| code| damage| inspect)|smoke(?! detector| alarm)/i,
+    [/^(?!.*non[- ]?emergency).*?(?:gas (leak|odor|smell)|smell(s)? (of )?gas|\bfire\b(?! hydrant| alarm| lane| station| dep| code| damage| inspect)|smoke(?! detector| alarm))/i,
      /gas (leak|odor|smell)|smell(s)? (of )?gas|(is|are|was|caught) on fire|house fire|smoke (is )?(coming|pouring)/i, 'fire', 1],
     [/wellness|welfare check|person (in need|down)|no heat|without heat|heat(ing)? (out|not working)/i, null, 'help', 2],
     [/(power|electric|utility) ?(line|wire)s? (down|fallen|sparking|hanging)|(down(ed)?|fallen|sparking|hanging) (power |electric |utility )?(line|wire)s?|wires? down|pole down/i,
      /(power|electric|utility) (line|wire)s? (down|fallen|sparking)|(downed|fallen|sparking) (power |electric |utility )?(line|wire)s?|wires? (are )?down/i, 'wire', 2],
     [/catch ?basin|storm drain|clogged drain|drain (clog|block)/i, null, 'flooding', 3],
-    [/flood|standing water|water (in|on|over) (the )?(street|road|basement|home)|sewer back|sewage back|under water|water main break/i,
+    [/flood(?! ?light)|standing water|water (in|on|over) (the )?(street|road|basement|home)|sewer back|sewage back|sewer\b.*\bbackup|under water|water main break/i,
      /(street|road|basement|home|house|school) (is )?(completely )?flood(ed|ing)|flooding (in|on) (the )?(street|road|basement|home)|water over the road/i, 'flooding', 2],
     [/sink ?hole|cave[- ]?in|road (collapse|closed|blocked|hazard)|(road|street|storm) debris|debris (in|on|blocking) (the )?(road|street)|blocking (the )?(street|road)|traffic signal (out|down|not working|knockdown)|signal out/i, null, 'road', 2],
     [/(tree|limb|branch)e?s? (down|fallen|fell|blocking)|(down(ed)?|fallen) (tree|limb|branch)|tree emergency|hanging limb|has fallen|fallen down|will fall|fallen tree/i,
@@ -865,7 +948,7 @@ var EMO = (function () {
     [/\bic(e|y)\b|snow|unplowed|unshoveled|unshovelled|sleet|slippery/i, null, 'ice', 3]
   ];
   // Never incidents, even when a keyword matches ("Smoke Free Area", "Lost Item in Storm Drain").
-  var SCF_SKIP = /lost item|fire escape|exhaust|food vendor|smok(ing|e[- ]free)|vaping|planting|graffiti|noise|parking|pruning|tree trim|inspection only|information only/i;
+  var SCF_SKIP = /lost item|fire escape|exhaust|food vendor|air quality|swimming pool|container - over|mosquito|smok(ing|e[- ]free)|vaping|planting|graffiti|noise|parking|pruning|tree trim|inspection only|information only/i;
   function scfKind(title, desc) {
     var i;
     if (SCF_SKIP.test(title)) return null;
@@ -935,19 +1018,20 @@ var EMO = (function () {
     { key: 'sea', name: 'Seattle Fire 911', counties: ['53033'], tz: 'America/Los_Angeles', is911: true,
       host: 'data.seattle.gov', id: 'kzjm-xkqj', time: 'datetime', lat: 'latitude', lon: 'longitude', idf: 'incident_number',
       title: ['type'], addr: 'address' },
-    { key: 'bos', name: 'Boston 311', counties: ['25025'], tz: 'America/New_York', ckan: true,
+    { key: 'bos', name: 'Boston 311', counties: ['25025'], tz: 'UTC', ckan: true,   // open_date is stored as UTC text
       host: 'data.boston.gov', id: '254adca6-64ab-4c5c-9fc0-a6da622be185', time: 'open_date', lat: 'latitude', lon: 'longitude', idf: 'case_id',
       title: ['service_name', 'case_topic'], addr: 'full_address', status: 'case_status' }
   ];
   var CITY_KW = ['FLOOD', 'WATER ON', 'WATER IN', 'BASEMENT', 'SEWER', 'SEWAGE', 'CAVE', 'SINK', 'TREE EMERG', 'FALLEN', 'FALL', 'LIMB', 'BRANCH',
     'WIRE', 'POWER', 'GAS', 'ODOR', 'SMOKE', 'FIRE', 'SNOW', 'ICY', 'SIGNAL', 'DEBRIS', 'STANDING WATER', 'WATER MAIN', 'DRAIN', 'CATCH BASIN',
     'OUTAGE', 'HAZARD', 'RESCUE', 'ELECTRICAL', 'HAZMAT', 'FUEL', 'WATER JOB'];
+  var CITY_NOT = ['GARBAGE', 'LITTER', 'GRAFFITI', 'PARKING', 'NOISE', 'ENCAMPMENT', 'RECYCL', 'DUMPING', 'ABANDONED', 'SWEEP', 'CLEANING'];
   // 911 dispatch types (Seattle Fire). Medical calls are left out: they are private and not a planning signal.
   function fire911Kind(t) {
     if (/alarm|illegal burn|test|false/i.test(t)) return null;
-    if (/rescue (water|extrication|rope|trench|confined|swift)|water rescue/i.test(t)) return ['help', 1];
+    if (/rescue (water|extrication|rope|trench|confined|swift|heavy)|water rescue/i.test(t)) return ['help', 1];
     if (/water job|flood/i.test(t)) return ['flooding', /major/i.test(t) ? 1 : 2];
-    if (/gas leak|hazmat|fire in (building|single|residen|commercial|high)|house fire|brush fire|wildland|w\/exp|major/i.test(t)) return ['fire', 1];
+    if (/gas leak|(^|[^-])\bhazmat|hazardous mat|fire in (a )?(building|single|residen|commercial|high)|house fire|brush fire|wildland|w\/exp|major/i.test(t)) return ['fire', 1];
     if (/natural gas|fuel spill|fire/i.test(t)) return ['fire', 2];   // gas odor, rubbish/dumpster/car fires
     if (/wires? down|electrical problem|transformer/i.test(t)) return ['wire', 2];
     if (/tree/i.test(t)) return ['tree', 3];
@@ -978,18 +1062,27 @@ var EMO = (function () {
       var guess = ms - offsetAt(ms);
       return new Date(ms - offsetAt(guess)).toISOString();
     }
-    var like = [];
+    var like = [], skip = [];
     f.title.forEach(function (fld) { CITY_KW.forEach(function (k) {
       like.push(f.ckan ? 'upper("' + fld + '") LIKE \'%' + k + '%\'' : 'upper(' + fld + ") like '%" + k + "%'");
     }); });
-    var req;
+    // Very common everyday categories ("garbage_and_debris", "Litter & Debris") would fill the 1,000-row
+    // limit and crowd out real incidents, so they are left out on the server. A NULL field never excludes.
+    f.title.forEach(function (fld) {
+      var q = f.ckan ? '"' + fld + '"' : fld;
+      skip.push('(' + q + ' IS NULL OR NOT (' + CITY_NOT.map(function (k) {
+        return (f.ckan ? 'upper(' + q + ") LIKE '%" : 'upper(' + q + ") like '%") + k + "%'"; }).join(' OR ') + '))');
+    });
+    var req, cols = [f.time, f.lat, f.lon, f.idf, f.addr, f.status].concat(f.title).filter(function (v, i, arr) { return v && arr.indexOf(v) === i; });
+    var limit = hours >= 168 ? 5000 : 1000;          // only the columns used, so a bigger limit stays small
     if (f.ckan) {
-      var sql = 'SELECT * FROM "' + f.id + '" WHERE "' + f.time + '" > \'' + since + '\' AND "' + f.lat + '" IS NOT NULL AND (' + like.join(' OR ') +
-                ') ORDER BY "' + f.time + '" DESC LIMIT 1000';
+      var sql = 'SELECT ' + cols.map(function (k) { return '"' + k + '"'; }).join(', ') + ' FROM "' + f.id + '" WHERE "' + f.time + '" > \'' + since + '\' AND "' + f.lat + '" IS NOT NULL AND (' + like.join(' OR ') +
+                ') AND ' + skip.join(' AND ') + ' ORDER BY "' + f.time + '" DESC LIMIT ' + limit;
       req = getJSON('https://' + f.host + '/api/3/action/datastore_search_sql?sql=' + encodeURIComponent(sql)).then(function (j) { return (j.result && j.result.records) || []; });
     } else {
-      var where = f.time + " > '" + since.replace(' ', 'T') + "' AND " + f.lat + ' IS NOT NULL AND (' + like.join(' OR ') + ')' + (f.where ? ' AND ' + f.where : '');
-      req = getJSON('https://' + f.host + '/resource/' + f.id + '.json?' + qs({ $where: where, $order: f.time + ' DESC', $limit: 1000 }));
+      var where = f.time + " > '" + since.replace(' ', 'T') + "' AND " + f.lat + ' IS NOT NULL AND (' + like.join(' OR ') + ') AND ' + skip.join(' AND ') +
+                  (f.where ? ' AND ' + f.where : '');
+      req = getJSON('https://' + f.host + '/resource/' + f.id + '.json?' + qs({ $select: cols.join(','), $where: where, $order: f.time + ' DESC', $limit: limit }));
     }
     return req.then(function (rows) {
       var out = [];
@@ -1126,7 +1219,8 @@ var EMO = (function () {
     return Promise.all([
       // Latest reading in GMT so its exact time is known in any browser time zone.
       getJSON(x({ product: 'water_level', date: 'latest', time_zone: 'gmt' })),
-      getJSON(x({ product: 'predictions', interval: 'hilo', begin_date: ymd(now), end_date: ymd(later) })),
+      // Start a day early: a browser zone ahead of the station must not skip today's highs (only highs after the latest reading are used).
+      getJSON(x({ product: 'predictions', interval: 'hilo', begin_date: ymd(new Date(now.getTime() - 86400000)), end_date: ymd(later) })),
       getJSON(NOAA + '/mdapi/prod/webapi/stations/' + STATION + '/floodlevels.json?units=english'),
       getJSON(NOAA + '/mdapi/prod/webapi/stations/' + STATION + '/datums.json?units=english')
     ]).then(function (res) {
@@ -1294,7 +1388,8 @@ var EMO = (function () {
         var c = center(r);
         if (!c) return;
         for (var i = 0; i < subs.length; i++) {
-          if (subs[i].geometry.rings.some(function (ring) { return inRing(c, ring); })) { r.town = subs[i].attributes.BASENAME; n++; return; }
+          // Even-odd test over all rings, so a point inside a hole (an enclave town) is not inside the outer town.
+        if (subs[i].geometry.rings.reduce(function (inside, ring) { return inRing(c, ring) ? !inside : inside; }, false)) { r.town = subs[i].attributes.BASENAME; n++; return; }
         }
       });
       return n;
@@ -1463,14 +1558,16 @@ var EMO = (function () {
   function toMph(v, uom) { return /km_h/.test(uom || '') ? v / 1.609344 : /m_s/.test(uom || '') ? v * 2.236936 : v; }
   function toIn(v, uom) { return /mm/.test(uom || '') ? v / 25.4 : /:m$/.test(uom || '') ? v * 39.3701 : v; }
 
-  // Values of one gridpoint layer that start within [from, to).
+  // Values of one gridpoint layer whose interval overlaps [from, to). A value already in effect counts
+  // from `from`; `frac` is the share of its interval inside the window (used to prorate amounts).
   function series(layer, from, to) {
-    return ((layer && layer.values) || []).map(function (x) { var iv = interval(x.validTime); return { t: iv[0], v: x.value }; })
-      .filter(function (x) { return x.v != null && x.t >= from && x.t < to; });
+    return ((layer && layer.values) || []).map(function (x) { var iv = interval(x.validTime); return { s: iv[0], e: iv[1], v: x.value }; })
+      .filter(function (x) { return x.v != null && isFinite(x.s) && x.e > from && x.s < to; })
+      .map(function (x) { return { t: Math.max(x.s, from), v: x.v, frac: (Math.min(x.e, to) - Math.max(x.s, from)) / ((x.e - x.s) || 1) }; });
   }
   function maxOf(s) { return s.reduce(function (m, x) { return !m || x.v > m.v ? x : m; }, null); }
   function minOf(s) { return s.reduce(function (m, x) { return !m || x.v < m.v ? x : m; }, null); }
-  function sumOf(s) { return s.reduce(function (n, x) { return n + x.v; }, 0); }
+  function sumOf(s) { return s.reduce(function (n, x) { return n + x.v * (x.frac == null ? 1 : x.frac); }, 0); }
 
   // NWS gridpoint forecast for the middle of the loaded towns, next 48 hours.
   // NWS point lookup: the area's time zone and its forecast grid. Sets the page's time zone.
@@ -1490,7 +1587,7 @@ var EMO = (function () {
       if (!url) throw new Error('no forecast grid');
       return getJSON(url);
     }).then(function (g) {
-      var p = g.properties || {}, now = Date.now(), to = now + 48 * 3600000, from = now - 3600000;
+      var p = g.properties || {}, now = Date.now(), to = now + 48 * 3600000, from = now;
       var hi = maxOf(series(p.heatIndex, from, to)) || null, hiSrc = 'heat index';
       if (!hi) { hi = maxOf(series(p.apparentTemperature, from, to)); hiSrc = 'feels-like temperature'; }
       var chill = minOf(series(p.windChill, from, to));
@@ -1662,7 +1759,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     box.textContent = '';
     box.appendChild(el('span', { 'class': 'muted' }, 'Loading counties…'));
     $('areaNote').textContent = stateFips === '25'
-      ? 'Massachusetts uses block groups (MassGIS EJ 2020), the finest level.'
+      ? 'Massachusetts uses MassGIS EJ 2020 block groups. That layer has only Environmental Justice block groups, so other block groups are not shown.'
       : 'Uses census tracts (CDC SVI). Massachusetts uses smaller block groups.';
     return EMO.loadCounties(stateFips).then(function (list) {
       if (mine !== countySeq) return;
@@ -1697,7 +1794,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   var countiesReady = showCounties(savedArea.state, savedArea.counties);
 
   // ---------- resident reports (kept in this browser, per area) ----------
-  var REPORTS = [], REPORT_COUNTS = null;
+  var REPORTS = [], REPORT_COUNTS = null, SNAP_REPORTS = false;
   LS.reports = 'emo.reports.v1';
   EMO.REPORT_TYPES.forEach(function (t) { $('repType').appendChild(el('option', { value: t[0] }, t[1])); });
   $('repType').addEventListener('change', function () { $('repSev').value = String(EMO.reportType(this.value)[2]); });
@@ -1705,11 +1802,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
 
   function areaKey() { return DATA && DATA.area ? DATA.area.state + ':' + DATA.area.counties.slice().sort().join(',') : ''; }
   function loadReports(fromSnap) {
+    SNAP_REPORTS = Array.isArray(fromSnap);           // a snapshot's reports are its own: never written over the saved ones
     var all = recall(LS.reports) || {};
     REPORTS = Array.isArray(fromSnap) ? fromSnap : (all[areaKey()] || []).filter(function (r) { return !r.live; });
     reportsChanged(false);
   }
   function saveReports() {
+    if (SNAP_REPORTS) return;                         // editing an opened snapshot must not overwrite this area's saved reports
     var all = recall(LS.reports) || {};
     all[areaKey()] = REPORTS.filter(function (r) { return !r.live; });   // live reports are re-fetched, not stored
     store(LS.reports, all);
@@ -1810,7 +1909,12 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   document.addEventListener('visibilitychange', function () {
     if (LIVE_WATCH && document.visibilityState === 'visible') refreshLiveReports(true);
   });
-  ['liveNws', 'liveScf', 'liveCity', 'liveFire', 'liveQuake', 'liveHours'].forEach(function (id) { $(id).addEventListener('change', refreshLiveReports); });
+  ['liveNws', 'liveScf', 'liveCity', 'liveFire', 'liveQuake', 'liveHours'].forEach(function (id) {
+    $(id).addEventListener('change', function () {
+      if (LIVE_WATCH) refreshLiveReports();          // paused (snapshot open): do not fetch, just redraw the summaries
+      else if (DATA) render();
+    });
+  });
   // Re-match reports to areas, redraw markers and queue, and re-plan.
   function reportsChanged(save) {
     if (!DATA) return;
@@ -1845,7 +1949,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   $('repAdd').addEventListener('click', function () { if (DATA) setAdding(!VIEW.adding); });
   $('repImport').addEventListener('click', function () { $('repFile').click(); });
   $('repFile').addEventListener('change', function () {
-    var f = this.files && this.files[0]; if (!f || !DATA) return;
+    var f = this.files && this.files[0];
+    this.value = '';                                  // so the same file can be picked again
+    if (!f || !DATA) return;
     var rd = new FileReader();
     rd.onload = function () {
       try {
@@ -1856,7 +1962,6 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
       } catch (e) { setStatus('reports', 'err', 'Could not import reports: ' + e.message); }
     };
     rd.readAsText(f);
-    this.value = '';
   });
   $('repExport').addEventListener('click', function () {
     if (!REPORTS.length) return;
@@ -1926,12 +2031,16 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     li.appendChild(el('span', null, text));
   }
   function clearStatus() { $('status').textContent = ''; statusRows = {}; }
+  var showStatus = setStatus;                         // loadLive shadows setStatus with a guarded version
 
   // ---------- loading ----------
-  var zoneRun = 0;
+  var zoneRun = 0, loadSeq = 0, SNAP_OPENED = false;
   function loadLive() {
+    // A load that was superseded (a newer load, or a snapshot opened meanwhile) must not write status lines.
+    var setStatus = function (id, state, text) { if (mine === undefined || mine === loadSeq) showStatus(id, state, text); };
     var stF = $('state').value, counties = selectedCounties(), info = EMO.stateInfo(stF);
     if (!counties.length) { clearStatus(); setStatus('area', 'err', 'Pick at least one county.'); return Promise.resolve(); }
+    var mine = ++loadSeq;                             // a snapshot opened meanwhile, or a newer load, wins
     store(LS.area, { state: stF, counties: counties });
 
     $('load').disabled = true;
@@ -1959,7 +2068,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     var rowsP = EMO.loadArea(stF, counties).then(function (rows) {
       if (!rows.length) throw new Error('no census data for these counties');
       data.rows = rows;
-      setStatus('area', 'ok', (stF === '25' ? 'MassGIS EJ 2020: ' : 'CDC SVI: ') + fmt(rows.length) + ' ' +
+      setStatus('area', 'ok', (stF === '25' ? 'MassGIS EJ 2020 (EJ block groups only): ' : 'CDC SVI: ') + fmt(rows.length) + ' ' +
         (rows[0].unit === 'tract' ? 'tracts' : 'block groups') + ' in ' + counties.length + ' count' + (counties.length > 1 ? 'ies' : 'y') +
         (rows.length > 2500 ? ' — a big area; flood zones will take several minutes' : ''));
       var pt = rowsCenter(rows);
@@ -1981,16 +2090,18 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
       setStatus('lang', 'run', 'Languages…');
       var langP = EMO.loadLanguages(rows).then(function (n) { setStatus('lang', 'ok', 'Languages (ACS C16001): ' + fmt(n) + ' of ' + fmt(rows.length) + ' matched'); },
         function (e) { setStatus('lang', 'err', 'Languages failed: ' + e.message); });
-      var liveP = pointP.then(function (p) { return loadLiveSources(rows, null, p, stF); }).then(function (live) { data.live = live; });
+      var liveP = pointP.then(function (p) { return loadLiveSources(rows, null, p, stF, function () { return mine === loadSeq; }); }).then(function (live) { data.live = live; });
       var shapeP = EMO.loadCountyShapes(counties).then(function (s) { data.countyShapes = s; }, function () { data.countyShapes = []; });
       return Promise.all([tideP, sviP, townP, langP, liveP, shapeP]);
     }, function (e) { setStatus('area', 'err', 'Area data failed: ' + e.message); throw e; });
 
     return Promise.all([rowsP, nwsP, evP]).then(function () {
+      if (mine !== loadSeq) return;                   // superseded (a snapshot was opened or another load started)
       useData(data, false);
       startZones();
       if (!store(LS.snap, data)) setStatus('save', 'err', 'Too big to auto-save. Use "Save snapshot".');
     }, function () {
+      if (mine !== loadSeq) return;
       var snap = recall(LS.snap);
       if (snap && snap.rows && snap.rows.length) {
         useData(snap, true);
@@ -2098,16 +2209,18 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   }
 
   // Forecast, river gauges, air quality and power outages. A failed source keeps its last good value.
-  function loadLiveSources(rows, prev, point, stateFips) {
+  function loadLiveSources(rows, prev, point, stateFips, current) {
     prev = prev || {};
     var c = rowsCenter(rows), box = rowsBox(rows, 0.05);
     var viaHelper = typeof location !== 'undefined' && /^https?:$/.test(location.protocol);
     var live = { at: Date.now(), forecast: prev.forecast || null, gauges: prev.gauges || null, air: prev.air || null,
                  outages: prev.outages || null, errors: {} };
+    // current() is false once the area changed: then this run's status lines are not shown.
+    function show(id, state, text) { if (!current || current()) setStatus(id, state, text); }
     function src(id, label, p, key, ok) {
-      setStatus(id, 'run', label + '…');
-      return p.then(function (v) { live[key] = v; setStatus(id, 'ok', ok(v)); },
-        function (e) { live.errors[key] = e.message; setStatus(id, 'err', label + ': ' + e.message + (live[key] ? ' (showing the last good data)' : '')); });
+      show(id, 'run', label + '…');
+      return p.then(function (v) { live[key] = v; show(id, 'ok', ok(v)); },
+        function (e) { live.errors[key] = e.message; show(id, 'err', label + ': ' + e.message + (live[key] ? ' (showing the last good data)' : '')); });
     }
     return Promise.all([
       src('fc', 'NWS forecast', EMO.loadForecast(c, point), 'forecast', function (f) {
@@ -2413,10 +2526,13 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     var st = DATA && DATA.area ? EMO.stateInfo(DATA.area.state) : null;
     $('sumArea').textContent = DATA && DATA.area ? ((DATA.area.names || []).join(', ') || DATA.area.counties.length + ' counties') + (st ? ', ' + st.abbr : '') : '';
     $('sumScenario').textContent = p ? firstSentence($('alert').textContent) : '';
-    var on = ['liveNws', 'liveScf', 'liveCity', 'liveFire', 'liveQuake'].filter(function (id) { return $(id).checked; }).length;
+    // Count the sources that can actually run here: the city 311/911 source exists only for some counties.
+    var hasCity = !!(DATA && DATA.area && EMO.cityFeedsFor(DATA.area.counties).length);
+    var ids = ['liveNws', 'liveScf', 'liveFire', 'liveQuake'].concat(hasCity ? ['liveCity'] : []);
+    var on = ids.filter(function (id) { return $(id).checked; }).length;
     var live = REPORTS.filter(function (x) { return x.live; }).length, own = REPORTS.length - live;
     var opt = $('liveHours'), label = { '6': '6 h', '24': '24 h', '72': '3 days', '168': '7 days', '720': '30 days', '2160': '90 days' }[opt.value] || '';
-    $('sumLive').textContent = on ? fmt(live) + (live === 1 ? ' report' : ' reports') + ' · ' + on + ' of 5 sources · ' + label : 'off';
+    $('sumLive').textContent = on ? fmt(live) + (live === 1 ? ' report' : ' reports') + ' · ' + on + ' of ' + ids.length + ' sources · ' + label : 'off';
     $('sumAdd').textContent = own ? fmt(own) + ' of yours' : 'none yet';
   }
 
@@ -2473,6 +2589,15 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
       a.className = 'alert off';
       a.textContent = 'No coastal flooding expected — tide ' + p.tide.toFixed(1) + ' ft is below minor flood stage' +
         (minor ? ' (' + minor.ft.toFixed(1) + ' ft).' : '.');
+    }
+    // Flood scenarios depend on FEMA zones. Areas whose zones are still loading or failed are not counted,
+    // so say so instead of letting "0 exposed" read as "nobody is at risk".
+    var unk = p.totals.unknown;
+    if (p.floodType && unk && !(sc.kind === 'tide' && !p.stage) && !(sc.kind === 'live' && !sc.active)) {
+      var notes = DATA && DATA.notes || {}, finished = notes.zoneFailed != null || !LIVE_WATCH, failed = notes.zoneFailed > 0;   // a snapshot loads no zones
+      a.textContent += ' Flood zones are ' + (finished ? 'missing' : 'still loading') + ' for ' + fmt(unk) + ' ' + unitWord(unk) +
+        ', so they are not counted' + (failed ? ' (the FEMA lookup failed; load the area again to retry).' : finished ? '.' : ' yet.');
+      if (a.className === 'alert off') a.className = 'alert wait';
     }
   }
 
@@ -3004,8 +3129,9 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   });
   $('saveSnap').addEventListener('click', function () {
     if (!DATA) return;
-    DATA.reports = REPORTS;
-    download('who-gets-missed-snapshot-' + DATA.loadedAt.slice(0, 10) + '.json', JSON.stringify(DATA), 'application/json');
+    // A copy: the live data object keeps no frozen report list (the auto-save would store it).
+    var snap = Object.assign({}, DATA, { reports: REPORTS });
+    download('who-gets-missed-snapshot-' + DATA.loadedAt.slice(0, 10) + '.json', JSON.stringify(snap), 'application/json');
   });
   $('openSnap').addEventListener('click', function () { $('snapFile').click(); });
   $('snapFile').addEventListener('change', function () {
@@ -3017,6 +3143,11 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
         if (!d || !Array.isArray(d.rows) || !d.rows.length) throw new Error('not a snapshot');
         d.events = Array.isArray(d.events) ? d.events : [];
         d.alerts = Array.isArray(d.alerts) ? d.alerts : [];
+        d.notes = d.notes || {};
+        loadSeq++;                                    // a live load still running must not replace this file
+        SNAP_OPENED = true;                           // and the automatic first load must not start after it
+        clearStatus();
+        setStatus('snap', 'ok', 'Opened a snapshot saved ' + (d.loadedAt ? new Date(d.loadedAt).toLocaleString() : 'earlier') + '. Press "Load live data" for current data.');
         useData(d, true);
       } catch (e) { setStatus('snap', 'err', 'Could not open snapshot: ' + e.message); }
     };
@@ -3056,7 +3187,7 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
     var stF = DATA.area ? DATA.area.state : '25', info = EMO.stateInfo(stF);
     Promise.all([DATA.station ? EMO.loadTide(DATA.station).then(null, function (e) { return { err: e }; }) : Promise.resolve(null),
                  EMO.loadAlerts(stF).then(null, function () { return null; }),
-                 loadLiveSources(DATA.rows, DATA.live, DATA.point, stF)]).then(function (res) {
+                 loadLiveSources(DATA.rows, DATA.live, DATA.point, stF, function () { return D0 === DATA; })]).then(function (res) {
       if (D0 !== DATA) return;                       // the area changed while this ran: drop the old results
       var t = res[0], al = res[1];
       DATA.live = res[2];
@@ -3117,7 +3248,8 @@ if (typeof module !== 'undefined' && module.exports) module.exports = EMO;
   $('load').addEventListener('click', loadAndSchedule);
 
   // The first load waits for the county list, so the saved counties are ticked before it reads them.
-  countiesReady.then(loadAndSchedule);
+  // If a snapshot was opened while the list was loading, it stays; "Load live data" still works.
+  countiesReady.then(function () { if (!SNAP_OPENED) loadAndSchedule(); });
 })();
 </script>
 </body>
