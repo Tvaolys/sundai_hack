@@ -7,8 +7,7 @@
   "allowedTools": ["read", "grep", "glob", "code"],
   "resources": [
     "file://.kiro/steering/**/*.md",
-    "file://README.md",
-    "file://docs/HACKACHUSETTS-Rules.md"
+    "file://README.md"
   ],
   "toolsSettings": {
     "write": {

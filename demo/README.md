@@ -1,7 +1,6 @@
 # Who Gets Missed — Emergency Outreach planner
 
-Idea #4 from the Hackachusetts research report (`report/hackachusetts_research.tex`,
-`30_candidates/n2-emready.md`), built on **live public data** for **any US county**.
+Built on **live public data** for **any US county**.
 
 An emergency is coming — a flood, a heat wave, a winter storm, a power outage. Door-knock teams can only
 reach so many homes. The tool shows **who to reach first, in which languages, and who gets missed**

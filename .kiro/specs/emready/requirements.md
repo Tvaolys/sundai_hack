@@ -1,6 +1,6 @@
 # Requirements: emready — "Who gets missed" emergency outreach list
 
-Source research: `30_candidates/n2-emready.md`, `40_shortlist.md` (#4), `report/hackachusetts_research.tex` (card #4).
+Source: team research shortlist (idea #4, "who gets missed").
 Track: Civic Action — Stronger Community Emergency Readiness.
 
 ## User story

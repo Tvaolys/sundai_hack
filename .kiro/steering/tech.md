@@ -7,8 +7,7 @@ Python 3.12 + FastAPI + uvicorn backend. Frontend: plain HTML/CSS/JS in `app/sta
 ## Layout
 app/ = code, app/static/ = UI, scripts/ = one-off data fetchers, data/ = cached JSON
 datasets & fixtures, tests/ = tests.
-Planning research (00_INDEX.md, 10_seeds.md, 20_findings/, 30_candidates/, 40_shortlist.md,
-report/) is reference material. Do not edit it while implementing.
+demo/ = the "Who Gets Missed" app (single-file `index.html` + optional `serve.js` helper).
 
 ## Commands
 - Install: `python3 -m venv .venv && .venv/bin/pip install -r requirements.txt`
