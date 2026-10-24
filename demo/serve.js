@@ -24,10 +24,12 @@ async function sendOutages(res) {
     if (!cache || Date.now() - cache.at > 60000) {
       const ctl = new AbortController();
       const timer = setTimeout(() => ctl.abort(), 20000);
-      const r = await fetch(MEMA, { signal: ctl.signal });
-      clearTimeout(timer);
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      cache = { at: Date.now(), body: await r.text() };
+      try {
+        const r = await fetch(MEMA, { signal: ctl.signal });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const body = await r.text();          // the 20 s limit covers the body too
+        cache = { at: Date.now(), body };
+      } finally { clearTimeout(timer); }
     }
     res.writeHead(200, { 'Content-Type': 'application/geo+json', 'Cache-Control': 'no-store' });
     res.end(cache.body);
@@ -44,7 +46,8 @@ http.createServer((req, res) => {
   catch (e) { res.writeHead(400); return res.end(); }
   if (rel === '/mema/outages.geojson') return sendOutages(res);
   const file = path.resolve(ROOT, '.' + (rel === '/' ? '/index.html' : rel));
-  if (!file.startsWith(ROOT + path.sep)) { res.writeHead(403); return res.end(); }
+  // A NUL byte would make fs throw synchronously and stop the server, so refuse it with the escapes.
+  if (rel.includes('\0') || !file.startsWith(ROOT + path.sep)) { res.writeHead(403); return res.end(); }
   fs.readFile(file, (err, data) => {
     if (err) { res.writeHead(404, { 'Content-Type': 'text/plain' }); return res.end('Not found'); }
     res.writeHead(200, { 'Content-Type': TYPES[path.extname(file).toLowerCase()] || 'application/octet-stream' });
