@@ -64,17 +64,17 @@ Tasks marked HUMAN are not dispatched to executors.
   - Done when: all routes in design.md work using T1–T7 modules; data loaded once at startup; unknown neighborhood/cluster → 404; TestClient tests pass offline against fixture data (path overridable by env var).
   - Depends on: T1, T3, T4, T6, T7
 
-- [ ] T9: SVG map module
+- [x] T9: SVG map module
   - Files: app/static/map.js, tests/test_static_map.py
   - Done when: `drawMap(svg, data)` projects lon/lat to the SVG viewBox (equirectangular with cos(lat) scaling), draws block-group outlines and cluster markers (square = has late, circle = all on time, size by count) with a text legend; no external URLs; test asserts no `http` URLs and that the legend text exists.
   - Depends on: T8
 
-- [ ] T10: Page + styling + wiring
+- [x] T10: Page + styling + wiring
   - Files: app/static/index.html, app/static/style.css, app/static/app.js, tests/test_static.py
   - Done when: page at `/` implements the design.md layout and requirements 16–19; uses map.js; clusters have a table equivalent; test asserts caveat text present, no CDN URLs, `border-radius` only ever 0, every `<th>` has `scope`.
   - Depends on: T8, T9
 
-- [ ] T11: README + demo flow test
+- [x] T11: README + demo flow test
   - Files: README.md, tests/test_demo_flow.py
   - Done when: README has install / run / test / data-refresh steps (incl. the manual browser download), data sources + licenses, the 60 s demo script, and the no-auth note; demo-flow test runs neighborhoods → neighborhood → clusters → cluster rows via TestClient.
   - Depends on: T8
